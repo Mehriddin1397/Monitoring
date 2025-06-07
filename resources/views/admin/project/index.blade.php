@@ -117,8 +117,14 @@
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq fayli
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center"> Berilgan sanasi </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Topshirish sanasi </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
+                                            Biriktirilgan xodimlar
+                                        </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
+                                            Berilgan sanasi
+                                        </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Topshirish sanasi
+                                        </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq muddati
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq holati
@@ -127,72 +133,101 @@
                                     </tr>
                                     </thead>
                                     <tbody style="background-color: #e7e7f3">
-{{--                                    @foreach($projects as $project)--}}
-{{--                                        @php--}}
-{{--                                            $deadline = \Carbon\Carbon::parse($project->deadline);--}}
-{{--                                            $daysLeft = \Carbon\Carbon::today()->diffInDays($deadline, false);--}}
-{{--                                            $color = 'text-success';--}}
+                                    @foreach($tasks as $task)
+                                        @php
+                                            $deadline = \Carbon\Carbon::parse($task->end_date);
+                                            $daysLeft = \Carbon\Carbon::today()->diffInDays($deadline, false);
+                                            $color = 'text-success';
 
-{{--                                            if ($daysLeft <= 5) $color = 'text-danger';--}}
-{{--                                            elseif ($daysLeft <= 16) $color = 'text-warning';--}}
-{{--                                        @endphp--}}
-{{--                                        <tr class="single-item">--}}
-{{--                                            <td> {{ $loop->iteration }}</td>--}}
-{{--                                            <td>--}}
-{{--                                                {{ $project->name }}--}}
-{{--                                            </td>--}}
-{{--                                            @php--}}
-{{--                                                $pulParticipants = $project->participants->where('type', 'pul');--}}
-{{--                                                $freeParticipants = $project->participants->where('type', 'free');--}}
-{{--                                            @endphp--}}
-{{--                                            <td>--}}
-{{--                                                <a href="{{ route('projects.file', ['id' => $project->id, 'type' => 'buyruq']) }}">--}}
-{{--                                                    Hujjatini ochish--}}
-{{--                                                </a>--}}
+                                            if ($daysLeft <= 5) $color = 'text-danger';
+                                            elseif ($daysLeft <= 16) $color = 'text-warning';
+                                        @endphp
+                                        <tr class="single-item">
+                                            <td> {{ $loop->iteration }}</td>
+                                            <td>
+                                                {{ $task->title }}
+                                            </td>
+                                            <td>
+                                                {{$task->creator->name ?? '-' }}
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}">
+                                                    Hujjatini ochish
+                                                </a>
 
 
-{{--                                            </td>--}}
-{{--                                            <td>--}}
-{{--                                                {{$project->pro_bos_name}}--}}
-{{--                                            </td>--}}
-{{--                                            <td>--}}
-{{--                                                @foreach($pulParticipants as $pul)--}}
-{{--                                                    {{$pul->name}} <br>--}}
-{{--                                                @endforeach--}}
-{{--                                            </td>--}}
+                                            </td>
+                                            <td>
+                                                @foreach($task->assignedUsers as $user)
+                                                    <span class="badge bg-primary">{{ $user->name }}</span> <br>
+                                                @endforeach
+                                            </td>
 
-{{--                                            <td>--}}
-{{--                                                {{$project->pro_moliya}}--}}
-{{--                                            </td>--}}
-{{--                                            <td>--}}
-{{--                                                {{$project->start_date}}--}}
-{{--                                            </td>--}}
-{{--                                            <td>--}}
-{{--                                                <p class="{{ $color }}">--}}
-{{--                                                    {{$project->deadline}}--}}
-{{--                                                </p>--}}
-{{--                                            </td>--}}
+                                            <td>
+                                                {{$task->start_date}}
+                                            </td>
+                                            <td>
 
-{{--                                            <td>--}}
-{{--                                                <div class="hstack gap-2 justify-content-end">--}}
-{{--                                                    <a href="javascript:void(0)" data-bs-toggle="offcanvas"--}}
-{{--                                                       data-bs-target="#tasksDetailsOffcanvasEdit{{ $project->id }}"--}}
-{{--                                                       class="avatar-text avatar-md">--}}
-{{--                                                        <i class="feather feather-edit-3"></i>--}}
-{{--                                                    </a>--}}
-{{--                                                    <form action="{{ route('projects.destroy', $project->id) }}"--}}
-{{--                                                          method="POST">--}}
-{{--                                                        @csrf--}}
-{{--                                                        @method('DELETE')--}}
-{{--                                                        <button type="submit" class="avatar-text avatar-md"--}}
-{{--                                                                onclick="return confirm('Are you sure?')">--}}
-{{--                                                            <i class="feather feather-trash-2"></i>--}}
-{{--                                                        </button>--}}
-{{--                                                    </form>--}}
-{{--                                                </div>--}}
-{{--                                            </td>--}}
-{{--                                        </tr>--}}
-{{--                                    @endforeach--}}
+                                                {{$task->end_date}}
+                                            </td>
+                                            <td>
+                                                @if($task->status == 'bajarildi')
+                                                    <p class="text-success">
+                                                        Bajarildi
+                                                @else
+                                                    <p class="{{ $color }}">
+                                                        {{$daysLeft}} - kun
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if(auth()->user()->role == 'xodim')
+                                                    {{$task->status}}
+                                                @else
+                                                    <form action="{{ route('updateStatus', $task->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('POST')
+
+                                                        <select name="status" class="form-control" required
+                                                                onchange="this.form.submit()">
+                                                            @foreach(['yangi', 'bajarilmoqda', 'bajarildi'] as $status)
+                                                                <option
+                                                                    value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
+                                                                    {{ $status }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </form>
+
+                                                @endif
+
+                                            </td>
+                                            <td>
+
+                                                <div class="hstack gap-2 justify-content-end">
+                                                    @if(auth()->user()->role == 'xodim')
+
+                                                    @elseif(auth()->user()->id == $task->created_by ?? auth()->user()->role == 'admin')
+                                                        <a href="javascript:void(0)" data-bs-toggle="offcanvas"
+                                                           data-bs-target="#tasksDetailsOffcanvasEdit{{ $task->id }}"
+                                                           class="avatar-text avatar-md">
+                                                            <i class="feather feather-edit-3"></i>
+                                                        </a>
+                                                    @endif
+                                                    @if(auth()->user()->role == 'admin')
+                                                        <form action="{{ route('tasks.destroy', $task->id) }}"
+                                                              method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="avatar-text avatar-md"
+                                                                    onclick="return confirm('Are you sure?')">
+                                                                <i class="feather feather-trash-2"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                     </tbody>
                                     <style>
                                         .text-fonds {
@@ -224,7 +259,8 @@
         }
     </style>
 
-{{--        @include('components.admin.project.project-modal-create')--}}
-{{--        @include('components.admin.project.project-modal-edit', ['projects' => $projects])--}}
+
+    @include('components.admin.project.project-modal-create',['users' => $users])
+    @include('components.admin.project.project-modal-edit', ['tasks' => $tasks])
 
 @endsection

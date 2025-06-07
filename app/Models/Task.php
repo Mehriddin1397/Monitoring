@@ -6,6 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
+    protected $fillable = [
+        'title',
+        'document',
+        'start_date',
+        'end_date',
+        'created_by',
+        'assigned_users',
+        'status',
+    ];
 
 
     public function creator() {

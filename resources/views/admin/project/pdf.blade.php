@@ -17,7 +17,7 @@
                     </div>
 
                     <div class="mb-2">
-                        <a href="{{route('projects.index')}}" class="btn btn-primary mt-4">Ortga</a>
+                        <a href="{{route('tasks.index')}}" class="btn btn-primary mt-4">Ortga</a>
                     </div>
 
                 </div>

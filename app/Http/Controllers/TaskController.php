@@ -10,6 +10,7 @@ class TaskController extends Controller
 {
     public function index() {
         $user = auth()->user();
+        $users = User::all();
 
         if ($user->role === 'xodim') {
             $tasks = $user->assignedTasks()->with('creator')->get();
@@ -17,15 +18,14 @@ class TaskController extends Controller
             $tasks = Task::with('assignedUsers', 'creator')->get();
         }
 
-        return view('admin.project.index', compact('tasks'));
+
+
+        return view('admin.project.index', compact('tasks', 'users'));
     }
 
-    public function create() {
-        $employees = User::where('role', 'xodim')->get();
-        return view('tasks.create', compact('employees'));
-    }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'title' => 'required|string',
             'document' => 'nullable|file|mimes:pdf',
@@ -34,6 +34,7 @@ class TaskController extends Controller
             'assigned_users' => 'required|array',
         ]);
 
+
         $filePath = $request->file('document')?->store('documents');
 
         $task = Task::create([
@@ -41,7 +42,7 @@ class TaskController extends Controller
             'document' => $filePath,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
-            'created_by' => auth()->id(),
+            'created_by' => auth()->user()->id,
         ]);
 
         $task->assignedUsers()->attach($validated['assigned_users']);
@@ -49,7 +50,8 @@ class TaskController extends Controller
         return redirect()->route('tasks.index');
     }
 
-    public function updateStatus(Request $request, Task $task) {
+
+    public function updateStatus (Request $request, Task $task) {
         if (auth()->id() !== $task->created_by) {
             abort(403);
         }
@@ -57,6 +59,52 @@ class TaskController extends Controller
         $request->validate(['status' => 'required|in:yangi,bajarilmoqda,bajarildi']);
         $task->status = $request->status;
         $task->save();
+
+        return back();
+    }
+
+    public function update(Request $request, Task $task)
+    {
+        // Faqat o‘zining yaratgan topshirig‘ini tahrirlash huquqi
+        if (auth()->id() !== $task->created_by ?? auth()->role === 'admin') {
+            abort(403);
+        }
+
+        // Validatsiya
+        $validated = $request->validate([
+            'title' => 'required|string',
+            'document' => 'nullable|file|mimes:pdf',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'assigned_users' => 'required|array',
+        ]);
+
+        // Faylni yangilash (agar bo‘lsa)
+        if ($request->hasFile('document')) {
+            // Eski faylni o‘chirishingiz mumkin (ixtiyoriy)
+            if ($task->document && \Storage::exists($task->document)) {
+                \Storage::delete($task->document);
+            }
+
+            $filePath = $request->file('document')->store('documents');
+            $task->document = $filePath;
+        }
+
+        // Ma'lumotlarni yangilash
+        $task->update([
+            'title' => $validated['title'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+        ]);
+
+        // Assigned user-larni yangilash
+        $task->assignedUsers()->sync($validated['assigned_users']);
+
+        return redirect()->route('tasks.index')->with('success', 'Topshiriq yangilandi');
+    }
+
+    public function destroy(Task $task){
+        $task->delete();
 
         return back();
     }

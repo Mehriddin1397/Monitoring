@@ -9,76 +9,45 @@
             <span class="vr text-muted mx-4"></span>
             <a href="javascript:void(0);">
                 <h2 class="fs-14 fw-bold text-truncate-1-line">Slide </h2>
-                <span class="fs-12 fw-normal text-muted text-truncate-1-line">Loyiha yaratish</span>
+                <span class="fs-12 fw-normal text-muted text-truncate-1-line">Yaratish</span>
             </a>
         </div>
 
     </div>
     <div class="offcanvas-body">
-        <form action="{{ route('projects.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-4">
-                        <label class="form-label">Loyiha nomi:</label>
-                        <input type="text" name="name" class="form-control">
+                        <label class="form-label">Topshiriq nomi:</label>
+                        <input type="text" name="title" class="form-control">
                     </div>
                     <div class="form-group mb-4">
-                        <label class="form-label">Loyiha buyrug'i(pdf):</label>
-                        <input type="file" name="file_buyruq" class="form-control">
-                    </div>
-                    <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Loyiha boshlig'i F.I.SH:</label>
-                        <input type="text" name="pro_bos_name" class="form-control"  required>
-                    </div>
-                    <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Loyiha moliyalashtirish manbasi:</label>
-                        <input type="text"  name="pro_moliya" class="form-control "  required>
+                        <label for="name_free_count" class="form-label">Buyruq fayli(agar bo'lsa):</label>
+                        <input type="file" name="document" class="form-control" >
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-4">
-                        <label for="name_pul_count" class="form-label">Guruh soni</label>
-                        <input type="number" class="form-control" id="name_pul_count" min="1" required>
+                        <label class="form-label">Xodimlar:</label>
+                        <select name="assigned_users[]" class="form-control" required multiple>
+                            @foreach($users as $user)
+                                @if($user->role == 'xodim')
+                                    <option value="{{$user->id}}">{{ $user->name }}</option>
+                                @endif
+                            @endforeach
+                        </select>
                     </div>
-                    <div id="name_pul"></div>
-                    <script>
-                        document.getElementById('name_pul_count').addEventListener('input', function() {
-                            let count = parseInt(this.value);
-                            let container = document.getElementById('name_pul');
-                            container.innerHTML = ''; // Avvalgi inputlarni tozalash
-
-                            if (count > 0) {
-                                for (let i = 0; i < count; i++) {
-                                    let div = document.createElement('div');
-                                    div.classList.add('mb-3');
-
-                                    let label = document.createElement('label');
-                                    label.innerText = `Qatnashuvchi ${i + 1} F.I.Sh:`;
-                                    div.appendChild(label);
-
-                                    let input = document.createElement('input');
-                                    input.type = 'text';
-                                    input.name = `name_pul[]`;
-                                    input.classList.add('form-control');
-                                    input.required = true;
-                                    div.appendChild(input);
-
-                                    container.appendChild(div);
-                                }
-                            }
-                        });
-                    </script>
-
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Loyiha boshlanish muddati(sana):</label>
-                        <input type="date" class="form-control"  name="start_date" required>
+                        <label for="name_free_count" class="form-label">Topshiriq berilgan sana:</label>
+                        <input type="date" class="form-control" name="start_date" required>
                     </div>
                     <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Loyiha tugash muddati(sana):</label>
-                        <input type="date" class="form-control"  name="deadline" required>
+                        <label for="name_free_count" class="form-label">Topshiriq tugash muddati(sana):</label>
+                        <input type="date" class="form-control" name="end_date" required>
                     </div>
 
                 </div>

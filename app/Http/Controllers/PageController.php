@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +34,7 @@ class PageController extends Controller
         if (Auth::attempt($request->only('email', 'password'))) {
 
 //            $projects = Project::with('participants')->get();
-            return view('admin.project.index');
+            return view('pages.auth_code');
         }
 
         return back()->withErrors(['email' => 'Login amalga oshmadi, iltimos tekshirib qaytadan urinib ko‘ring.']);
@@ -52,12 +53,11 @@ class PageController extends Controller
 
     public function showFile($id, $type)
     {
-        $project = Project::findOrFail($id);
+        $project = Task::findOrFail($id);
 
         if ($type === 'buyruq') {
-            $filePath = $project->file_buyruq;
-        } elseif ($type === 'qushimcha') {
-            $filePath =  $project->file_qushimcha;
+            $filePath = $project->document;
+
         } else {
             abort(404, 'Fayl topilmadi');
         }
