@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
@@ -35,7 +36,7 @@ class TaskController extends Controller
         ]);
 
 
-        $filePath = $request->file('document')?->store('documents');
+        $filePath = $request->file('document')?->store('documents', 'public');
 
         $task = Task::create([
             'title' => $validated['title'],
@@ -69,7 +70,6 @@ class TaskController extends Controller
         if (auth()->id() !== $task->created_by ?? auth()->role === 'admin') {
             abort(403);
         }
-
         // Validatsiya
         $validated = $request->validate([
             'title' => 'required|string',
@@ -82,11 +82,12 @@ class TaskController extends Controller
         // Faylni yangilash (agar bo‘lsa)
         if ($request->hasFile('document')) {
             // Eski faylni o‘chirishingiz mumkin (ixtiyoriy)
-            if ($task->document && \Storage::exists($task->document)) {
-                \Storage::delete($task->document);
+            if ($request->hasFile('document')) {
+                Storage::delete($task->document);
+                $task->document = $request->file('document')->store('documents');
             }
 
-            $filePath = $request->file('document')->store('documents');
+            $filePath = $request->file('document')->store('documents', 'public');
             $task->document = $filePath;
         }
 

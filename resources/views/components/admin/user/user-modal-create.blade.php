@@ -48,6 +48,12 @@
                             </div>
                         @endif
                     </div>
+                    <div class="form-group mb-4">
+                            <div class="mb-3">
+                                <label>Maxsus kod</label>
+                                <input type="text" name="auth_code" class="form-control">
+                            </div>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary d-inline-block mt-4">Loyihani qo'shish</button>
             </div>

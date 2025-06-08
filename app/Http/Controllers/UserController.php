@@ -22,6 +22,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
             'role' => 'required|in:boshliq,xodim',
+            'auth_code' => 'required|string'
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -37,6 +38,7 @@ class UserController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:admin,boshliq,xodim',
+            'auth_code' => 'required|string'
         ]);
 
         if ($request->filled('password')) {

@@ -27,33 +27,41 @@
                             <input type="text" name="title" class="form-control" value="{{old('title',$task->title)}}">
                         </div>
                         <div class="form-group mb-4">
-                            <label for="name_free_count" class="form-label">Buyruq fayli(agar bo'lsa):</label>
+                            <label  class="form-label">Buyruq fayli(agar bo'lsa):</label>
                             <input type="file" name="document" class="form-control" >
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <<div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Xodimlar:</label>
-                            <select name="assigned_users[]" class="form-control" required multiple>
+                            <select name="assigned_users[]" class="form-control" multiple>
                                 @foreach($users as $user)
                                     @if($user->role == 'xodim')
-                                        <option value="{{$user->id}}">{{ $user->name }}</option>
+                                        <option value="{{ $user->id }}"
+                                                @if(collect(old('assigned_users', isset($task) ? $task->assignedUsers->pluck('id')->toArray() : []))->contains($user->id))
+                                                    selected
+                                            @endif
+                                        >{{ $user->name }}</option>
                                     @endif
                                 @endforeach
                             </select>
                         </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="form-group mb-4">
-                            <label for="name_free_count" class="form-label">Topshiriq berilgan sana:</label>
-                            <input type="date" class="form-control" name="start_date" required>
-                        </div>
-                        <div class="form-group mb-4">
-                            <label for="name_free_count" class="form-label">Topshiriq tugash muddati(sana):</label>
-                            <input type="date" class="form-control" name="end_date" required>
+                            <label for="start_date" class="form-label">Topshiriq berilgan sana:</label>
+                            <input type="date" class="form-control" name="start_date"
+                                   value="{{ old('start_date', isset($task) ? $task->start_date : '') }}">
                         </div>
 
+                        <div class="form-group mb-4">
+                            <label for="end_date" class="form-label">Topshiriq tugash muddati (sana):</label>
+                            <input type="date" class="form-control" name="end_date"
+                                   value="{{ old('end_date', isset($task) ? $task->end_date : '') }}">
+                        </div>
                     </div>
+
                     <button type="submit" class="btn btn-primary d-inline-block mt-4">Saqlash</button>
 
         </div>

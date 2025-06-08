@@ -24,51 +24,47 @@
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label>F.I.Sh</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name', $user->name ?? '') }}" required>
+                            <input type="text" name="name" class="form-control"
+                                   value="{{ old('name', $user->name ?? '') }}" required>
                         </div>
                         <div class="form-group mb-4">
                             <label>Email</label>
-                            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email ?? '') }}" required>
-                        </div>
-                        </div>
-                        <div class="form-group mb-4">
-                            <label>Role</label>
-                            <select name="role" class="form-control" required>
-                                @foreach(['boshliq', 'xodim'] as $role)
-                                    <option value="{{ $role }}" {{ (old('role', $user->role ?? '') == $role) ? 'selected' : '' }}>{{ $role }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group mb-4">
-                            @if(!isset($user))
-                                <div class="mb-3">
-                                    <label>Parol</label>
-                                    <input type="password" name="password" class="form-control" required>
-                                </div>
-                            @else
-                                <div class="mb-3">
-                                    <label>Yangi parol (ixtiyoriy)</label>
-                                    <input type="password" name="password" class="form-control">
-                                </div>
-                            @endif
+                            <input type="email" name="email" class="form-control"
+                                   value="{{ old('email', $user->email ?? '') }}" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary d-inline-block mt-4">Yangilash</button>
+                    <div class="form-group mb-4">
+                        <label>Role</label>
+                        <select name="role" class="form-control" required>
+                            @foreach(['boshliq', 'xodim'] as $role)
+                                <option
+                                    value="{{ $role }}" {{ (old('role', $user->role ?? '') == $role) ? 'selected' : '' }}>{{ $role }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mb-4">
+                        <div class="mb-3">
+                            <label>Maxsus kod</label>
+                            <input type="text" value="{{old('auth_code',$user->auth_code ?? '')}}" name="auth_code" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group mb-4">
+                        @if(!isset($user))
+                            <div class="mb-3">
+                                <label>Parol</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                        @else
+                            <div class="mb-3">
+                                <label>Yangi parol (ixtiyoriy)</label>
+                                <input type="password" name="password" class="form-control">
+                            </div>
+                        @endif
+                    </div>
                 </div>
+                <button type="submit" class="btn btn-primary d-inline-block mt-4">Yangilash</button>
             </form>
         </div>
-
-        <script>
-            function addParticipant(type) {
-                let container = type === 'pul' ? document.getElementById('pul-participants') : document.getElementById('free-participants');
-                let input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control mb-2';
-                input.name = type === 'pul' ? 'name_pul[]' : 'name_free[]';
-                input.required = true;
-                container.appendChild(input);
-            }
-        </script>
     </div>
     </div>
 @endforeach
