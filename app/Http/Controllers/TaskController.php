@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -108,5 +109,24 @@ class TaskController extends Controller
         $task->delete();
 
         return back();
+    }
+
+
+    public function search(Request $request)
+    {
+        $search = $request->input('query');
+
+
+        $tasks = Task::with('assignedUsers')
+            ->when($search, function ($query, $search) {
+                $query->where('title', 'like', "%$search%")
+                    ->orWhereHas('assignedUsers', function ($q) use ($search) {
+                        $q->where('name', 'like', "%$search%");
+                    });
+            })
+            ->get();
+
+
+        return view('admin.project.search', compact('tasks','search'));
     }
 }

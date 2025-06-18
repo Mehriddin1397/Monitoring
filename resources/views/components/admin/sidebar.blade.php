@@ -12,12 +12,12 @@
                 <li class="nxl-item nxl-caption">
                     <label>Navigation</label>
                 </li>
-                <li class="nxl-item nxl-hasmenu">
-                    <a href="{{route('dashboard')}}" class="nxl-link">
-                        <span class="nxl-micon"><i class="feather-airplay"></i></span>
-                        <span class="nxl-mtext">Monitoring</span><span class="nxl-arrow"></span>
-                    </a>
-                </li>
+{{--                <li class="nxl-item nxl-hasmenu">--}}
+{{--                    <a href="{{route('dashboard')}}" class="nxl-link">--}}
+{{--                        <span class="nxl-micon"><i class="feather-airplay"></i></span>--}}
+{{--                        <span class="nxl-mtext">Monitoring</span><span class="nxl-arrow"></span>--}}
+{{--                    </a>--}}
+{{--                </li>--}}
                 @auth
                     @if (auth()->user()->role === 'admin')
                         <li class="nxl-item nxl-hasmenu">
@@ -31,7 +31,7 @@
                 <li class="nxl-item nxl-hasmenu">
                     <a href="{{route('tasks.index')}}" class="nxl-link">
                         <span class="nxl-micon"><i class="feather-layout"></i></span>
-                        <span class="nxl-mtext">Loyihalar</span><span class="nxl-arrow"></span>
+                        <span class="nxl-mtext">Topshiriqlar</span><span class="nxl-arrow"></span>
                     </a>
                 </li>
 

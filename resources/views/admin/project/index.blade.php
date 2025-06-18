@@ -9,7 +9,7 @@
         <div class="page-header " style="background-color: #7878a3">
             <div class="page-header-left d-flex align-items-center">
                 <div class="page-header-title">
-                    <h5 class="m-b-10 ">Loyihalar</h5>
+                    <h5 class="m-b-10 ">Topshiriqlar</h5>
                 </div>
             </div>
             <div class="page-header-right ms-auto">
@@ -26,7 +26,7 @@
                                 <a href="javascript:void(0);" class="btn btn-primary " data-bs-toggle="offcanvas"
                                    data-bs-target="#tasksDetailsOffcanvas">
                                     <i class="feather-plus me-2"></i>
-                                    <span>Loyiha yaratish</span>
+                                    <span>Yaratish</span>
                                 </a>
                             </div>
                         @endif
@@ -112,8 +112,7 @@
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Berilgan
                                             topshiriq
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq bergan
-                                            rahbar
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nazorat uchun
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq fayli
                                         </th>
@@ -171,18 +170,21 @@
                                                 {{$task->end_date}}
                                             </td>
                                             <td>
-                                                @if($task->status == 'bajarildi')
+                                                @if($task->end_date < now() && $task->status !== 'bajarildi')
+                                                    <p class="{{ $color }}">
+                                                        Bajarilmadi
+                                                @elseif($task->status == 'bajarildi')
                                                     <p class="text-success">
-                                                        Bajarildi
+                                                        Yakunlandi
                                                 @else
                                                     <p class="{{ $color }}">
                                                         {{$daysLeft}} - kun
                                                 @endif
                                             </td>
-                                            <td>
-                                                @if(auth()->user()->role == 'xodim')
-                                                    {{$task->status}}
-                                                @else
+                                            <td>@if($task->end_date < now() && $task->status !== 'bajarildi')
+                                                    <p class="$color">
+                                                        Bajarilmadi
+                                                @elseif(auth()->user()->id == $task->created_by )
                                                     <form action="{{ route('updateStatus', $task->id) }}" method="POST">
                                                         @csrf
                                                         @method('POST')
@@ -197,6 +199,8 @@
                                                             @endforeach
                                                         </select>
                                                     </form>
+                                                @else
+                                                    {{$task->status}}
 
                                                 @endif
 
@@ -204,7 +208,7 @@
                                             <td>
 
                                                 <div class="hstack gap-2 justify-content-end">
-                                                    @if(auth()->user()->role == 'xodim')
+                                                    @if(auth()->user()->role == 'xodim' || $task->end_date < now())
 
                                                     @elseif(auth()->user()->id == $task->created_by ?? auth()->user()->role == 'admin')
                                                         <a href="javascript:void(0)" data-bs-toggle="offcanvas"

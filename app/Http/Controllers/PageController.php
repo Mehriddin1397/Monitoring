@@ -48,7 +48,25 @@ class PageController extends Controller
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $month = now()->format('Y-m');
+
+        $tasks = Task::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->get();
+
+        $total = $tasks->count();
+        $completed = $tasks->where('status', 'bajarildi')->count();
+        $incomplete = $total - $completed;
+
+        // Har bir xodim va unga tegishli topshiriqlarni olish
+        $tasksWithUsers = User::where('role', 'xodim')
+            ->with(['assignedTasks' => function ($query) {
+                $query->select('tasks.id', 'title', 'status'); // ustunlarni aniqlab beramiz
+            }])
+            ->get();
+
+
+        return view('admin.dashboard',  compact('tasksWithUsers', 'total', 'completed', 'incomplete', 'month'));
     }
 
     public function showFile($id, $type)
