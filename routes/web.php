@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('admin.auth.login');
-})->name('login');
+})->name('login.page');
 Route::post('/',[\App\Http\Controllers\PageController::class,'login'])->name('login');
 Route::post('/logout',[\App\Http\Controllers\PageController::class,'logout'])->name('logout');
 

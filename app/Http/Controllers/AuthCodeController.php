@@ -26,7 +26,7 @@ class AuthCodeController extends Controller
 
             // Remember me 7 kun
             Auth::login($user, true);
-            return redirect()->route('dashboard');
+            return redirect()->route('tasks.index');
         }
 
         return back()->withErrors(['auth_code' => 'Noto‘g‘ri kod']);
