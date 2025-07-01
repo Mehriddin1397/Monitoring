@@ -15,7 +15,7 @@ class RestrictLoginByIP
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $allowed_ips = ['213.230.99.98', '192.168.40.18','127.0.0.1']; // ruxsat berilgan IP'lar
+        $allowed_ips = ['213.230.99.98', '192.168.40.254','127.0.0.1']; // ruxsat berilgan IP'lar
 
         if (!in_array($request->ip(), $allowed_ips)) {
             abort(403, 'Sizning IP manzilingiz (' . $request->ip() . ') orqali kirish taqiqlangan.');
