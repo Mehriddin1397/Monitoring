@@ -37,12 +37,14 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,boshliq,xodim',
             'auth_code' => 'required|string'
         ]);
 
         if ($request->filled('password')) {
             $validated['password'] = Hash::make($request->password);
+        }
+        if ($request->filled('role')) {
+            $validated['role'] = $request->role;
         }
 
         $user->update($validated);

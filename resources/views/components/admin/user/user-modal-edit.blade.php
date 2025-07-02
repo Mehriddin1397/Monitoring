@@ -35,7 +35,8 @@
                     </div>
                     <div class="form-group mb-4">
                         <label>Role</label>
-                        <select name="role" class="form-control" required>
+                        <select name="role" class="form-control" >
+                            <option> </option>
                             @foreach(['boshliq', 'xodim'] as $role)
                                 <option
                                     value="{{ $role }}" {{ (old('role', $user->role ?? '') == $role) ? 'selected' : '' }}>{{ $role }}</option>

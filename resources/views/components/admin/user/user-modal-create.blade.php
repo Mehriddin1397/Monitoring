@@ -30,6 +30,7 @@
                     <div class="form-group mb-4">
                         <label>Role</label>
                         <select name="role" class="form-control" required>
+                            <option> </option>
                             @foreach(['boshliq', 'xodim'] as $role)
                                 <option >{{ $role }}</option>
                             @endforeach
