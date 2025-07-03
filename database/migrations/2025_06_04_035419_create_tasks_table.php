@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('created_by'); // boshliq
-            $table->string('title');
+            $table->text('title');
             $table->string('document')->nullable(); // PDF fayl
             $table->enum('status', ['yangi', 'bajarilmoqda', 'bajarildi'])->default('yangi');
             $table->date('start_date');

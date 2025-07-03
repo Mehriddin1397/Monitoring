@@ -112,17 +112,17 @@
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Berilgan
                                             topshiriq
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nazorat uchun
-                                        </th>
+                                        {{--                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nazorat uchun--}}
+                                        {{--                                        </th>--}}
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq fayli
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                            Biriktirilgan xodimlar
+                                            Ijrochilar
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
                                             Berilgan sanasi
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Topshirish sanasi
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Bajarish sanasi
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq muddati
                                         </th>
@@ -137,18 +137,69 @@
                                             $deadline = \Carbon\Carbon::parse($task->end_date);
                                             $daysLeft = \Carbon\Carbon::today()->diffInDays($deadline, false);
                                             $color = 'text-success';
+                                            $showAlert = $daysLeft == 1; // Faqat 1 kun qolganida
 
                                             if ($daysLeft <= 5) $color = 'text-danger';
                                             elseif ($daysLeft <= 16) $color = 'text-warning';
                                         @endphp
+
+                                        @if(auth()->user()->role == 'xodim' && $task->status !== 'bajarildi' )
+                                            @if($showAlert)
+                                                <script>
+                                                    let alertAudio;
+
+                                                    function showRepeatingAlert() {
+                                                        // Ovoz faylini yuklab, takrorlansin
+                                                        alertAudio = new Audio("{{ asset('sounds/alert.mp3') }}");
+                                                        alertAudio.loop = true;
+                                                        alertAudio.play();
+
+                                                        // Modal oynani ko‘rsatish (oddiy HTML element yordamida)
+                                                        const alertBox = document.createElement('div');
+                                                        alertBox.innerHTML = ` <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                                                    background: rgba(0,0,0,0.6); display: flex; align-items: center;
+                                                    justify-content: center; z-index: 9999;">
+                <div style="background: white; padding: 30px; border-radius: 10px;
+                            text-align: center; font-size: 20px; max-width: 400px;">
+                    <p><strong>⏰ DIQQAT!</strong><br>Topshiriq tugashiga 1 kun qoldi!</p>
+                    <button id="stopAlertBtn"
+                            style="padding: 10px 20px; margin-top: 20px; background-color: red; color: white; border: none; border-radius: 5px;">
+                        Tushunarli
+                    </button>
+                </div>
+            </div>
+        `;
+
+                                                        document.body.appendChild(alertBox);
+
+                                                        // Tugmani bosganda — modalni va ovozni to‘xtatish
+                                                        document.getElementById('stopAlertBtn').addEventListener('click', () => {
+                                                            alertAudio.pause();
+                                                            alertAudio.currentTime = 0;
+                                                            alertBox.remove();
+                                                        });
+                                                    }
+
+                                                    // Dastlab ochilishi
+                                                    showRepeatingAlert();
+
+                                                    // Keyingi har 20 daqiqada signal
+                                                    setInterval(showRepeatingAlert, 60 * 1000);
+                                                </script>
+                                            @endif
+                                        @endif
+
                                         <tr class="single-item">
                                             <td> {{ $loop->iteration }}</td>
                                             <td>
-                                                {{ $task->title }}
+                                                <h6 class="text-dark mb-0 text-break"
+                                                    style="white-space: normal; word-break: break-word;">
+                                                    {{ $task->title }}
+                                                </h6>
                                             </td>
-                                            <td>
-                                                {{$task->creator->name ?? '-' }}
-                                            </td>
+                                            {{--                                            <td>--}}
+                                            {{--                                                {{$task->creator->name ?? '-' }}--}}
+                                            {{--                                            </td>--}}
                                             <td>
                                                 <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}">
                                                     Hujjatini ochish

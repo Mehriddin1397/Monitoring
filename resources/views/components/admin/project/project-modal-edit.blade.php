@@ -24,14 +24,14 @@
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Topshiriq nomi:</label>
-                            <input type="text" name="title" class="form-control" value="{{old('title',$task->title)}}">
+                            <textarea id="message" name="title" rows="7" cols="50">{{old('title',$task->title)}}</textarea>
                         </div>
                         <div class="form-group mb-4">
                             <label  class="form-label">Buyruq fayli(agar bo'lsa):</label>
                             <input type="file" name="document" class="form-control" >
                         </div>
                     </div>
-                    <<div class="col-md-6">
+                    <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Xodimlar:</label>
                             <select name="assigned_users[]" class="form-control" multiple>
@@ -47,7 +47,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label for="start_date" class="form-label">Topshiriq berilgan sana:</label>

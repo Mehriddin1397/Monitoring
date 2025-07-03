@@ -21,7 +21,7 @@
                 <div class="col-md-6">
                     <div class="form-group mb-4">
                         <label class="form-label">Topshiriq nomi:</label>
-                        <input type="text" name="title" class="form-control">
+                        <textarea id="message" name="title" rows="7" cols="50"></textarea>
                     </div>
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Buyruq fayli(agar bo'lsa):</label>

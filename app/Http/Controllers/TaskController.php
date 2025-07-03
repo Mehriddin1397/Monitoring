@@ -29,7 +29,7 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string',
+            'title' => 'required|string|max:10000',
             'document' => 'nullable|file|mimes:pdf',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
@@ -73,7 +73,7 @@ class TaskController extends Controller
         }
         // Validatsiya
         $validated = $request->validate([
-            'title' => 'required|string',
+            'title' => 'required|string|max:10000',
             'document' => 'nullable|file|mimes:pdf',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
