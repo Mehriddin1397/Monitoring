@@ -104,9 +104,9 @@
                 <div class="col-lg-12">
                     <div class="card stretch stretch-full">
                         <div class="card-body p-0">
-                            <div class="table-responsive table-container">
-                                <table class="table table-hover " id="proposalList">
-                                    <thead style="background-color: #c7c7f0">
+                            <div class="table-responsive table-container table-wrapper" style=" overflow-y: auto;">
+                                <table class="table table-hover " id="proposalList" >
+                                    <thead class="sticky-top " style="background-color: #c7c7f0; ">
                                     <tr>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Berilgan
@@ -159,16 +159,16 @@
                                                         alertBox.innerHTML = ` <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                                                     background: rgba(0,0,0,0.6); display: flex; align-items: center;
                                                     justify-content: center; z-index: 9999;">
-                <div style="background: white; padding: 30px; border-radius: 10px;
-                            text-align: center; font-size: 20px; max-width: 400px;">
-                    <p><strong>⏰ DIQQAT!</strong><br>Topshiriq tugashiga 1 kun qoldi!</p>
-                    <button id="stopAlertBtn"
-                            style="padding: 10px 20px; margin-top: 20px; background-color: red; color: white; border: none; border-radius: 5px;">
-                        Tushunarli
-                    </button>
-                </div>
-            </div>
-        `;
+                                                                                <div style="background: white; padding: 30px; border-radius: 10px;
+                                                                                     text-align: center; font-size: 20px; max-width: 400px;">
+                                                                                        <p><strong>⏰ DIQQAT!</strong><br>Topshiriq tugashiga 1 kun qoldi!</p>
+                                                                                            <button id="stopAlertBtn"
+                                                                                               style="padding: 10px 20px; margin-top: 20px; background-color: red; color: white; border: none; border-radius: 5px;">
+                                                                                            Tushunarli
+                                                                                     </button>
+                                                                                     </div>
+                                                                                 </div>
+                                                                             `;
 
                                                         document.body.appendChild(alertBox);
 
@@ -303,16 +303,23 @@
 
     </div>
     <style>
-        .table-container {
-            overflow-x: auto !important; /* Gorizontal skroll qo‘shadi */
-            width: 100%;
+        .table-wrapper {
+            max-height: 710px; /* scroll bo'lishi uchun balandlik */
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid #ddd;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #c7c7ed; /* orqa fon (bootstrap light) */
+            z-index: 2;
+            border-bottom: 2px solid #dee2e6;
         }
     </style>
+
+
 
 
     @include('components.admin.project.project-modal-create',['users' => $users])
