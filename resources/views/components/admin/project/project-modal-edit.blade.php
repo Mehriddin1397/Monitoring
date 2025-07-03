@@ -34,7 +34,7 @@
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Xodimlar:</label>
-                            <select name="assigned_users[]" class="form-control" multiple>
+                            <select name="assigned_users[]" size="17" class="form-control" multiple>
                                 @foreach($users as $user)
                                     @if($user->role == 'xodim')
                                         <option value="{{ $user->id }}"
