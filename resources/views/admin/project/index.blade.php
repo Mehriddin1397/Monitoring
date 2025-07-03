@@ -184,7 +184,7 @@
                                                     showRepeatingAlert();
 
                                                     // Keyingi har 20 daqiqada signal
-                                                    setInterval(showRepeatingAlert,20* 60 * 1000);
+                                                    setInterval(showRepeatingAlert, 20 * 60 * 1000);
                                                 </script>
                                             @endif
                                         @endif
