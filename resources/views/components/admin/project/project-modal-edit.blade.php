@@ -21,15 +21,13 @@
                 @method('PUT')
 
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group mb-4">
-                            <label class="form-label">Topshiriq nomi:</label>
-                            <textarea id="message" name="title" rows="7" cols="50">{{old('title',$task->title)}}</textarea>
-                        </div>
-                        <div class="form-group mb-4">
-                            <label  class="form-label">Buyruq fayli(agar bo'lsa):</label>
-                            <input type="file" name="document" class="form-control" >
-                        </div>
+                    <div class="form-group mb-6">
+                        <label class="form-label">Topshiriq nomi:</label>
+                        <textarea name="title" class="form-control ckeditor">{{old('title',$task->title)}}</textarea>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label">Buyruq fayli(agar bo'lsa):</label>
+                        <input type="file" name="document" class="form-control">
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-4">
@@ -63,21 +61,21 @@
 
                     <button type="submit" class="btn btn-primary d-inline-block mt-4">Saqlash</button>
 
+                </div>
+            </form>
         </div>
-        </form>
-    </div>
 
-    <script>
-        function addParticipant(type) {
-            let container = type === 'pul' ? document.getElementById('pul-participants') : document.getElementById('free-participants');
-            let input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'form-control mb-2';
-            input.name = type === 'pul' ? 'name_pul[]' : 'name_free[]';
-            input.required = true;
-            container.appendChild(input);
-        }
-    </script>
+        <script>
+            function addParticipant(type) {
+                let container = type === 'pul' ? document.getElementById('pul-participants') : document.getElementById('free-participants');
+                let input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control mb-2';
+                input.name = type === 'pul' ? 'name_pul[]' : 'name_free[]';
+                input.required = true;
+                container.appendChild(input);
+            }
+        </script>
     </div>
     </div>
 @endforeach

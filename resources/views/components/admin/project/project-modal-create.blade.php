@@ -18,15 +18,15 @@
         <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-">
                     <div class="form-group mb-4">
                         <label class="form-label">Topshiriq nomi:</label>
-                        <textarea id="message" name="title" rows="7" cols="50"></textarea>
+                        <textarea name="title" id="editor1" rows="10"></textarea>
                     </div>
-                    <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Buyruq fayli(agar bo'lsa):</label>
-                        <input type="file" name="document" class="form-control" >
-                    </div>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="name_free_count" class="form-label">Buyruq fayli(agar bo'lsa):</label>
+                    <input type="file" name="document" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-4">

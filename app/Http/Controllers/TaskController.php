@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Project;
+use Carbon\Carbon;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,9 +15,20 @@ class TaskController extends Controller
         $users = User::all();
 
         if ($user->role === 'xodim') {
-            $tasks = $user->assignedTasks()->with('creator')->get();
+
+
+            $tasks = $user->assignedTasks()
+                ->with('creator')                        // creator bilan birga yuklash
+                ->orderBy('end_date', 'asc')             // eng yaqin muddat birinchi
+                ->get();
+
+
         } else {
-            $tasks = Task::with('assignedUsers', 'creator')->get();
+            $tasks = Task::with(['assignedUsers', 'creator'])
+                ->orderByRaw("CASE WHEN status = 'bajarildi' THEN 1 ELSE 0 END") // bajarilmaganlar birinchi
+                ->orderBy('end_date', 'asc') // bajarilmaganlar orasida eng yaqinlar avval
+                ->get();
+
         }
 
 

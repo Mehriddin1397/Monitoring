@@ -193,8 +193,8 @@
                                             <td> {{ $loop->iteration }}</td>
                                             <td>
                                                 <h6 class="text-dark mb-0 text-break"
-                                                    style="white-space: normal; word-break: break-word;">
-                                                    {{ $task->title }}
+                                                    style="white-space: normal; word-break: break-word; font-weight: normal;">
+                                                    {!! $task->title !!}
                                                 </h6>
                                             </td>
                                             {{--                                            <td>--}}
@@ -304,7 +304,7 @@
     </div>
     <style>
         .table-wrapper {
-            max-height: 710px; /* scroll bo'lishi uchun balandlik */
+            max-height: 800px; /* scroll bo'lishi uchun balandlik */
             overflow-y: auto;
             position: relative;
             border: 1px solid #ddd;
