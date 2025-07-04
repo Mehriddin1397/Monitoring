@@ -23,7 +23,7 @@
                 <div class="row">
                     <div class="form-group mb-6">
                         <label class="form-label">Topshiriq nomi:</label>
-                        <textarea name="title" class="form-control ckeditor">{{old('title',$task->title)}}</textarea>
+                        <textarea name="title" class="form-control ckeditor" >{{old('title',$task->title)}}</textarea>
                     </div>
                     <div class="form-group mb-4">
                         <label class="form-label">Buyruq fayli(agar bo'lsa):</label>
@@ -74,10 +74,36 @@
                 input.name = type === 'pul' ? 'name_pul[]' : 'name_free[]';
                 input.required = true;
                 container.appendChild(input);
+
             }
+
+
+
+            CKEDITOR.replace('editor45');
+            document.querySelectorAll('.ckeditor').forEach((el) => {
+                CKEDITOR.replace(el);
+            });
         </script>
     </div>
     </div>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelectorAll('.ckeditor').forEach(function (el) {
+                    // CKEditor ishlashi uchun elementda id bo‘lishi kerak
+                    if (!el.id) {
+                        el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
+                    }
+
+                    // Agar allaqachon CKEditor ulangani bo‘lsa, qayta ulamaslik
+                    if (!CKEDITOR.instances[el.id]) {
+                        CKEDITOR.replace(el.id);
+                    }
+                });
+            });
+        </script>
+
 @endforeach
 
 <!--! ================================================================ !-->

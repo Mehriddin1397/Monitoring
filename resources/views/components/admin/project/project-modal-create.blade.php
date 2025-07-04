@@ -21,7 +21,7 @@
                 <div class="col-md-">
                     <div class="form-group mb-4">
                         <label class="form-label">Topshiriq nomi:</label>
-                        <textarea name="title" id="editor1" rows="10"></textarea>
+                        <textarea name="title" class="form-control ckeditor" rows="10"></textarea>
                     </div>
                 </div>
                 <div class="form-group mb-4">
@@ -55,6 +55,24 @@
             </div>
         </form>
     </div>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelectorAll('.ckeditor').forEach(function (el) {
+                    // CKEditor ishlashi uchun elementda id bo‘lishi kerak
+                    if (!el.id) {
+                        el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
+                    }
+
+                    // Agar allaqachon CKEditor ulangani bo‘lsa, qayta ulamaslik
+                    if (!CKEDITOR.instances[el.id]) {
+                        CKEDITOR.replace(el.id);
+                    }
+                });
+            });
+        </script>
+
 
 </div>
 <!--! ================================================================ !-->

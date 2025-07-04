@@ -258,17 +258,8 @@
 {{--<script src="/admin/assets/vendors/js/select2.min.js"></script>--}}
 {{--<script src="/admin/assets/vendors/js/select2-active.min.js"></script>--}}
 
-<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
-<script>
+<script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
 
-    CKEDITOR.replace('editor1');
-
-
-    document.querySelectorAll('.ckeditor').forEach((el) => {
-        CKEDITOR.replace(el);
-    });
-
-</script>
 
 <script src="/admin/assets/js/common-init.min.js"></script>
 <script src="/admin/assets/js/dashboard-init.min.js"></script>
