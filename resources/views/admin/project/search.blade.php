@@ -56,7 +56,7 @@
                                     <tr class="single-item">
                                         <td> {{ $loop->iteration }}</td>
                                         <td>
-                                            {{ $task->title }}
+                                            {!! $task->title !!}
                                         </td>
                                         <td>
                                             {{$task->creator->name ?? '-' }}
