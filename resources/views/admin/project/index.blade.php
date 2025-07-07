@@ -105,6 +105,12 @@
                     <div class="card stretch stretch-full">
                         <div class="card-body p-0">
                             <div class="table-responsive table-container table-wrapper" style=" overflow-y: auto;">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <button onclick="printTable()" class="btn btn-primary">
+                                        🖨️ Чиқариш
+                                    </button>
+                                </div>
+
                                 <table class="table table-hover " id="proposalList">
                                     <thead class="sticky-top " style="background-color: #c7c7f0; ">
                                     <tr>
@@ -313,6 +319,41 @@
         </div>
 
     </div>
+    <script>
+        function printTable() {
+            let tableContent = document.querySelector('.table-container').innerHTML;
+            let style = `
+            <style>
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                th, td {
+                    border: 1px solid #000;
+                    padding: 5px;
+                    text-align: left;
+                    font-size: 12px;
+                }
+                th {
+                    background-color: #f0f0f0;
+                }
+            </style>
+        `;
+
+            let printWindow = window.open('', '', 'height=800,width=1000');
+            printWindow.document.write('<html><head><title>Топшириқлар рўйхати</title>');
+            printWindow.document.write(style);
+            printWindow.document.write('</head><body>');
+            printWindow.document.write('<h3>Топшириқлар рўйхати</h3>');
+            printWindow.document.write(tableContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }
+    </script>
+
     <style>
         .table-wrapper {
             max-height: 800px; /* scroll bo'lishi uchun balandlik */
