@@ -9,8 +9,8 @@
                 </div>
                 <span class="vr text-muted mx-4"></span>
                 <a href="javascript:void(0);">
-                    <h2 class="fs-14 fw-bold text-truncate-1-line">Buyruqlar</h2>
-                    <span class="fs-12 fw-normal text-muted text-truncate-1-line">O'zgartirish</span>
+                    <h2 class="fs-14 fw-bold text-truncate-1-line">Топшириқлар</h2>
+                    <span class="fs-12 fw-normal text-muted text-truncate-1-line">Ўзгартириш</span>
                 </a>
             </div>
         </div>
@@ -22,16 +22,16 @@
 
                 <div class="row">
                     <div class="form-group mb-6">
-                        <label class="form-label">Topshiriq nomi:</label>
+                        <label class="form-label">Топшириқ номи :</label>
                         <textarea name="title" class="form-control ckeditor" >{{old('title',$task->title)}}</textarea>
                     </div>
                     <div class="form-group mb-4">
-                        <label class="form-label">Buyruq fayli(agar bo'lsa):</label>
+                        <label class="form-label">Буйриқ файли (агар бўлса):</label>
                         <input type="file" name="document" class="form-control">
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-4">
-                            <label class="form-label">Xodimlar:</label>
+                            <label class="form-label">Ходимлар:</label>
                             <select name="assigned_users[]" size="17" class="form-control" multiple>
                                 @foreach($users as $user)
                                     @if($user->role == 'xodim')
@@ -47,19 +47,19 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-4">
-                            <label for="start_date" class="form-label">Topshiriq berilgan sana:</label>
+                            <label for="start_date" class="form-label">Топшириқ берилган сана:</label>
                             <input type="date" class="form-control" name="start_date"
                                    value="{{ old('start_date', isset($task) ? $task->start_date : '') }}">
                         </div>
 
                         <div class="form-group mb-4">
-                            <label for="end_date" class="form-label">Topshiriq tugash muddati (sana):</label>
+                            <label for="end_date" class="form-label">Топшириқ тугаш муддати(сана):</label>
                             <input type="date" class="form-control" name="end_date"
                                    value="{{ old('end_date', isset($task) ? $task->end_date : '') }}">
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary d-inline-block mt-4">Saqlash</button>
+                    <button type="submit" class="btn btn-primary d-inline-block mt-4">Сақлаш</button>
 
                 </div>
             </form>

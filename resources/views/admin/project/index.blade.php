@@ -9,7 +9,7 @@
         <div class="page-header " style="background-color: #7878a3">
             <div class="page-header-left d-flex align-items-center">
                 <div class="page-header-title">
-                    <h5 class="m-b-10 ">Topshiriqlar</h5>
+                    <h5 class="m-b-10 ">Топшириқлар</h5>
                 </div>
             </div>
             <div class="page-header-right ms-auto">
@@ -26,7 +26,7 @@
                                 <a href="javascript:void(0);" class="btn btn-primary " data-bs-toggle="offcanvas"
                                    data-bs-target="#tasksDetailsOffcanvas">
                                     <i class="feather-plus me-2"></i>
-                                    <span>Yaratish</span>
+                                    <span>Яратиш</span>
                                 </a>
                             </div>
                         @endif
@@ -109,26 +109,25 @@
                                     <thead class="sticky-top " style="background-color: #c7c7f0; ">
                                     <tr>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Berilgan
-                                            topshiriq
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Берилган топшириқ
                                         </th>
                                         {{--                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nazorat uchun--}}
                                         {{--                                        </th>--}}
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq fayli
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ файли
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                            Ijrochilar
+                                            Ижрочилар
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                            Berilgan sanasi
+                                            Берилган сана
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Bajarish sanasi
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Бажариш санаси
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq muddati
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ муддати
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq holati
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ холати
                                         </th>
-                                        <th class="text-end">Tahrirlash</th>
+                                        <th class="text-end">Таҳрирлаш</th>
                                     </tr>
                                     </thead>
                                     <tbody style="background-color: #e7e7f3">
@@ -161,10 +160,10 @@
                                                     justify-content: center; z-index: 9999;">
                                                                                 <div style="background: white; padding: 30px; border-radius: 10px;
                                                                                      text-align: center; font-size: 20px; max-width: 400px;">
-                                                                                        <p><strong>⏰ DIQQAT!</strong><br>Topshiriq tugashiga 1 kun qoldi!</p>
+                                                                                        <p><strong>⏰ DIQQAT!</strong><br>Топшириқ тугашига 1 кун қолди!</p>
                                                                                             <button id="stopAlertBtn"
                                                                                                style="padding: 10px 20px; margin-top: 20px; background-color: red; color: white; border: none; border-radius: 5px;">
-                                                                                            Tushunarli
+                                                                                            Тушунарли
                                                                                      </button>
                                                                                      </div>
                                                                                  </div>
@@ -202,7 +201,7 @@
                                             {{--                                            </td>--}}
                                             <td>
                                                 <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}">
-                                                    Hujjatini ochish
+                                                    Хужжатни очиш
                                                 </a>
 
 
@@ -223,18 +222,18 @@
                                             <td>
                                                 @if($task->end_date < now() && $task->status !== 'bajarildi')
                                                     <p class="{{ $color }}">
-                                                        Bajarilmadi
+                                                        Бажарилмади
                                                 @elseif($task->status == 'bajarildi')
                                                     <p class="text-success">
-                                                        Yakunlandi
+                                                        Якунланди
                                                 @else
                                                     <p class="{{ $color }}">
-                                                        {{$daysLeft}} - kun
+                                                        {{$daysLeft}} - кун
                                                 @endif
                                             </td>
                                             <td>@if($task->end_date < now() && $task->status !== 'bajarildi')
                                                     <p class="$color">
-                                                        Bajarilmadi
+                                                        Бажарилмади
                                                 @elseif(auth()->user()->id == $task->created_by )
                                                     <form action="{{ route('updateStatus', $task->id) }}" method="POST">
                                                         @csrf
@@ -245,7 +244,13 @@
                                                             @foreach(['yangi', 'bajarilmoqda', 'bajarildi'] as $status)
                                                                 <option
                                                                     value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
-                                                                    {{ $status }}
+                                                                    @if($status == 'yangi')
+                                                                        Янги
+                                                                    @elseif($status == 'bajarilmoqda')
+                                                                        Бажарилмоқда
+                                                                    @else
+                                                                        Бажарилди
+                                                                    @endif
                                                                 </option>
                                                             @endforeach
                                                         </select>

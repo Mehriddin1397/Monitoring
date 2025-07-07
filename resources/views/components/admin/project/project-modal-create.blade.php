@@ -8,8 +8,8 @@
                     class="feather-arrow-left"></i></div>
             <span class="vr text-muted mx-4"></span>
             <a href="javascript:void(0);">
-                <h2 class="fs-14 fw-bold text-truncate-1-line">Slide </h2>
-                <span class="fs-12 fw-normal text-muted text-truncate-1-line">Yaratish</span>
+                <h2 class="fs-14 fw-bold text-truncate-1-line">Топшириқ </h2>
+                <span class="fs-12 fw-normal text-muted text-truncate-1-line">Яратиш</span>
             </a>
         </div>
 
@@ -20,17 +20,17 @@
             <div class="row">
                 <div class="col-md-">
                     <div class="form-group mb-4">
-                        <label class="form-label">Topshiriq nomi:</label>
+                        <label class="form-label">Топшириқ номи:</label>
                         <textarea name="title" class="form-control ckeditor" rows="10"></textarea>
                     </div>
                 </div>
                 <div class="form-group mb-4">
-                    <label for="name_free_count" class="form-label">Buyruq fayli(agar bo'lsa):</label>
+                    <label for="name_free_count" class="form-label">Буйриқ файли (агар бўлса):</label>
                     <input type="file" name="document" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-4">
-                        <label class="form-label">Xodimlar:</label>
+                        <label class="form-label">Ходимлар:</label>
                         <select name="assigned_users[]" size="17" class="form-control" required multiple>
                             @foreach($users as $user)
                                 @if($user->role == 'xodim')
@@ -42,16 +42,16 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Topshiriq berilgan sana:</label>
+                        <label for="name_free_count" class="form-label">Топшириқ берилган сана:</label>
                         <input type="date" class="form-control" name="start_date" required>
                     </div>
                     <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Topshiriq tugash muddati(sana):</label>
+                        <label for="name_free_count" class="form-label">Топшириқ тугаш муддати(сана):</label>
                         <input type="date" class="form-control" name="end_date" required>
                     </div>
 
                 </div>
-                <button type="submit" class="btn btn-primary d-inline-block mt-4">Loyihani qo'shish</button>
+                <button type="submit" class="btn btn-primary d-inline-block mt-4">Топшириқни қўшиш</button>
             </div>
         </form>
     </div>
