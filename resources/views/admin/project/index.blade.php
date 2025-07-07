@@ -257,7 +257,13 @@
                                                         </select>
                                                     </form>
                                                 @else
-                                                    {{$task->status}}
+                                                    @if($status == 'yangi')
+                                                        Янги
+                                                    @elseif($status == 'bajarilmoqda')
+                                                        Бажарилмоқда
+                                                    @else
+                                                        Бажарилди
+                                                    @endif
 
                                                 @endif
 
