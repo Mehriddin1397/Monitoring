@@ -12,35 +12,34 @@
                 <div class="card-body" style="min-height: 80vh">
                     <!-- Order Information -->
                     <div class="mb-5">
-                        <h2>Qidiruv natijalari: " {{ $search }} "</h2>
+                        <h2>Қидирув натижалари: " {{ $search }} "</h2>
                         @if($tasks->isEmpty())
-                            <div class="alert alert-warning">Hech qanday topshiriq topilmadi.</div>
+                            <div class="alert alert-warning">Неч қандай натижа топилмади.</div>
                         @else
                             <table class="table table-hover " id="proposalList">
                                 <thead style="background-color: #c7c7f0">
                                 <tr>
                                     <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Berilgan
-                                        topshiriq
+                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Берилган топшириқ
                                     </th>
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq bergan
-                                        rahbar
-                                    </th>
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq fayli
-                                    </th>
-                                    <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                        Biriktirilgan xodimlar
+{{--                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq bergan--}}
+{{--                                        rahbar--}}
+{{--                                    </th>--}}
+                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ файли
                                     </th>
                                     <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                        Berilgan sanasi
+                                        Ижрочилар
                                     </th>
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Topshirish sanasi
+                                    <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
+                                        Берилган санаси
                                     </th>
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq muddati
+                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Бажариш санаси
                                     </th>
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq holati
+                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ муддати
                                     </th>
-                                    <th class="text-end">Tahrirlash</th>
+                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ холати
+                                    </th>
+                                    <th class="text-end">Таҳрирлаш</th>
                                 </tr>
                                 </thead>
                                 <tbody style="background-color: #e7e7f3">
@@ -58,12 +57,12 @@
                                         <td>
                                             {!! $task->title !!}
                                         </td>
-                                        <td>
-                                            {{$task->creator->name ?? '-' }}
-                                        </td>
+{{--                                        <td>--}}
+{{--                                            {{$task->creator->name ?? '-' }}--}}
+{{--                                        </td>--}}
                                         <td>
                                             <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}">
-                                                Hujjatini ochish
+                                                Хужжатни очиш
                                             </a>
 
 
@@ -82,16 +81,22 @@
                                             {{$task->end_date}}
                                         </td>
                                         <td>
-                                            @if($task->status == 'bajarildi')
+                                            @if($task->end_date < now() && $task->status !== 'bajarildi')
+                                                <p class="{{ $color }}">
+                                                    Бажарилмади
+                                            @elseif($task->status == 'bajarildi')
                                                 <p class="text-success">
-                                                    Bajarildi
+                                                    Якунланди
                                             @else
                                                 <p class="{{ $color }}">
-                                                    {{$daysLeft}} - kun
+                                                    {{$daysLeft}} - кун
                                             @endif
                                         </td>
                                         <td>
-                                            @if(auth()->user()->id == $task->created_by )
+                                            @if($task->end_date < now() && $task->status !== 'bajarildi')
+                                                <p class="$color">
+                                                    Бажарилмади
+                                            @elseif(auth()->user()->id == $task->created_by )
                                                 <form action="{{ route('updateStatus', $task->id) }}" method="POST">
                                                     @csrf
                                                     @method('POST')
@@ -101,7 +106,13 @@
                                                         @foreach(['yangi', 'bajarilmoqda', 'bajarildi'] as $status)
                                                             <option
                                                                 value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
-                                                                {{ $status }}
+                                                                @if($status == 'yangi')
+                                                                    Янги
+                                                                @elseif($status == 'bajarilmoqda')
+                                                                    Бажарилмоқда
+                                                                @else
+                                                                    Бажарилди
+                                                                @endif
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -112,9 +123,8 @@
                                             @endif
                                         </td>
                                         <td>
-
                                             <div class="hstack gap-2 justify-content-end">
-                                                @if(auth()->user()->role == 'xodim')
+                                                @if(auth()->user()->role == 'xodim' || $task->end_date < now())
 
                                                 @elseif(auth()->user()->id == $task->created_by ?? auth()->user()->role == 'admin')
                                                     <a href="javascript:void(0)" data-bs-toggle="offcanvas"
@@ -152,10 +162,11 @@
                     </div>
 
                     <div class="mb-2">
-                        <a href="{{route('tasks.index')}}" class="btn btn-primary mt-4">Ortga</a>
+                        <a href="{{route('tasks.index')}}" class="btn btn-primary mt-4">Ортга</a>
                     </div>
 
                 </div>
             </div>
         </div>
+    @include('components.admin.project.project-modal-edit', ['tasks' => $tasks])
 @endsection

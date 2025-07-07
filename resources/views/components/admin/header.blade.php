@@ -39,8 +39,8 @@
                 <!--! [Start] nxl-lavel-mega-menu-wrapper !-->
                 <div class="nxl-lavel-mega-menu-wrapper d-flex gap-3 ">
                     <form action="{{ route('projects.search') }}" method="GET" class="d-flex">
-                        <input type="text" name="query" class="form-control me-2" placeholder="Ism yoki topshiriq...">
-                        <button type="submit" class="btn btn-primary">Qidirish</button>
+                        <input type="text" name="query" class="form-control me-2" placeholder="Ходимлар исми">
+                        <button type="submit" class="btn btn-primary">Қидириш</button>
                     </form>
 {{--                    <form id="searchForm" action="{{ route('projects.search') }}" method="get" >--}}
 {{--                        <input type="text" class="search-box" name="query" placeholder="Izlash..." required>--}}

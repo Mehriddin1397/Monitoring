@@ -31,7 +31,7 @@
                 <li class="nxl-item nxl-hasmenu">
                     <a href="{{route('tasks.index')}}" class="nxl-link">
                         <span class="nxl-micon"><i class="feather-layout"></i></span>
-                        <span class="nxl-mtext">Topshiriqlar</span><span class="nxl-arrow"></span>
+                        <span class="nxl-mtext">Топшириқлар</span><span class="nxl-arrow"></span>
                     </a>
                 </li>
 

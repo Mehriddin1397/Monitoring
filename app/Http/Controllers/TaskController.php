@@ -126,6 +126,7 @@ class TaskController extends Controller
     public function search(Request $request)
     {
         $search = $request->input('query');
+        $users = User::all();
 
 
         $tasks = Task::with('assignedUsers')
@@ -138,6 +139,6 @@ class TaskController extends Controller
             ->get();
 
 
-        return view('admin.project.search', compact('tasks','search'));
+        return view('admin.project.search', compact('tasks','search', 'users'));
     }
 }

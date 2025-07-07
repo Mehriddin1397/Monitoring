@@ -105,7 +105,7 @@
                     <div class="card stretch stretch-full">
                         <div class="card-body p-0">
                             <div class="table-responsive table-container table-wrapper" style=" overflow-y: auto;">
-                                <table class="table table-hover " id="proposalList" >
+                                <table class="table table-hover " id="proposalList">
                                     <thead class="sticky-top " style="background-color: #c7c7f0; ">
                                     <tr>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
@@ -119,7 +119,7 @@
                                             Ижрочилар
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                            Берилган сана
+                                            Берилган санаси
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Бажариш санаси
                                         </th>
@@ -231,7 +231,8 @@
                                                         {{$daysLeft}} - кун
                                                 @endif
                                             </td>
-                                            <td>@if($task->end_date < now() && $task->status !== 'bajarildi')
+                                            <td>
+                                                @if($task->end_date < now() && $task->status !== 'bajarildi')
                                                     <p class="$color">
                                                         Бажарилмади
                                                 @elseif(auth()->user()->id == $task->created_by )
@@ -262,7 +263,6 @@
 
                                             </td>
                                             <td>
-
                                                 <div class="hstack gap-2 justify-content-end">
                                                     @if(auth()->user()->role == 'xodim' || $task->end_date < now())
 
