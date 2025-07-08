@@ -107,9 +107,7 @@
                                                 {!! $task->title !!}
                                             </h6>
                                         </td>
-                                        {{--                                            <td>--}}
-                                        {{--                                                {{$task->creator->name ?? '-' }}--}}
-                                        {{--                                            </td>--}}
+
                                         <td>
                                             @foreach($task->assignedUsers as $user)
                                                 <span class="badge bg-primary">{{ $user->name }}</span> <br>

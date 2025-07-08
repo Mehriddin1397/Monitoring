@@ -202,9 +202,7 @@
                                                     {!! $task->title !!}
                                                 </h6>
                                             </td>
-                                            {{--                                            <td>--}}
-                                            {{--                                                {{$task->creator->name ?? '-' }}--}}
-                                            {{--                                            </td>--}}
+
                                             <td>
                                         @foreach($task->assignedUsers as $user)
                                                 <span class="badge bg-primary">{{ $user->name }}</span> <br>
@@ -214,8 +212,8 @@
                                             <td>
                                                 {{$task->start_date}}
                                             </td>
-                                            <td>
 
+                                            <td>
                                                 {{$task->end_date}}
                                             </td>
                                             <td>
@@ -267,6 +265,7 @@
                                                 @endif
 
                                             </td>
+
                                             <td>
                                             @php
                                                 $currentUser = \Illuminate\Support\Facades\Auth::user();
@@ -300,9 +299,8 @@
                                                         <p>Файл йуқ</p>
                                                     @endif
                                                 @endif
-
-
                                             </td>
+
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">
                                                     @if(auth()->user()->role == 'xodim' || $task->end_date < now())
@@ -350,31 +348,52 @@
     </div>
     <script>
         function printTable() {
-            let tableContent = document.querySelector('.table-container').innerHTML;
+            // Jadvalni clone qilib olamiz
+            let originalTable = document.querySelector('#proposalList');
+            let clonedTable = originalTable.cloneNode(true);
+
+            // "Топшириқ файли" va "Таҳрирлаш" ustunlarini topamiz (9- va 10-ustun)
+            const removeColumns = [7, 8]; // 0-indeksdan boshlab
+
+            // Theaddagi ustunlarni o‘chirish
+            let theadRow = clonedTable.querySelector('thead tr');
+            removeColumns.slice().reverse().forEach(index => {
+                theadRow.deleteCell(index);
+            });
+
+            // Tbodydagi har bir qatordagi shu ustunlarni o‘chirish
+            clonedTable.querySelectorAll('tbody tr').forEach(row => {
+                removeColumns.slice().reverse().forEach(index => {
+                    row.deleteCell(index);
+                });
+            });
+
+            // CSS style
             let style = `
             <style>
                 table {
                     width: 100%;
                     border-collapse: collapse;
+                    font-size: 12px;
                 }
                 th, td {
                     border: 1px solid #000;
                     padding: 5px;
                     text-align: left;
-                    font-size: 12px;
                 }
                 th {
-                    background-color: #f0f0f0;
+                    background-color: #f8f8f8;
                 }
             </style>
         `;
 
+            // Yangi oynada chiqarish
             let printWindow = window.open('', '', 'height=800,width=1000');
             printWindow.document.write('<html><head><title>Топшириқлар рўйхати</title>');
             printWindow.document.write(style);
             printWindow.document.write('</head><body>');
             printWindow.document.write('<h3>Топшириқлар рўйхати</h3>');
-            printWindow.document.write(tableContent);
+            printWindow.document.write(clonedTable.outerHTML);
             printWindow.document.write('</body></html>');
             printWindow.document.close();
             printWindow.focus();
@@ -382,6 +401,7 @@
             printWindow.close();
         }
     </script>
+
 
     <style>
         .table-wrapper {
