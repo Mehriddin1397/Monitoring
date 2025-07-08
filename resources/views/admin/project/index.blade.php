@@ -196,7 +196,7 @@
                                             <td> {{ $loop->iteration }}</td>
                                             <td>
                                                 <h6 class="text-dark mb-0 text-break"
-                                                    style="white-space: normal; word-break: break-word; font-weight: normal; word-wrap: break-word;  max-width: 250px;">
+                                                    style="white-space: normal; word-break: break-word; font-weight: normal;">
                                                     {!! $task->title !!}
                                                 </h6>
                                             </td>
