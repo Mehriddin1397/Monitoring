@@ -196,7 +196,7 @@
                                             <td> {{ $loop->iteration }}</td>
                                             <td>
                                                 <h6 class="text-dark mb-0 text-break"
-                                                    style="white-space: normal; word-break: break-word; font-weight: normal; word-wrap: break-word;  max-width: 200px;">
+                                                    style="white-space: normal; word-break: break-word; font-weight: normal; word-wrap: break-word;  max-width: 250px;">
                                                     {!! $task->title !!}
                                                 </h6>
                                             </td>
@@ -346,7 +346,7 @@
     </div>
     <script>
         function printTable() {
-            // Jadvalni clone qilib olamiz
+            // Jadvalni clone qilib olamiz.
             let originalTable = document.querySelector('#proposalList');
             let clonedTable = originalTable.cloneNode(true);
 
@@ -385,7 +385,7 @@
             </style>
         `;
 
-            // Yangi oynada chiqarish
+            // Yangi oynada chiqarish..
             let printWindow = window.open('', '', 'height=800,width=1000');
             printWindow.document.write('<html><head><title>Топшириқлар рўйхати</title>');
             printWindow.document.write(style);
