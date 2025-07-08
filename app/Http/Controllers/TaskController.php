@@ -66,8 +66,7 @@ class TaskController extends Controller
         if (auth()->id() !== $task->created_by) {
             abort(403);
         }
-        $deadline = \Carbon\Carbon::parse($task->end_date);
-        $daysLeft = \Carbon\Carbon::today()->diffInDays($deadline, false);
+
 
 
 
