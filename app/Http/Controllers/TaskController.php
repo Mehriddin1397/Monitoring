@@ -69,7 +69,7 @@ class TaskController extends Controller
         $deadline = \Carbon\Carbon::parse($task->end_date);
         $daysLeft = \Carbon\Carbon::today()->diffInDays($deadline, false);
 
-        if ($ === 0) {}
+
 
         $request->validate(['status' => 'required|in:yangi,bajarilmoqda,bajarildi']);
         $task->status = $request->status;
