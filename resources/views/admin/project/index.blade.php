@@ -294,10 +294,10 @@
                                                 @else
                                                     @if($task->document)
                                                         <a href="{{ asset('storage/' . $task->document) }}" class="btn btn-success" download>
-                                                            Yuklab olish
+                                                            Юклаш
                                                         </a>
                                                     @else
-                                                        <p>Fayl mavjud emas</p>
+                                                        <p>Файл йуқ</p>
                                                     @endif
                                                 @endif
 
