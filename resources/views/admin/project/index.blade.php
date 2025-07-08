@@ -144,8 +144,8 @@
                                             $color = 'text-success';
                                             $showAlert = $daysLeft == 1; // Faqat 1 kun qolganida
 
-                                            if ($daysLeft <= 3) $color = 'text-danger';
-                                            elseif ($daysLeft <= 10) $color = 'text-warning';
+                                            if ($daysLeft <= 5) $color = 'text-danger';
+                                            elseif ($daysLeft <= 16) $color = 'text-warning';
                                         @endphp
 
                                         @if(auth()->user()->role == 'xodim' && $task->status !== 'bajarildi' )
@@ -254,10 +254,10 @@
                                                         </select>
                                                     </form>
                                                 @else
-                                                    @if($task->status == 'bajarilmoqda' || $daysLeft <= 3)
-                                                    Бажарилмоқда
-                                                    @elseif($task->status == 'yangi')
+                                                    @if($task->status == 'yangi')
                                                         Янги
+                                                    @elseif($task->status == 'bajarilmoqda')
+                                                        Бажарилмоқда
                                                     @else
                                                         Бажарилди
                                                     @endif
@@ -282,14 +282,7 @@
 
                                                 @if($task->assignedUsers->contains(Auth::user()->id))
                                                     @if($task->document)
-                                                        <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
-                                                            @csrf
-                                                            <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                            <input type="file" name="document" onchange="this.form.submit()">
-                                                        </form>
-                                                        <a href="{{ asset('storage/' . $task->document) }}" class="btn btn-success" download>
-                                                            Юклаш
-                                                        </a>
+                                                        Yuklangan
                                                     @else
                                                     <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
                                                         @csrf
