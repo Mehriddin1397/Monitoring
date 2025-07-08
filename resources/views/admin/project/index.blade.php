@@ -120,7 +120,7 @@
                                         {{--                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nazorat uchun--}}
                                         {{--                                        </th>--}}
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                        Ижрочилар
+                                            Ижрочилар
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
                                             Берилган санаси
@@ -204,16 +204,16 @@
                                             </td>
 
                                             <td>
-                                        @foreach($task->assignedUsers as $user)
-                                                <span class="badge bg-primary">{{ $user->name }}</span> <br>
-                                            @endforeach
+                                                @foreach($task->assignedUsers as $user)
+                                                    <span class="badge bg-primary">{{ $user->name }}</span> <br>
+                                                @endforeach
                                             </td>
 
                                             <td>
                                                 {{$task->start_date}}
                                             </td>
-
                                             <td>
+
                                                 {{$task->end_date}}
                                             </td>
                                             <td>
@@ -265,17 +265,16 @@
                                                 @endif
 
                                             </td>
-
                                             <td>
-                                            @php
-                                                $currentUser = \Illuminate\Support\Facades\Auth::user();
-                                                $isAssigned = $task->assignedUsers->contains(function ($user) use ($currentUser) {
-                                                    return $user->id === $currentUser->id;
-                                                });
-                                            @endphp
+                                                @php
+                                                    $currentUser = \Illuminate\Support\Facades\Auth::user();
+                                                    $isAssigned = $task->assignedUsers->contains(function ($user) use ($currentUser) {
+                                                        return $user->id === $currentUser->id;
+                                                    });
+                                                @endphp
 
 
-                                                <!-- Modalni ochuvchi tugma -->
+                                                    <!-- Modalni ochuvchi tugma -->
                                                 @if($task->assignedUsers->contains(Auth::user()->id))
 
                                                 @endif
@@ -284,11 +283,11 @@
                                                     @if($task->document)
                                                         Yuklangan
                                                     @else
-                                                    <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
-                                                        @csrf
-                                                        <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                        <input type="file" name="document" onchange="this.form.submit()">
-                                                    </form>
+                                                        <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
+                                                            @csrf
+                                                            <input type="hidden" name="task_id" value="{{ $task->id }}">
+                                                            <input type="file" name="document" onchange="this.form.submit()">
+                                                        </form>
                                                     @endif
                                                 @else
                                                     @if($task->document)
@@ -299,8 +298,9 @@
                                                         <p>Файл йуқ</p>
                                                     @endif
                                                 @endif
-                                            </td>
 
+
+                                            </td>
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">
                                                     @if(auth()->user()->role == 'xodim' || $task->end_date < now())
