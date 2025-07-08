@@ -142,7 +142,7 @@
                                             $color = 'text-success';
                                             $showAlert = $daysLeft == 1; // Faqat 1 kun qolganida
 
-                                            if ($daysLeft <= 5) $color = 'text-danger';
+                                            if ($daysLeft <= 3) $color = 'text-danger';
                                             elseif ($daysLeft <= 16) $color = 'text-warning';
                                         @endphp
 
@@ -240,10 +240,10 @@
                                                             @foreach(['yangi', 'bajarilmoqda', 'bajarildi'] as $status)
                                                                 <option
                                                                     value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
-                                                                    @if($status == 'yangi')
-                                                                        Янги
-                                                                    @elseif($status == 'bajarilmoqda')
+                                                                    @if($status == ' bajarilmoqda' )
                                                                         Бажарилмоқда
+                                                                    @elseif($status == 'yangi')
+                                                                         Янги
                                                                     @else
                                                                         Бажарилди
                                                                     @endif
@@ -272,14 +272,16 @@
                                                 @endphp
 
 
-                                                    <!-- Modalni ochuvchi tugma -->
-                                                @if($task->assignedUsers->contains(Auth::user()->id))
-
-                                                @endif
-
                                                 @if($task->assignedUsers->contains(Auth::user()->id))
                                                     @if($task->document)
-                                                        Yuklangan
+                                                        <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
+                                                            @csrf
+                                                            <input type="hidden" name="task_id" value="{{ $task->id }}">
+                                                            <input type="file" name="document" onchange="this.form.submit()">
+                                                        </form>
+                                                        <a href="{{ asset('storage/' . $task->document) }}" class="btn btn-success" download>
+                                                            Юклаш
+                                                        </a>
                                                     @else
                                                         <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
                                                             @csrf
