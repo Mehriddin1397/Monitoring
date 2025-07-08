@@ -17,16 +17,13 @@
                             <div class="alert alert-warning">Неч қандай натижа топилмади.</div>
                         @else
                             <table class="table table-hover " id="proposalList">
-                                <thead style="background-color: #c7c7f0">
+                                <thead class="sticky-top " style="background-color: #c7c7f0; ">
                                 <tr>
                                     <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
                                     <th style="font-weight: bold; font-size: 13px; color: #333;">Берилган топшириқ
                                     </th>
-{{--                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Topshiriq bergan--}}
-{{--                                        rahbar--}}
-{{--                                    </th>--}}
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ файли
-                                    </th>
+                                    {{--                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nazorat uchun--}}
+                                    {{--                                        </th>--}}
                                     <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
                                         Ижрочилар
                                     </th>
@@ -39,6 +36,8 @@
                                     </th>
                                     <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ холати
                                     </th>
+                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ ижроси
+                                    </th>
                                     <th class="text-end">Таҳрирлаш</th>
                                 </tr>
                                 </thead>
@@ -48,25 +47,69 @@
                                         $deadline = \Carbon\Carbon::parse($task->end_date);
                                         $daysLeft = \Carbon\Carbon::today()->diffInDays($deadline, false);
                                         $color = 'text-success';
+                                        $showAlert = $daysLeft == 1; // Faqat 1 kun qolganida
 
                                         if ($daysLeft <= 5) $color = 'text-danger';
                                         elseif ($daysLeft <= 16) $color = 'text-warning';
                                     @endphp
+
+                                    @if(auth()->user()->role == 'xodim' && $task->status !== 'bajarildi' )
+                                        @if($showAlert)
+                                            <script>
+                                                let alertAudio;
+
+                                                function showRepeatingAlert() {
+                                                    // Ovoz faylini yuklab, takrorlansin
+                                                    alertAudio = new Audio("{{ asset('sounds/alert.mp3') }}");
+                                                    alertAudio.loop = true;
+                                                    alertAudio.play();
+
+                                                    // Modal oynani ko‘rsatish (oddiy HTML element yordamida)
+                                                    const alertBox = document.createElement('div');
+                                                    alertBox.innerHTML = ` <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                                                    background: rgba(0,0,0,0.6); display: flex; align-items: center;
+                                                    justify-content: center; z-index: 9999;">
+                                                                                <div style="background: white; padding: 30px; border-radius: 10px;
+                                                                                     text-align: center; font-size: 20px; max-width: 400px;">
+                                                                                        <p><strong>⏰ DIQQAT!</strong><br>Топшириқ тугашига 1 кун қолди!</p>
+                                                                                            <button id="stopAlertBtn"
+                                                                                               style="padding: 10px 20px; margin-top: 20px; background-color: red; color: white; border: none; border-radius: 5px;">
+                                                                                            Тушунарли
+                                                                                     </button>
+                                                                                     </div>
+                                                                                 </div>
+                                                                             `;
+
+                                                    document.body.appendChild(alertBox);
+
+                                                    // Tugmani bosganda — modalni va ovozni to‘xtatish
+                                                    document.getElementById('stopAlertBtn').addEventListener('click', () => {
+                                                        alertAudio.pause();
+                                                        alertAudio.currentTime = 0;
+                                                        alertBox.remove();
+                                                    });
+                                                }
+
+                                                // Dastlab ochilishi
+                                                showRepeatingAlert();
+
+                                                // Keyingi har 20 daqiqada signal
+                                                setInterval(showRepeatingAlert, 20 * 60 * 1000);
+                                            </script>
+                                        @endif
+                                    @endif
+
                                     <tr class="single-item">
                                         <td> {{ $loop->iteration }}</td>
                                         <td>
-                                            {!! $task->title !!}
+                                            <h6 class="text-dark mb-0 text-break"
+                                                style="white-space: normal; word-break: break-word; font-weight: normal;">
+                                                {!! $task->title !!}
+                                            </h6>
                                         </td>
-{{--                                        <td>--}}
-{{--                                            {{$task->creator->name ?? '-' }}--}}
-{{--                                        </td>--}}
-                                        <td>
-                                            <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}">
-                                                Хужжатни очиш
-                                            </a>
-
-
-                                        </td>
+                                        {{--                                            <td>--}}
+                                        {{--                                                {{$task->creator->name ?? '-' }}--}}
+                                        {{--                                            </td>--}}
                                         <td>
                                             @foreach($task->assignedUsers as $user)
                                                 <span class="badge bg-primary">{{ $user->name }}</span> <br>
@@ -118,9 +161,52 @@
                                                     </select>
                                                 </form>
                                             @else
-                                                {{$task->status}}
+                                                @if($task->status == 'yangi')
+                                                    Янги
+                                                @elseif($task->status == 'bajarilmoqda')
+                                                    Бажарилмоқда
+                                                @else
+                                                    Бажарилди
+                                                @endif
 
                                             @endif
+
+                                        </td>
+                                        <td>
+                                            @php
+                                                $currentUser = \Illuminate\Support\Facades\Auth::user();
+                                                $isAssigned = $task->assignedUsers->contains(function ($user) use ($currentUser) {
+                                                    return $user->id === $currentUser->id;
+                                                });
+                                            @endphp
+
+
+                                                <!-- Modalni ochuvchi tugma -->
+                                            @if($task->assignedUsers->contains(Auth::user()->id))
+
+                                            @endif
+
+                                            @if($task->assignedUsers->contains(Auth::user()->id))
+                                                @if($task->document)
+                                                    Yuklangan
+                                                @else
+                                                    <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        <input type="hidden" name="task_id" value="{{ $task->id }}">
+                                                        <input type="file" name="document" onchange="this.form.submit()">
+                                                    </form>
+                                                @endif
+                                            @else
+                                                @if($task->document)
+                                                    <a href="{{ asset('storage/' . $task->document) }}" class="btn btn-success" download>
+                                                        Юклаш
+                                                    </a>
+                                                @else
+                                                    <p>Файл йуқ</p>
+                                                @endif
+                                            @endif
+
+
                                         </td>
                                         <td>
                                             <div class="hstack gap-2 justify-content-end">
