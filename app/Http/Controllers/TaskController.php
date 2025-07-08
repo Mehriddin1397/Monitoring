@@ -17,22 +17,22 @@ class TaskController extends Controller
         $user = auth()->user();
         $users = User::all();
 
-        if ($user->role === 'xodim') {
-
-
-            $tasks = $user->assignedTasks()
-                ->with('creator')                        // creator bilan birga yuklash
-                ->orderBy('end_date', 'asc')             // eng yaqin muddat birinchi
-                ->get();
-
-
-        } else {
-            $tasks = Task::with(['assignedUsers', 'creator'])
-                ->orderByRaw("CASE WHEN status = 'bajarildi' THEN 1 ELSE 0 END") // bajarilmaganlar birinchi
-                ->orderBy('end_date', 'asc') // bajarilmaganlar orasida eng yaqinlar avval
-                ->get();
-
-        }
+//        if ($user->role === 'xodim') {
+//
+//            $tasks = $user->assignedTasks()
+//                ->with('creator')                        // creator bilan birga yuklash
+//                ->orderBy('end_date', 'asc')             // eng yaqin muddat birinchi
+//                ->get();
+//
+//
+//        } else {
+//            $tasks = Task::with(['assignedUsers', 'creator'])
+//                ->orderByRaw("CASE WHEN status = 'bajarildi' THEN 1 ELSE 0 END") // bajarilmaganlar birinchi
+//                ->orderBy('end_date', 'asc') // bajarilmaganlar orasida eng yaqinlar avval
+//                ->get();
+//
+//        }
+        $tasks = Task::latest()->get();
 
 
 

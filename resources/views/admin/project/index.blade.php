@@ -12,6 +12,9 @@
                     <h5 class="m-b-10 ">Топшириқлар</h5>
                 </div>
             </div>
+            <div style="color: white;">
+                Белгиланган топшириқларни бажарилмаганлиги
+            </div>
             <div class="page-header-right ms-auto">
                 <div class="page-header-right-items">
                     <div class="d-flex d-md-none">
