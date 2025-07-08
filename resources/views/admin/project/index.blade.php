@@ -117,8 +117,6 @@
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Берилган топшириқ
                                         </th>
-                                        {{--                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nazorat uchun--}}
-                                        {{--                                        </th>--}}
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
                                             Ижрочилар
                                         </th>
@@ -198,7 +196,7 @@
                                             <td> {{ $loop->iteration }}</td>
                                             <td>
                                                 <h6 class="text-dark mb-0 text-break"
-                                                    style="white-space: normal; word-break: break-word; font-weight: normal;">
+                                                    style="white-space: normal; word-break: break-word; font-weight: normal; word-wrap: break-word;  max-width: 200px;">
                                                     {!! $task->title !!}
                                                 </h6>
                                             </td>
@@ -419,6 +417,8 @@
             border-bottom: 2px solid #dee2e6;
         }
     </style>
+
+
 
 
 
