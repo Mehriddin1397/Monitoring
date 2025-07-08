@@ -240,11 +240,11 @@
                                                             @foreach(['yangi', 'bajarilmoqda', 'bajarildi'] as $status)
                                                                 <option
                                                                     value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
-                                                                    @if($status == ' bajarilmoqda' )
-                                                                        Бажарилмоқда
-                                                                    @elseif($status == 'yangi')
-                                                                         Янги
-                                                                    @else
+                                                                    @if($status == 'yangi' )
+                                                                        Янги
+                                                                    @elseif( $status == 'bajarilmoqda')
+                                                                        Жараёнда
+                                                                    @elseif( $status == 'bajarildi')
                                                                         Бажарилди
                                                                     @endif
                                                                 </option>

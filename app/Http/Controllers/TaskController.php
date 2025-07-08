@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+
 class TaskController extends Controller
 {
+
     public function index() {
         $user = auth()->user();
         $users = User::all();
@@ -151,6 +154,8 @@ class TaskController extends Controller
 
         return redirect()->back()->with('success', 'Fayl muvaffaqiyatli yuklandi!');
     }
+
+
 
 
 }
