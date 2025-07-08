@@ -24,10 +24,6 @@
                         <textarea name="title" class="form-control ckeditor" rows="10"></textarea>
                     </div>
                 </div>
-                <div class="form-group mb-4">
-                    <label for="name_free_count" class="form-label">Буйриқ файли (агар бўлса):</label>
-                    <input type="file" name="document" class="form-control">
-                </div>
                 <div class="col-md-6">
                     <div class="form-group mb-4">
                         <label class="form-label">Ходимлар:</label>

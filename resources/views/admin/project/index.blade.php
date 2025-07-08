@@ -119,10 +119,8 @@
                                         </th>
                                         {{--                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nazorat uchun--}}
                                         {{--                                        </th>--}}
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ файли
-                                        </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                            Ижрочилар
+                                        Ижрочилар
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
                                             Берилган санаси
@@ -132,6 +130,8 @@
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ муддати
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ холати
+                                        </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ ижроси
                                         </th>
                                         <th class="text-end">Таҳрирлаш</th>
                                     </tr>
@@ -206,16 +206,9 @@
                                             {{--                                                {{$task->creator->name ?? '-' }}--}}
                                             {{--                                            </td>--}}
                                             <td>
-                                                <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}">
-                                                    Хужжатни очиш
-                                                </a>
-
-
-                                            </td>
-                                            <td>
-                                                @foreach($task->assignedUsers as $user)
-                                                    <span class="badge bg-primary">{{ $user->name }}</span> <br>
-                                                @endforeach
+                                        @foreach($task->assignedUsers as $user)
+                                                <span class="badge bg-primary">{{ $user->name }}</span> <br>
+                                            @endforeach
                                             </td>
 
                                             <td>
@@ -272,6 +265,42 @@
                                                     @endif
 
                                                 @endif
+
+                                            </td>
+                                            <td>
+                                            @php
+                                                $currentUser = \Illuminate\Support\Facades\Auth::user();
+                                                $isAssigned = $task->assignedUsers->contains(function ($user) use ($currentUser) {
+                                                    return $user->id === $currentUser->id;
+                                                });
+                                            @endphp
+
+
+                                                <!-- Modalni ochuvchi tugma -->
+                                                @if($task->assignedUsers->contains(Auth::user()->id))
+
+                                                @endif
+
+                                                @if($task->assignedUsers->contains(Auth::user()->id))
+                                                    @if($task->document)
+                                                        Yuklangan
+                                                    @else
+                                                    <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        <input type="hidden" name="task_id" value="{{ $task->id }}">
+                                                        <input type="file" name="document" onchange="this.form.submit()">
+                                                    </form>
+                                                    @endif
+                                                @else
+                                                    @if($task->document)
+                                                        <a href="{{ asset('storage/' . $task->document) }}" class="btn btn-success" download>
+                                                            Yuklab olish
+                                                        </a>
+                                                    @else
+                                                        <p>Fayl mavjud emas</p>
+                                                    @endif
+                                                @endif
+
 
                                             </td>
                                             <td>
@@ -370,6 +399,10 @@
             border-bottom: 2px solid #dee2e6;
         }
     </style>
+
+
+
+
 
 
 

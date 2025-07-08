@@ -41,18 +41,16 @@ class TaskController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:10000',
-            'document' => 'nullable|file|mimes:pdf',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'assigned_users' => 'required|array',
         ]);
 
 
-        $filePath = $request->file('document')?->store('documents', 'public');
+
 
         $task = Task::create([
             'title' => $validated['title'],
-            'document' => $filePath,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
             'created_by' => auth()->user()->id,
@@ -85,23 +83,11 @@ class TaskController extends Controller
         // Validatsiya
         $validated = $request->validate([
             'title' => 'required|string|max:10000',
-            'document' => 'nullable|file|mimes:pdf',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'assigned_users' => 'required|array',
         ]);
 
-        // Faylni yangilash (agar bo‘lsa)
-        if ($request->hasFile('document')) {
-            // Eski faylni o‘chirishingiz mumkin (ixtiyoriy)
-            if ($request->hasFile('document')) {
-                Storage::delete($task->document);
-                $task->document = $request->file('document')->store('documents');
-            }
-
-            $filePath = $request->file('document')->store('documents', 'public');
-            $task->document = $filePath;
-        }
 
         // Ma'lumotlarni yangilash
         $task->update([
@@ -141,4 +127,27 @@ class TaskController extends Controller
 
         return view('admin.project.search', compact('tasks','search', 'users'));
     }
+
+    public function uploadfile(Request $request)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,doc,docx,jpg,png,txt|max:20480',
+            'task_id' => 'required|exists:tasks,id',
+        ]);
+
+        $task = Task::find($request->task_id);
+        $user = $request->user();
+
+        if (!$task->assignedUsers->contains($user->id)) {
+            return redirect()->back()->with('error', 'Siz bu topshiriqqa fayl yuklay olmaysiz.');
+        }
+
+        $path = $request->file('document')->store('documents', 'public');
+        $task->document = $path;
+        $task->save();
+
+        return redirect()->back()->with('success', 'Fayl muvaffaqiyatli yuklandi!');
+    }
+
+
 }
