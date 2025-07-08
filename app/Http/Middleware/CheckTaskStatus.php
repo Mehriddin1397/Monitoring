@@ -22,7 +22,7 @@ class CheckTaskStatus
 
         // 3 kundan kam qolgan va hali "yangi" bo‘lgan topshiriqlarni olish
         $tasksToUpdate = Task::where('status', 'yangi')
-            ->whereDate('end_date', '<', $threeDaysLater)
+            ->whereDate('end_date', '<=', $threeDaysLater)
             ->get();
 
         // Agar mavjud bo‘lsa, ularning statusini o‘zgartirish
