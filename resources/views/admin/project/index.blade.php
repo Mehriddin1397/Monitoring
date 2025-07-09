@@ -169,7 +169,11 @@
                                             $deadline = \Carbon\Carbon::parse($task->end_date);
                                             $daysLeft = \Carbon\Carbon::today()->diffInDays($deadline, false);
                                             $color = 'text-success';
-                                            $showAlert = $daysLeft == 1; // Faqat 1 kun qolganida
+                                            $showAlert = in_array($daysLeft, [0, 1]); // Faqat 1 kun qolganida
+                                            $now = \Carbon\Carbon::now();
+                                            $today = $now->startOfDay();
+                                            $endDate = \Carbon\Carbon::parse($task->end_date)->startOfDay();
+                                            $daysLeft1 = $today->diffInDays($endDate, false); // false -> manfiy ham qaytaradi
 
                                             if ($daysLeft <= 3) $color = 'text-danger';
                                             elseif ($daysLeft <= 16) $color = 'text-warning';
@@ -244,19 +248,22 @@
                                                 {{$task->end_date}}
                                             </td>
                                             <td>
-                                                @if($task->end_date < now() && $task->status !== 'bajarildi')
-                                                    <p class="{{ $color }}">
-                                                        Бажарилмади
-                                                @elseif($task->status == 'bajarildi')
-                                                    <p class="text-success">
-                                                        Якунланди
+
+                                                @if ($task->status === 'bajarildi')
+                                                    <p class="text-success">Якунланди</p>
+
+                                                @elseif ($now->greaterThan($endDate->copy()->endOfDay()) && $task->status !== 'bajarildi')
+                                                    <p class="{{ $color }}">Бажарилмади</p>
+
+                                                @elseif ($endDate->isToday() && $task->status !== 'bajarildi')
+                                                    <p class="{{ $color }}">Топшириш куни</p>
+
                                                 @else
-                                                    <p class="{{ $color }}">
-                                                        {{$daysLeft}} - кун
+                                                    <p class="{{ $color }}">{{ $daysLeft }} - кун</p>
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($task->end_date < now() && $task->status !== 'bajarildi')
+                                                @if($now->greaterThan($endDate->copy()->endOfDay()) && $task->status !== 'bajarildi')
                                                     <p class="$color">
                                                         Бажарилмади
                                                 @elseif(auth()->user()->id == $task->created_by )
@@ -264,7 +271,8 @@
                                                         @csrf
                                                         @method('POST')
 
-                                                        <select name="status" class="form-control" required onchange="this.form.submit()">
+                                                        <select name="status" class="form-control" required
+                                                                onchange="this.form.submit()">
                                                             @foreach(['yangi', 'bajarilmoqda', 'bajarildi', 'uzaytirildi'] as $status)
                                                                 <option value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
                                                                     @if($status == 'yangi' )
@@ -340,7 +348,7 @@
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">
-                                                    @if(auth()->user()->role == 'xodim' || $task->end_date < now())
+                                                    @if(auth()->user()->role == 'xodim' || ($now->greaterThan($endDate->copy()->endOfDay()) && $task->status !== 'bajarildi'))
 
                                                     @elseif(auth()->user()->id == $task->created_by ?? auth()->user()->role == 'admin')
                                                         <a href="javascript:void(0)" data-bs-toggle="offcanvas"
