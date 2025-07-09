@@ -70,11 +70,17 @@ class TaskController extends Controller
             abort(403);
         }
 
+        $request->validate(['status' => 'required|in:yangi,bajarilmoqda,bajarildi,uzaytirildi']);
 
+        $oldStatus = $task->status;
+        $newStatus = $request->input('status');
 
+        $task->status = $newStatus;
 
-        $request->validate(['status' => 'required|in:yangi,bajarilmoqda,bajarildi']);
-        $task->status = $request->status;
+        // Agar 'uzaytirildi' bo‘lsa va ilgari bu tanlanmagan bo‘lsa
+        if ($newStatus === 'uzaytirildi' && $oldStatus !== 'uzaytirildi') {
+            $task->end_date = \Carbon\Carbon::parse($task->end_date)->addDays(3);
+        }
         $task->save();
 
         return back();

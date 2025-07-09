@@ -216,7 +216,7 @@
                                                     showRepeatingAlert();
 
                                                     // Keyingi har 20 daqiqada signal
-                                                    setInterval(showRepeatingAlert, 20 * 60 * 1000);
+                                                    setInterval(showRepeatingAlert, 30 * 60 * 1000);
                                                 </script>
                                             @endif
                                         @endif
@@ -264,17 +264,17 @@
                                                         @csrf
                                                         @method('POST')
 
-                                                        <select name="status" class="form-control" required
-                                                                onchange="this.form.submit()">
-                                                            @foreach(['yangi', 'bajarilmoqda', 'bajarildi'] as $status)
-                                                                <option
-                                                                    value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
+                                                        <select name="status" class="form-control" required onchange="this.form.submit()">
+                                                            @foreach(['yangi', 'bajarilmoqda', 'bajarildi', 'uzaytirildi'] as $status)
+                                                                <option value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
                                                                     @if($status == 'yangi' )
                                                                         Янги
                                                                     @elseif( $status == 'bajarilmoqda')
                                                                         Жараёнда
                                                                     @elseif( $status == 'bajarildi')
                                                                         Бажарилди
+                                                                    @elseif( $status == 'uzaytirildi')
+                                                                        Узайтирилди
                                                                     @endif
                                                                 </option>
                                                             @endforeach
