@@ -285,8 +285,10 @@
                                                         Янги
                                                     @elseif($task->status == 'bajarilmoqda')
                                                         Бажарилмоқда
-                                                    @else
+                                                    @elseif($task->status == 'bajarildi')
                                                         Бажарилди
+                                                    @else
+                                                        Узайтирилди
                                                     @endif
 
                                                 @endif
