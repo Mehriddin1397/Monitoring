@@ -12,9 +12,35 @@
                     <h5 class="m-b-10 ">Топшириқлар</h5>
                 </div>
             </div>
-            <div style="color: white;">
-                Белгиланган топшириқларни бажарилмаганлиги
+            <div style="
+    background-color: #ff0000;
+    color: #fff700;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 15px;
+    border: 3px dashed yellow;
+    text-align: center;
+    animation: blink 1s infinite;
+    margin-right: 5px;
+">
+                ⚠️ Белгиланган топшириқларни бажарилмаганлиги юзасидан ташкилий ишлар бўлими томонидан хизмат текшируви
+                ўтказилиб, институт кенгашида мухокамага қўйилади!
             </div>
+
+            <style>
+                @keyframes blink {
+                    0% {
+                        opacity: 1;
+                    }
+                    50% {
+                        opacity: 0.4;
+                    }
+                    100% {
+                        opacity: 1;
+                    }
+                }
+            </style>
+
             <div class="page-header-right ms-auto">
                 <div class="page-header-right-items">
                     <div class="d-flex d-md-none">
@@ -277,24 +303,30 @@
 
                                                 @if($task->assignedUsers->contains(Auth::user()->id))
                                                     @if($task->document)
-                                                        <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
+                                                        <form action="{{ route('file.upload') }}" method="POST"
+                                                              enctype="multipart/form-data">
                                                             @csrf
                                                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                            <input type="file" name="document" onchange="this.form.submit()">
+                                                            <input type="file" name="document"
+                                                                   onchange="this.form.submit()">
                                                         </form>
-                                                        <a href="{{ asset('storage/' . $task->document) }}" class="btn btn-success" download>
+                                                        <a href="{{ asset('storage/' . $task->document) }}"
+                                                           class="btn btn-success" download>
                                                             Юклаш
                                                         </a>
                                                     @else
-                                                        <form action="{{ route('file.upload') }}" method="POST" enctype="multipart/form-data">
+                                                        <form action="{{ route('file.upload') }}" method="POST"
+                                                              enctype="multipart/form-data">
                                                             @csrf
                                                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                            <input type="file" name="document" onchange="this.form.submit()">
+                                                            <input type="file" name="document"
+                                                                   onchange="this.form.submit()">
                                                         </form>
                                                     @endif
                                                 @else
                                                     @if($task->document)
-                                                        <a href="{{ asset('storage/' . $task->document) }}" class="btn btn-success" download>
+                                                        <a href="{{ asset('storage/' . $task->document) }}"
+                                                           class="btn btn-success" download>
                                                             Юклаш
                                                         </a>
                                                     @else
