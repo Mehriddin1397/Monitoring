@@ -18,6 +18,7 @@ class TaskController extends Controller
         $user = auth()->user();
         $users = User::all();
         $now = now();
+        $status = 'bajarilmoqda';
 
         $statuses = ['yangi', 'bajarilmoqda'];
 
@@ -39,7 +40,7 @@ class TaskController extends Controller
 
 
 
-        return view('admin.project.index', compact('tasks', 'users'));
+        return view('admin.project.index', compact('tasks', 'users','status'));
     }
 
     public function statusFilter($status)
