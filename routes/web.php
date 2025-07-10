@@ -11,7 +11,8 @@ Route::post('/logout',[\App\Http\Controllers\PageController::class,'logout'])->n
 
 Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () {
     Route::get('/dashboard',[\App\Http\Controllers\PageController::class,'dashboard'])->name('dashboard');
-    Route::resource('tasks',\App\Http\Controllers\TaskController::class);
+    Route::resource('tasks', \App\Http\Controllers\TaskController::class)->except(['show']);
+
     Route::resource('users',\App\Http\Controllers\UserController::class);
     Route::get('/admin/projects/search', [\App\Http\Controllers\TaskController::class, 'search'])->name('projects.search');
 
@@ -23,6 +24,9 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::post('/auth-code', [\App\Http\Controllers\AuthCodeController::class, 'verify'])->name('auth.code.verify');
 
     Route::post('/file_upload', [\App\Http\Controllers\TaskController::class, 'uploadfile'])->name('file.upload');
+
+    Route::get('/tasks/status/{status}', [\App\Http\Controllers\TaskController::class, 'statusFilter'])->name('tasks.status');
+    Route::get('/tasks/failed', [\App\Http\Controllers\TaskController::class, 'failedTasks'])->name('tasks.failed');
 
 
 

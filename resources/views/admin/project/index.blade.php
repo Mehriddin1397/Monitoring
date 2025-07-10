@@ -9,7 +9,7 @@
         <div class="page-header " style="background-color: #7878a3">
             <div class="page-header-left d-flex align-items-center">
                 <div class="page-header-title">
-                    <h5 class="m-b-10 ">Топшириқлар</h5>
+                    <h5 class="m-b-10  text-white" >Топшириқлар</h5>
                 </div>
             </div>
             <div style="
@@ -24,7 +24,7 @@
     margin-right: 5px;
 ">
                 ⚠️ Белгиланган топшириқларни бажарилмаганлиги юзасидан ташкилий ишлар бўлими томонидан хизмат текшируви
-                ўтказилиб, институт кенгашида мухокамага қўйилади!
+                ўтказилиб, институт кенгашида муҳокамага қўйилади!
             </div>
 
             <style>
@@ -134,11 +134,55 @@
                     <div class="card stretch stretch-full">
                         <div class="card-body p-0">
                             <div class="table-responsive table-container table-wrapper" style=" overflow-y: auto;">
-                                <div class="d-flex justify-content-end mb-2">
-                                    <button onclick="printTable()" class="btn btn-primary">
-                                        🖨️ Чиқариш
-                                    </button>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    @php
+                                        $currentStatus = request()->route('status');
+                                    @endphp
+                                    <!-- Chap tarafdagi 4ta status tugma -->
+                                    <div class="d-flex gap-1 mb-3">
+                                        <a href="{{ route('tasks.status', 'bajarilmoqda') }}"
+                                           class="custom-btn btn btn-primary {{ request()->route('status') === 'bajarilmoqda' ? 'active' : '' }}">
+                                            Бажарилмоқда
+                                        </a>
+                                        <a href="{{ route('tasks.status', 'uzaytirildi') }}"
+                                           class="custom-btn btn btn-warning text-dark {{ request()->route('status') === 'uzaytirildi' ? 'active' : '' }}">
+                                            Узайтирилган
+                                        </a>
+                                        <a href="{{ route('tasks.failed') }}"
+                                           class="custom-btn btn btn-danger {{ request()->routeIs('tasks.failed') ? 'active' : '' }}">
+                                            Бажарилмаган
+                                        </a>
+                                        <a href="{{ route('tasks.status', 'bajarildi') }}"
+                                           class="custom-btn btn btn-success {{ request()->route('status') === 'bajarildi' ? 'active' : '' }}">
+                                            Бажарилган
+                                        </a>
+                                    </div>
+
+                                    <!-- O'ng tarafdagi print tugma -->
+                                    <div class="mt-2">
+                                        <button onclick="printTable()" class="btn btn-primary">
+                                            🖨️ Чиқариш
+                                        </button>
+                                    </div>
                                 </div>
+
+
+                                <style>
+                                    .custom-btn {
+                                        min-width: 150px;
+                                        margin-left: 10px;
+                                        margin-top: 10px;
+                                        text-align: center;
+                                        transition: transform 0.2s ease, box-shadow 0.2s ease;
+                                    }
+
+                                    .custom-btn:hover {
+                                        transform: translateY(-3px);
+                                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                                        text-decoration: none;
+                                    }
+                                </style>
+
 
                                 <table class="table table-hover " id="proposalList">
                                     <thead class="sticky-top " style="background-color: #c7c7f0; ">
@@ -163,7 +207,11 @@
                                         <th class="text-end">Таҳрирлаш</th>
                                     </tr>
                                     </thead>
-                                    <tbody style="background-color: #e7e7f3">
+                                    <tbody style="
+
+                                    background-color: #e7e7f3
+
+                                    ">
                                     @foreach($tasks as $task)
                                         @php
                                             $deadline = \Carbon\Carbon::parse($task->end_date);
@@ -264,30 +312,61 @@
                                             </td>
                                             <td>
                                                 @if($now->greaterThan($endDate->copy()->endOfDay()) && $task->status !== 'bajarildi')
-                                                    <p class="$color">
+                                                    <p class="{{ $color }}">
                                                         Бажарилмади
                                                 @elseif(auth()->user()->id == $task->created_by )
-                                                    <form action="{{ route('updateStatus', $task->id) }}" method="POST">
+                                                    <form action="{{ route('updateStatus', $task->id) }}" method="POST" id="status-form-{{ $task->id }}">
                                                         @csrf
                                                         @method('POST')
 
-                                                        <select name="status" class="form-control" required
-                                                                onchange="this.form.submit()">
-                                                            @foreach(['yangi', 'bajarilmoqda', 'bajarildi', 'uzaytirildi'] as $status)
+                                                        <select name="status" class="form-control" required onchange="handleStatusChange(this, {{ $task->id }})">
+                                                            @foreach(['yangi', 'bajarilmoqda', 'uzaytirildi', 'bajarildi'] as $status)
                                                                 <option value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
                                                                     @if($status == 'yangi' )
                                                                         Янги
                                                                     @elseif( $status == 'bajarilmoqda')
                                                                         Жараёнда
-                                                                    @elseif( $status == 'bajarildi')
-                                                                        Бажарилди
                                                                     @elseif( $status == 'uzaytirildi')
                                                                         Узайтирилди
+                                                                    @elseif( $status == 'bajarildi' &&  $task->document)
+                                                                        Бажарилди
                                                                     @endif
                                                                 </option>
                                                             @endforeach
                                                         </select>
+
+                                                        {{-- Sana inputi faqat "uzaytirildi" holatda ko‘rsatiladi --}}
+                                                        <div id="date-container-{{ $task->id }}" style="display: none; margin-top: 10px;">
+                                                            <label>Янги муддат:</label>
+                                                            <input type="date" name="end_date" class="form-control"
+                                                                   onchange="document.getElementById('status-form-{{ $task->id }}').submit();">
+                                                        </div>
                                                     </form>
+
+
+                                                    <script>
+                                                        function handleStatusChange(select, taskId) {
+                                                            const dateContainer = document.getElementById('date-container-' + taskId);
+                                                            const form = document.getElementById('status-form-' + taskId);
+
+                                                            if (select.value === 'uzaytirildi') {
+                                                                dateContainer.style.display = 'block';
+                                                            } else {
+                                                                dateContainer.style.display = 'none';
+                                                                form.submit();
+                                                            }
+                                                        }
+
+                                                        // Sahifa yuklanganda tekshir: agar status = 'uzaytirildi' bo‘lsa, sana ko‘rsatilsin
+                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                            const select = document.querySelector('#status-form-{{ $task->id }} select');
+                                                            if (select && select.value === 'uzaytirildi') {
+                                                                document.getElementById('date-container-{{ $task->id }}').style.display = 'block';
+                                                            }
+                                                        });
+                                                    </script>
+
+
                                                 @else
                                                     @if($task->status == 'yangi')
                                                         Янги
@@ -298,8 +377,8 @@
                                                     @else
                                                         Узайтирилди
                                                     @endif
-
                                                 @endif
+
 
                                             </td>
                                             <td>
@@ -320,9 +399,9 @@
                                                             <input type="file" name="document"
                                                                    onchange="this.form.submit()">
                                                         </form>
-                                                        <a href="{{ asset('storage/' . $task->document) }}"
-                                                           class="btn btn-success" download>
-                                                            Юклаш
+                                                        <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}"
+                                                           class="btn btn-success">
+                                                            Очиш
                                                         </a>
                                                     @else
                                                         <form action="{{ route('file.upload') }}" method="POST"
@@ -335,9 +414,9 @@
                                                     @endif
                                                 @else
                                                     @if($task->document)
-                                                        <a href="{{ asset('storage/' . $task->document) }}"
-                                                           class="btn btn-success" download>
-                                                            Юклаш
+                                                        <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}"
+                                                           class="btn btn-success">
+                                                            Очиш
                                                         </a>
                                                     @else
                                                         <p>Файл йуқ</p>

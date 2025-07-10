@@ -14,23 +14,26 @@ class TaskController extends Controller
 {
 
     public function index() {
+
         $user = auth()->user();
         $users = User::all();
+        $now = now();
+
+        $statuses = ['yangi', 'bajarilmoqda'];
 
         if ($user->role === 'xodim') {
-
             $tasks = $user->assignedTasks()
-                ->with('creator')                        // creator bilan birga yuklash
-                ->orderBy('end_date', 'asc')             // eng yaqin muddat birinchi
+                ->with('creator')
+                ->whereIn('status', $statuses)
+                ->whereDate('end_date', '>=', $now)
+                ->orderBy('end_date', 'asc')
                 ->get();
-
-
         } else {
             $tasks = Task::with(['assignedUsers', 'creator'])
-                ->orderByRaw("CASE WHEN status = 'bajarildi' THEN 1 ELSE 0 END") // bajarilmaganlar birinchi
-                ->orderBy('end_date', 'asc') // bajarilmaganlar orasida eng yaqinlar avval
+                ->whereIn('status', $statuses)
+                ->whereDate('end_date', '>=', $now)
+                ->orderBy('end_date', 'asc')
                 ->get();
-
         }
 
 
@@ -38,6 +41,62 @@ class TaskController extends Controller
 
         return view('admin.project.index', compact('tasks', 'users'));
     }
+
+    public function statusFilter($status)
+    {
+        $user = auth()->user();
+        $users = User::all();
+        $now = now();
+
+        if ($status === 'bajarilmoqda') {
+            $statuses = ['yangi', 'bajarilmoqda'];
+        } else {
+            $statuses = [$status];
+        }
+
+        if ($user->role === 'xodim') {
+            $tasks = $user->assignedTasks()
+                ->with('creator')
+                ->whereIn('status', $statuses)
+                ->whereDate('end_date', '>=', $now)
+                ->orderBy('end_date', 'asc')
+                ->get();
+        } else {
+            $tasks = Task::with(['assignedUsers', 'creator'])
+                ->whereIn('status', $statuses)
+                ->whereDate('end_date', '>=', $now)
+                ->orderBy('end_date', 'asc')
+                ->get();
+        }
+
+        return view('admin.project.index', compact('tasks', 'users', 'status'));
+    }
+
+    public function failedTasks()
+    {
+        $user = auth()->user();
+        $users = User::all();
+
+        $now = now();
+
+        if ($user->role === 'xodim') {
+            $tasks = $user->assignedTasks()
+                ->with('creator')
+                ->where('status', '!=', 'bajarildi')
+                ->whereDate('end_date', '<', $now)
+                ->orderBy('end_date', 'asc')
+                ->get();
+        } else {
+            $tasks = Task::with(['assignedUsers', 'creator'])
+                ->where('status', '!=', 'bajarildi')
+                ->whereDate('end_date', '<', $now)
+                ->orderBy('end_date', 'asc')
+                ->get();
+        }
+
+        return view('admin.project.index', compact('tasks', 'users'))->with('status', 'bajarilmagan');
+    }
+
 
 
     public function store(Request $request)
@@ -65,26 +124,37 @@ class TaskController extends Controller
     }
 
 
-    public function updateStatus (Request $request, Task $task) {
+    public function updateStatus(Request $request, Task $task)
+    {
+        $request->validate([
+            'status' => 'required|in:yangi,bajarilmoqda,uzaytirildi,bajarildi',
+            'end_date' => 'nullable|date',
+        ]);
+
         if (auth()->id() !== $task->created_by) {
             abort(403);
         }
 
-        $request->validate(['status' => 'required|in:yangi,bajarilmoqda,bajarildi,uzaytirildi']);
-
-        $oldStatus = $task->status;
-        $newStatus = $request->input('status');
-
-        $task->status = $newStatus;
-
-        // Agar 'uzaytirildi' bo‘lsa va ilgari bu tanlanmagan bo‘lsa
-        if ($newStatus === 'uzaytirildi' && $oldStatus !== 'uzaytirildi') {
-            $task->end_date = \Carbon\Carbon::parse($task->end_date)->addDays(3);
+        if (!$task->document && $request->status == "bajarildi") {
+            abort(403, 'Хужжат юкланмаган');
         }
+
+
+
+        $task->status = $request->status;
+
+        if ($request->status === 'uzaytirildi') {
+            if (!$request->filled('end_date')) {
+                return back()->withErrors(['end_date' => 'Илтимос, янги муддатни танланг']);
+            }
+            $task->end_date = $request->end_date; // Eslatma: bu ustun mavjud bo‘lishi kerak
+        }
+
         $task->save();
 
-        return back();
+        return redirect()->back()->with('success', 'Статус янгиланди');
     }
+
 
     public function update(Request $request, Task $task)
     {
@@ -111,7 +181,7 @@ class TaskController extends Controller
         // Assigned user-larni yangilash
         $task->assignedUsers()->sync($validated['assigned_users']);
 
-        return redirect()->route('tasks.index')->with('success', 'Topshiriq yangilandi');
+        return redirect()->back()->with('success', 'Статус янгиланди');
     }
 
     public function destroy(Task $task){
