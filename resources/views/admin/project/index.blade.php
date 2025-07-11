@@ -148,14 +148,15 @@
                                            class="custom-btn btn btn-warning text-dark {{ request()->route('status') === 'uzaytirildi' ? 'active' : '' }}">
                                             Узайтирилган
                                         </a>
-                                        <a href="{{ route('tasks.failed') }}"
-                                           class="custom-btn btn btn-danger {{ request()->routeIs('tasks.failed') ? 'active' : '' }}">
-                                            Бажарилмаган
-                                        </a>
                                         <a href="{{ route('tasks.status', 'bajarildi') }}"
                                            class="custom-btn btn btn-success {{ request()->route('status') === 'bajarildi' ? 'active' : '' }}">
                                             Бажарилган
                                         </a>
+                                        <a href="{{ route('tasks.failed') }}"
+                                           class="custom-btn btn btn-danger {{ request()->routeIs('tasks.failed') ? 'active' : '' }}">
+                                            Бажарилмаган
+                                        </a>
+
                                     </div>
 
                                     <!-- O'ng tarafdagi print tugma -->

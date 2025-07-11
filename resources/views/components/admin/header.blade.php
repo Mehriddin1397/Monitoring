@@ -37,22 +37,67 @@
                     </a>
                 </div>
                 <!--! [Start] nxl-lavel-mega-menu-wrapper !-->
-                <div class="nxl-lavel-mega-menu-wrapper d-flex gap-3 ">
-                    <form action="{{ route('projects.search') }}" method="GET" class="d-flex">
-                        <input type="text" name="query" class="form-control me-2" placeholder="Ходимлар исми">
-                        <button type="submit" class="btn btn-primary">Қидириш</button>
+
+                <div class="nxl-lavel-mega-menu-wrapper logo-center d-flex align-items-center gap-3">
+                    <img src="{{ asset('assets/images/logoo.jfif') }}" alt="logo" class="site-logo" />
+                    <h1 class="site-title">СМАРТ ИЖРО НАЗОРАТ</h1>
+                </div>
+
+
+                <!--! [End] nxl-lavel-mega-menu-wrapper !-->
+            </div>
+            <!--! [End] nxl-lavel-mega-menu !-->
+        </div>
+        <!--! [End] Header Left !-->
+        <!--! [Start] Header Right !-->
+        <div class="header-right ms-auto">
+            <div class="d-flex align-items-center">
+                <div class="dropdown nxl-h-item nxl-header-search">
+                    <form id="searchForm" action="{{ route('projects.search') }}" method="get">
+                        <input
+                            type="text"
+                            class="search-box"
+                            name="query"
+                            placeholder="Ходимлар исми .."
+                            required
+                        >
                     </form>
-{{--                    <form id="searchForm" action="{{ route('projects.search') }}" method="get" >--}}
-{{--                        <input type="text" class="search-box" name="query" placeholder="Izlash..." required>--}}
-{{--                    </form>--}}
                     <style>
+                        .logo-center {
+                            position: absolute;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            top: 50%;
+                            transform: translate(-50%, -50%);
+                            z-index: 10;
+                        }
+
+                        .site-logo {
+                            width: 45px;
+                            height: 45px;
+                            border-radius: 50%;
+                            object-fit: cover;
+                            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+                        }
+
+                        .site-title {
+                            font-family: 'Orbitron', sans-serif;
+                            font-size: 20px;
+                            font-weight: bold;
+                            color: #0072ff;
+                            margin: 0;
+                            letter-spacing: 1.5px;
+                            text-shadow: 1px 1px 2px rgba(0, 114, 255, 0.3);
+                        }
+
+
                         .search-box {
                             outline: none;
                             padding: 7px;
                             padding-left: 10px;
                             padding-right: 40px;
                             height: 35px;
-                            width: 100%;
+                            width: 185px;
                             border-radius: 30px;
                             font-size: 15px;
                             border: 1px solid #444; /* Chegara qo'shildi */
@@ -63,17 +108,6 @@
                         }
                     </style>
                 </div>
-                <!--! [End] nxl-lavel-mega-menu-wrapper !-->
-            </div>
-            <!--! [End] nxl-lavel-mega-menu !-->
-        </div>
-        <!--! [End] Header Left !-->
-        <!--! [Start] Header Right !-->
-        <div class="header-right ms-auto">
-            <div class="d-flex align-items-center">
-                <div class="dropdown nxl-h-item nxl-header-search">
-
-                </div>
                 <div class="nxl-h-item d-none d-sm-flex">
                     <div class="full-screen-switcher">
                         <a href="javascript:void(0);" class="nxl-head-link me-0" onclick="$('body').fullScreenHelper('toggle');">
@@ -82,17 +116,17 @@
                         </a>
                     </div>
                 </div>
-                <div class="nxl-h-item dark-light-theme">
-                    <a href="javascript:void(0);" class="nxl-head-link me-0 dark-button">
-                        <i class="feather-moon"></i>
-                    </a>
-                    <a href="javascript:void(0);" class="nxl-head-link me-0 light-button" style="display: none">
-                        <i class="feather-sun"></i>
-                    </a>
-                </div>
+{{--                <div class="nxl-h-item dark-light-theme">--}}
+{{--                    <a href="javascript:void(0);" class="nxl-head-link me-0 dark-button" style="display: none" >--}}
+{{--                        <i class="feather-moon"></i>--}}
+{{--                    </a>--}}
+{{--                    <a href="javascript:void(0);" class="nxl-head-link me-0 light-button" style="display: none">--}}
+{{--                        <i class="feather-sun"></i>--}}
+{{--                    </a>--}}
+{{--                </div>--}}
                 <div class="dropdown nxl-h-item">
                     <a href="javascript:void(0);" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside">
-                        <img src="{{ asset('assets/images/logoo.jfif') }}" alt="user-image" class="img-fluid user-avtar me-0" />
+                        <img src="{{ asset('assets/images/8214212.png') }}" alt="user-image" class="img-fluid user-avtar me-0" />
                     </a>
                     <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-user-dropdown">
                         <div class="dropdown-header">
