@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
+    public function completed(){
+        $user = auth()->user();
+        $users = User::all();
+        $now = now();
+
+        $tasks = Task::all();
+
+
+        return view('admin.project.index', compact('tasks', 'users'));
+    }
 
     public function index() {
 
@@ -56,22 +66,29 @@ class TaskController extends Controller
         }
 
         if ($user->role === 'xodim') {
-            $tasks = $user->assignedTasks()
+            $query = $user->assignedTasks()
                 ->with('creator')
-                ->whereIn('status', $statuses)
-                ->whereDate('end_date', '>=', $now)
-                ->orderBy('end_date', 'asc')
-                ->get();
+                ->whereIn('status', $statuses);
+
+            if ($status !== 'bajarildi') {
+                $query->whereDate('end_date', '>=', $now);
+            }
+
+            $tasks = $query->orderBy('end_date', 'asc')->get();
         } else {
-            $tasks = Task::with(['assignedUsers', 'creator'])
-                ->whereIn('status', $statuses)
-                ->whereDate('end_date', '>=', $now)
-                ->orderBy('end_date', 'asc')
-                ->get();
+            $query = Task::with(['assignedUsers', 'creator'])
+                ->whereIn('status', $statuses);
+
+            if ($status !== 'bajarildi') {
+                $query->whereDate('end_date', '>=', $now);
+            }
+
+            $tasks = $query->orderBy('end_date', 'asc')->get();
         }
 
         return view('admin.project.index', compact('tasks', 'users', 'status'));
     }
+
 
     public function failedTasks()
     {

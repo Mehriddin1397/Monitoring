@@ -28,6 +28,8 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::get('/tasks/status/{status}', [\App\Http\Controllers\TaskController::class, 'statusFilter'])->name('tasks.status');
     Route::get('/tasks/failed', [\App\Http\Controllers\TaskController::class, 'failedTasks'])->name('tasks.failed');
 
+    Route::get('/tasks/completed', [\App\Http\Controllers\TaskController::class, 'completed'])->name('tasks.completed');
+
 
 
 
