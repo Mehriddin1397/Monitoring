@@ -12,12 +12,12 @@
                 <li class="nxl-item nxl-caption">
                     <label>Navigation</label>
                 </li>
-{{--                <li class="nxl-item nxl-hasmenu">--}}
-{{--                    <a href="{{route('dashboard')}}" class="nxl-link">--}}
-{{--                        <span class="nxl-micon"><i class="feather-airplay"></i></span>--}}
-{{--                        <span class="nxl-mtext">Monitoring</span><span class="nxl-arrow"></span>--}}
-{{--                    </a>--}}
-{{--                </li>--}}
+                {{--                <li class="nxl-item nxl-hasmenu">--}}
+                {{--                    <a href="{{route('dashboard')}}" class="nxl-link">--}}
+                {{--                        <span class="nxl-micon"><i class="feather-airplay"></i></span>--}}
+                {{--                        <span class="nxl-mtext">Monitoring</span><span class="nxl-arrow"></span>--}}
+                {{--                    </a>--}}
+                {{--                </li>--}}
                 @auth
                     @if (auth()->user()->role === 'admin')
                         <li class="nxl-item nxl-hasmenu">
@@ -27,6 +27,16 @@
                             </a>
                         </li>
                     @endif
+                    @if (in_array(auth()->user()->role, ['admin', 'boshliq']))
+
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="{{route('monitoring.umumiy')}}" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                                <span class="nxl-mtext">Ходимлар статистикаси</span><span class="nxl-arrow"></span>
+                            </a>
+                        </li>
+                    @endif
+
                 @endauth
                 <li class="nxl-item nxl-hasmenu">
                     <a href="{{route('tasks.index')}}" class="nxl-link">

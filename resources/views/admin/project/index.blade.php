@@ -201,7 +201,7 @@
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ муддати
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ холати
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ ҳолати
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ ижроси
                                         </th>

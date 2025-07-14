@@ -249,6 +249,39 @@ class TaskController extends Controller
         return redirect()->back()->with('success', 'Fayl muvaffaqiyatli yuklandi!');
     }
 
+    public function umumiyStatistika()
+    {
+        $today = Carbon::today();
+
+        // 1. Faqat "xodim" rolidagi userlarni olish
+        $users = User::where('role', 'xodim')->with('assignedTasks')->get();
+
+        // 2. Statistikani user bo‘yicha yig‘ish
+        $xodimlar = $users->map(function ($user) use ($today) {
+            $tasks = $user->assignedTasks;
+
+            $inProcessTasks = $tasks->filter(function ($task) use ($today) {
+                return in_array($task->status, ['yangi', 'bajarilmoqda']) &&
+                    ($task->end_date >= $today);
+            });
+
+            $notCompletedTasks = $tasks->filter(function ($task) use ($today) {
+                return $task->status !== 'bajarildi' && $task->end_date < $today;
+            });
+
+            return [
+                'user' => $user,
+                'total' => $tasks->count(),
+                'in_process' => $inProcessTasks->count(),
+                'extended' => $tasks->where('status', 'uzaytirildi')->count(),
+                'completed' => $tasks->where('status', 'bajarildi')->count(),
+                'not_completed' => $notCompletedTasks->count(),
+            ];
+        });
+
+        return view('pages.monitoring', compact('xodimlar'));
+    }
+
 
 
 

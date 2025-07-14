@@ -40,7 +40,7 @@
 
                 <div class="nxl-lavel-mega-menu-wrapper logo-center d-flex align-items-center gap-3">
                     <img src="{{ asset('assets/images/logoo.jfif') }}" alt="logo" class="site-logo" />
-                    <h1 class="site-title">СМАРТ ИЖРО НАЗОРАТ</h1>
+                    <h1 class="site-title" style=" font-family: 'Gabriela'; serif; font-weight: bold; font-size: 32px;  font-style: normal; ">БОШҚАРУВ, СМАРТ ИЖРО НАЗОРАТ</h1>
                 </div>
 
 
@@ -160,4 +160,8 @@
             </div>
             <!--! [End] Header Right !-->
         </div>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Gabriela&display=swap" rel="stylesheet">
 </header>
