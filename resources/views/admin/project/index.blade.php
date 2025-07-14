@@ -428,7 +428,7 @@
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">
-                                                    @if(auth()->user()->role == 'xodim' || ($now->greaterThan($endDate->copy()->endOfDay()) && $task->status !== 'bajarildi'))
+                                                    @if(auth()->user()->role == 'xodim'  )
 
                                                     @elseif(auth()->user()->id == $task->created_by ?? auth()->user()->role == 'admin')
                                                         <a href="javascript:void(0)" data-bs-toggle="offcanvas"
