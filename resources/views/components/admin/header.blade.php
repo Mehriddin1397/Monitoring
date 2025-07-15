@@ -38,10 +38,19 @@
                 </div>
                 <!--! [Start] nxl-lavel-mega-menu-wrapper !-->
 
-                <div class="nxl-lavel-mega-menu-wrapper logo-center d-flex align-items-center gap-3">
-                    <img src="{{ asset('assets/images/logoo.jfif') }}" alt="logo" class="site-logo" />
-                    <h1 class="site-title" style=" font-family: 'Gabriela'; serif; font-weight: bold; font-size: 32px;  font-style: normal; ">БОШҚАРУВ, СМАРТ ИЖРО НАЗОРАТ</h1>
+                <div class="logo-center text-center">
+                    <div class="logo-block">
+                        <div class="logo-subtitle">Kriminalogiya ilmiy tadqiqot instituti</div>
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <img src="{{ asset('assets/images/logoo.jfif') }}" alt="logo" class="site-logo" />
+                            <h1 class="site-title">БОШҚАРУВ, СМАРТ ИЖРО НАЗОРАТ</h1>
+                        </div>
+                    </div>
                 </div>
+
+
+
+
 
 
                 <!--! [End] nxl-lavel-mega-menu-wrapper !-->
@@ -89,7 +98,16 @@
                             letter-spacing: 1.5px;
                             text-shadow: 1px 1px 2px rgba(0, 114, 255, 0.3);
                         }
-
+                        .logo-subtitle {
+                            font-size: 12px;
+                            font-weight: 500;
+                            color: #0072ff;
+                            margin-bottom: 4px;
+                            font-family: 'Orbitron', sans-serif;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.9;
+                        }
 
                         .search-box {
                             outline: none;
@@ -161,7 +179,5 @@
             <!--! [End] Header Right !-->
         </div>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Gabriela&display=swap" rel="stylesheet">
+    </div>
 </header>
