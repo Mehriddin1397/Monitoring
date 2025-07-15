@@ -256,8 +256,17 @@ class TaskController extends Controller
         // 1. Faqat "xodim" rolidagi userlarni olish
         $users = User::where('role', 'xodim')->with('assignedTasks')->get();
 
+        // Umumiy statistikalarni boshlang'ich qiymatga tayyorlash
+        $summary = [
+            'total' => 0,
+            'in_process' => 0,
+            'extended' => 0,
+            'completed' => 0,
+            'not_completed' => 0,
+        ];
+
         // 2. Statistikani user bo‘yicha yig‘ish
-        $xodimlar = $users->map(function ($user) use ($today) {
+        $xodimlar = $users->map(function ($user) use ($today, &$summary) {
             $tasks = $user->assignedTasks;
 
             $inProcessTasks = $tasks->filter(function ($task) use ($today) {
@@ -269,7 +278,8 @@ class TaskController extends Controller
                 return $task->status !== 'bajarildi' && $task->end_date < $today;
             });
 
-            return [
+            // Har bir xodim statistikasi
+            $userStats = [
                 'user' => $user,
                 'total' => $tasks->count(),
                 'in_process' => $inProcessTasks->count(),
@@ -277,10 +287,20 @@ class TaskController extends Controller
                 'completed' => $tasks->where('status', 'bajarildi')->count(),
                 'not_completed' => $notCompletedTasks->count(),
             ];
+
+            // Umumiy statistikaga qo‘shish
+            $summary['total'] += $userStats['total'];
+            $summary['in_process'] += $userStats['in_process'];
+            $summary['extended'] += $userStats['extended'];
+            $summary['completed'] += $userStats['completed'];
+            $summary['not_completed'] += $userStats['not_completed'];
+
+            return $userStats;
         });
 
-        return view('pages.monitoring', compact('xodimlar'));
+        return view('pages.monitoring', compact('xodimlar', 'summary'));
     }
+
 
 
 

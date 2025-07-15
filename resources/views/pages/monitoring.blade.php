@@ -49,17 +49,7 @@
                             <span>Back</span>
                         </a>
                     </div>
-                    @auth
-                        @if (auth()->user()->role !== 'xodim')
-                            <div class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
-                                <a href="javascript:void(0);" class="btn btn-primary " data-bs-toggle="offcanvas"
-                                   data-bs-target="#tasksDetailsOffcanvas">
-                                    <i class="feather-plus me-2"></i>
-                                    <span>Яратиш</span>
-                                </a>
-                            </div>
-                        @endif
-                    @endauth
+
                 </div>
                 <div class="d-md-none d-flex align-items-center">
                     <a href="javascript:void(0)" class="page-header-right-open-toggle">
@@ -216,8 +206,17 @@
                                             <td style="color: #d3aa13;font-weight: bold">{{ $item['extended'] }}</td>
                                             <td style="color: #00e000; font-weight: bold ">{{ $item['completed'] }}</td>
                                             <td style="color: red;font-weight: bold ">{{ $item['not_completed'] }}</td>
-                                        </tr>
+                                        </tr >
                                     @endforeach
+                                        <tr class="single-item" style="background-color: #d3d3f6">
+                                            <td></td>
+                                            <td style="color: black; font-weight: bold">Jami:</td>
+                                            <td style="color: black; font-weight: bold">{{ $summary['total'] }}</td>
+                                            <td style="color: #2305dd; font-weight: bold">{{ $summary['in_process'] }}</td>
+                                            <td style="color: #d3aa13;font-weight: bold">{{$summary['extended'] }}</td>
+                                            <td style="color: #00e000; font-weight: bold ">{{$summary['completed'] }}</td>
+                                            <td style="color: red;font-weight: bold ">{{ $summary['not_completed'] }}</td>
+                                        </tr>
                                     </tbody>
                                     <style>
                                         .text-fonds {
