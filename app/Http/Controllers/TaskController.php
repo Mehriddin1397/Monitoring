@@ -26,7 +26,17 @@ class TaskController extends Controller
     public function index() {
 
         $user = auth()->user();
-        $users = User::all();
+        $allUsers = User::where('role', 'xodim')->get();
+
+// 4 ta birinchi foydalanuvchi qo'shilgan vaqti bo'yicha
+        $firstUsers = $allUsers->sortBy('created_at')->take(4);
+
+// Qolgan foydalanuvchilarni alfavit tartibida
+        $remainingUsers = $allUsers->diff($firstUsers)->sortBy('name');
+
+// Yakuniy ro'yxatni birlashtiramiz
+        $users = $firstUsers->concat($remainingUsers);
+
         $now = now();
         $status = 'bajarilmoqda';
 
