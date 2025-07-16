@@ -35,6 +35,12 @@
                                 <span class="nxl-mtext">Ходимлар статистикаси</span><span class="nxl-arrow"></span>
                             </a>
                         </li>
+                            <li class="nxl-item nxl-hasmenu">
+                            <a href="{{route('monitoring.hisobot')}}" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                                <span class="nxl-mtext">Ҳисобот</span><span class="nxl-arrow"></span>
+                            </a>
+                        </li>
                     @endif
 
                 @endauth
