@@ -18,7 +18,7 @@ class RestrictLoginByIP
         $forwarded_ip = $request->header('X-Forwarded-For');
         $real_ip = $forwarded_ip ? explode(',', $forwarded_ip)[0] : $request->ip();
 
-        $allowed_ips = ['213.230.99.98', ]; // sizga kerakli IPlar
+        $allowed_ips = ['213.230.99.98','188.113.207.220' ]; // sizga kerakli IPlar
 
         if (!in_array($real_ip, $allowed_ips)) {
             abort(403, 'Sizning IP manzilingiz (' . $real_ip . ') orqali kirish taqiqlangan.');
