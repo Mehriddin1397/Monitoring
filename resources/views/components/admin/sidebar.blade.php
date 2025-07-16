@@ -27,22 +27,35 @@
                             </a>
                         </li>
                     @endif
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="{{route('tasks.index')}}" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-layout"></i></span>
+                                <span class="nxl-mtext">Топшириқлар</span><span class="nxl-arrow"></span>
+                            </a>
+                        </li>
                     @if (in_array(auth()->user()->role, ['admin', 'boshliq']))
 
-                        <li class="nxl-item nxl-hasmenu">
+                            <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('monitoring.umumiy')}}" class="nxl-link">
                                 <span class="nxl-micon"><i class="feather-airplay"></i></span>
                                 <span class="nxl-mtext">Ходимлар статистикаси</span><span class="nxl-arrow"></span>
                             </a>
                         </li>
-                    @endif
+                        @endif
 
                 @endauth
                 <li class="nxl-item nxl-hasmenu">
-                    <a href="{{route('tasks.index')}}" class="nxl-link">
-                        <span class="nxl-micon"><i class="feather-layout"></i></span>
-                        <span class="nxl-mtext">Топшириқлар</span><span class="nxl-arrow"></span>
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-briefcase"></i></span>
+                        <span class="nxl-mtext">Электрон кутибхона</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
                     </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="projects.html">Президент фармон ва қарорлари</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="projects-view.html">Вазир.Махкамасининг фармон,қарор топшириқлари</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="projects-create.html">Институт ҳақидаги барча маълумотлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="projects-create.html">Лойиха ва илмий,амалий тадқиқотлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="projects-create.html">Ҳалқаро хорижий сафарлар ва ҳамкорлик </a></li>
+                    </ul>
                 </li>
 
 
