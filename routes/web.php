@@ -2,13 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/test', function () {
+Route::get('/tes/boss', function () {
     return view('admin.auth.login');
-})->middleware('ip.restrict');
+});
 
 Route::get('/', function () {
     return view('admin.auth.login');
-})->name('login.page');
+})->name('login.page')->middleware('ip.restrict');;
 Route::post('/',[\App\Http\Controllers\PageController::class,'login'])->name('login');
 Route::post('/logout',[\App\Http\Controllers\PageController::class,'logout'])->name('logout');
 
