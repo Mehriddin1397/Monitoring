@@ -19,6 +19,12 @@
                 {{--                    </a>--}}
                 {{--                </li>--}}
                 @auth
+                    <li class="nxl-item nxl-hasmenu">
+                        <a href="{{route('tasks.index')}}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-layout"></i></span>
+                            <span class="nxl-mtext">Топшириқлар</span><span class="nxl-arrow"></span>
+                        </a>
+                    </li>
                     @if (auth()->user()->role === 'admin')
                         <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('users.index')}}" class="nxl-link">
@@ -31,25 +37,20 @@
 
                         <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('monitoring.umumiy')}}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                                <span class="nxl-micon"><i class="feather-cast"></i></span>
                                 <span class="nxl-mtext">Ходимлар статистикаси</span><span class="nxl-arrow"></span>
                             </a>
                         </li>
                             <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('monitoring.hisobot')}}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                                <span class="nxl-micon"><i class="feather-users"></i></span>
                                 <span class="nxl-mtext">Ҳисобот</span><span class="nxl-arrow"></span>
                             </a>
                         </li>
                     @endif
 
                 @endauth
-                <li class="nxl-item nxl-hasmenu">
-                    <a href="{{route('tasks.index')}}" class="nxl-link">
-                        <span class="nxl-micon"><i class="feather-layout"></i></span>
-                        <span class="nxl-mtext">Топшириқлар</span><span class="nxl-arrow"></span>
-                    </a>
-                </li>
+
 
 
             </ul>

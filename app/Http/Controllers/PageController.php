@@ -150,7 +150,7 @@ class PageController extends Controller
                 $summary['completed']++;
             }
 
-            if ($task->status !== 'bajarildi' && $task->end_date < $today) {
+            if ($task->status == 'bajarilmadi') {
                 $summary['not_completed']++;
             }
         }
