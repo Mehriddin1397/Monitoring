@@ -40,10 +40,10 @@
 
                 <div class="logo-center text-center">
                     <div class="logo-block">
-                        <div class="logo-subtitle">Криминалогия илмий тадқиқот институти</div>
+                        <div class="logo-subtitle">Криминалогия тадқиқот институти</div>
                         <div class="d-flex align-items-center justify-content-center gap-2">
                             <img src="{{ asset('assets/images/logoo.jfif') }}" alt="logo" class="site-logo" />
-                            <h1 class="site-title">БОШҚАРУВ, СМАРТ ИЖРО НАЗОРАТ</h1>
+                            <h1 class="site-title">БОШҚАРУВ, СМАРТ ИЖРО-НАЗОРАТ</h1>
                         </div>
                     </div>
                 </div>
