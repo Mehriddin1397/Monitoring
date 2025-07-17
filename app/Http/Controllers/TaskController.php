@@ -180,6 +180,9 @@ class TaskController extends Controller
         }
 
         $task->save();
+        $task->statuses()->create([
+            'status' => $request->status
+        ]);
 
         return redirect()->back()->with('success', 'Статус янгиланди');
     }
@@ -317,7 +320,7 @@ class TaskController extends Controller
             ];
         });
 
-        return view('pages.monitoring', compact('xodimlar', 'summary'));
+        return view('pages.monitoring', compact( 'summary','xodimlar'));
     }
 
 
