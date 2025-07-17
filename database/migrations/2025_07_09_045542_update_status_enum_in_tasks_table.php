@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE tasks MODIFY status ENUM('yangi', 'bajarilmoqda', 'bajarildi', 'uzaytirildi') DEFAULT 'yangi'");
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE tasks MODIFY status ENUM('yangi', 'bajarilmoqda', 'bajarildi', 'uzaytirildi','bajarilmadi') DEFAULT 'yangi'");
     }
 
     /**

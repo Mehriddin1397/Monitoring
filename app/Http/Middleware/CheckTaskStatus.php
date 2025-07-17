@@ -17,20 +17,33 @@ class CheckTaskStatus
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Bugungi sanadan 3 kun keyingi sana
-        $threeDaysLater = Carbon::today()->addDays(3);
+        $today = Carbon::today();
+        $threeDaysLater = $today->copy()->addDays(3);
 
-        // 3 kundan kam qolgan va hali "yangi" bo‘lgan topshiriqlarni olish
+        // 1. 3 kundan kam qolgan va hali "yangi" bo‘lgan topshiriqlar -> "bajarilmoqda"
         $tasksToUpdate = Task::where('status', 'yangi')
             ->whereDate('end_date', '<=', $threeDaysLater)
             ->get();
 
-        // Agar mavjud bo‘lsa, ularning statusini o‘zgartirish
         if ($tasksToUpdate->isNotEmpty()) {
             Task::whereIn('id', $tasksToUpdate->pluck('id'))
                 ->update(['status' => 'bajarilmoqda']);
         }
 
+        // 2. Muddatidan o'tib ketgan va hali bajarilmagan topshiriqlar -> "bajarilmadi"
+        $today = Carbon::today();
+
+        $expiredTasks = Task::whereNotIn('status', ['bajarildi', 'bajarilmadi'])
+            ->whereDate('end_date', '<', $today)
+            ->get();
+
+        if ($expiredTasks->isNotEmpty()) {
+            Task::whereIn('id', $expiredTasks->pluck('id'))
+                ->update(['status' => 'bajarilmadi']);
+        }
+
+
         return $next($request);
     }
+
 }

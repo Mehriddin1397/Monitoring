@@ -107,20 +107,21 @@ class TaskController extends Controller
 
         $now = now();
 
+        $whereStatus = ['bajarilmadi'];
+
         if ($user->role === 'xodim') {
             $tasks = $user->assignedTasks()
                 ->with('creator')
-                ->where('status', '!=', 'bajarildi')
-                ->whereDate('end_date', '<', $now)
+                ->whereIn('status', $whereStatus)
                 ->orderBy('end_date', 'asc')
                 ->get();
         } else {
             $tasks = Task::with(['assignedUsers', 'creator'])
-                ->where('status', '!=', 'bajarildi')
-                ->whereDate('end_date', '<', $now)
+                ->whereIn('status', $whereStatus)
                 ->orderBy('end_date', 'asc')
                 ->get();
         }
+
 
         return view('admin.project.index', compact('tasks', 'users'))->with('status', 'bajarilmagan');
     }
@@ -208,6 +209,14 @@ class TaskController extends Controller
 
         // Assigned user-larni yangilash
         $task->assignedUsers()->sync($validated['assigned_users']);
+        if ($validated['end_date']){
+            if ($task->status == 'bajarilmadi')
+            {
+                $task->status = 'bajarilmoqda';
+                $task->save();
+            }
+        }
+
 
         return redirect()->back()->with('success', 'Статус янгиланди');
     }
@@ -266,50 +275,52 @@ class TaskController extends Controller
         // 1. Faqat "xodim" rolidagi userlarni olish
         $users = User::where('role', 'xodim')->with('assignedTasks')->get();
 
-        // Umumiy statistikalarni boshlang'ich qiymatga tayyorlash
+        // 2. Barcha takrorlanmas (noyob) topshiriqlarni yig‘ish
+        $uniqueTasks = $users->flatMap(function ($user) {
+            return $user->assignedTasks;
+        })->unique('id');
+
+        // 3. Umumiy statistika faqat noyob topshiriqlar bo‘yicha
         $summary = [
-            'total' => 0,
-            'in_process' => 0,
-            'extended' => 0,
-            'completed' => 0,
-            'not_completed' => 0,
+            'total' => $uniqueTasks->count(),
+            'in_process' => $uniqueTasks->filter(function ($task) use ($today) {
+                return in_array($task->status, ['yangi', 'bajarilmoqda']) &&
+                    $task->end_date >= $today;
+            })->count(),
+            'extended' => $uniqueTasks->where('status', 'uzaytirildi')->count(),
+            'completed' => $uniqueTasks->where('status', 'bajarildi')->count(),
+            'not_completed' => $uniqueTasks->filter(function ($task) use ($today) {
+                return $task->status == 'bajarilmadi' ;
+            })->count(),
         ];
 
-        // 2. Statistikani user bo‘yicha yig‘ish
-        $xodimlar = $users->map(function ($user) use ($today, &$summary) {
-            $tasks = $user->assignedTasks;
+        // 4. Har bir xodim uchun statistikani hisoblash
+        $xodimlar = $users->map(function ($user) use ($today) {
+            $tasks = $user->assignedTasks->unique('id'); // takror topshiriqlarni olib tashlash
 
-            $inProcessTasks = $tasks->filter(function ($task) use ($today) {
+            $inProcess = $tasks->filter(function ($task) use ($today) {
                 return in_array($task->status, ['yangi', 'bajarilmoqda']) &&
-                    ($task->end_date >= $today);
+                    $task->end_date >= $today;
             });
 
-            $notCompletedTasks = $tasks->filter(function ($task) use ($today) {
-                return $task->status !== 'bajarildi' && $task->end_date < $today;
+            $notCompleted = $tasks->filter(function ($task) use ($today) {
+                return $task->status == 'bajarilmadi' ;
             });
 
-            // Har bir xodim statistikasi
-            $userStats = [
+            return [
                 'user' => $user,
                 'total' => $tasks->count(),
-                'in_process' => $inProcessTasks->count(),
+                'in_process' => $inProcess->count(),
                 'extended' => $tasks->where('status', 'uzaytirildi')->count(),
                 'completed' => $tasks->where('status', 'bajarildi')->count(),
-                'not_completed' => $notCompletedTasks->count(),
+                'not_completed' => $notCompleted->count(),
             ];
-
-            // Umumiy statistikaga qo‘shish
-            $summary['total'] += $userStats['total'];
-            $summary['in_process'] += $userStats['in_process'];
-            $summary['extended'] += $userStats['extended'];
-            $summary['completed'] += $userStats['completed'];
-            $summary['not_completed'] += $userStats['not_completed'];
-
-            return $userStats;
         });
 
         return view('pages.monitoring', compact('xodimlar', 'summary'));
     }
+
+
 
 
 
