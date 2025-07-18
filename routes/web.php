@@ -20,6 +20,8 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::resource('users',\App\Http\Controllers\UserController::class);
     Route::get('/admin/projects/search', [\App\Http\Controllers\TaskController::class, 'search'])->name('projects.search');
 
+    Route::resource('documents', \App\Http\Controllers\DocumentController::class);
+
     Route::get('/projects/{id}/file/{type}', [\App\Http\Controllers\PageController::class, 'showFile'])->name('projects.file');
 
     Route::post('/tasks/{task}/update-status', [\App\Http\Controllers\TaskController::class, 'updateStatus'])->name('updateStatus');
