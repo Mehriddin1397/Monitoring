@@ -137,7 +137,7 @@ class TaskController extends Controller
             'assigned_users' => 'required|array',
         ]);
 
-        if (auth()->user()->id == 24) {
+        if (auth()->user()->id == 26) {
             $task = Task::create([
                 'title' => $validated['title'],
                 'start_date' => $validated['start_date'],
