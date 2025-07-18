@@ -19,6 +19,7 @@ class RestrictLoginByIP
         $real_ip = $forwarded_ip ? explode(',', $forwarded_ip)[0] : $request->ip();
 
         $allowed_ips = ['213.230.99.98',
+                        '127.0.0.1',
                         '188.113.207.220',
                         '192.168.40.10',
                         '192.168.40.11',

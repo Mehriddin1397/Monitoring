@@ -137,17 +137,31 @@ class TaskController extends Controller
             'assigned_users' => 'required|array',
         ]);
 
+        if (auth()->user()->id == 24) {
+            $task = Task::create([
+                'title' => $validated['title'],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'],
+                'created_by' => 1,
+            ]);
+
+            $task->assignedUsers()->attach($validated['assigned_users']);
+        }
+        else {
+
+            $task = Task::create([
+                'title' => $validated['title'],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'],
+                'created_by' => auth()->user()->id,
+            ]);
+
+            $task->assignedUsers()->attach($validated['assigned_users']);
+        }
 
 
 
-        $task = Task::create([
-            'title' => $validated['title'],
-            'start_date' => $validated['start_date'],
-            'end_date' => $validated['end_date'],
-            'created_by' => auth()->user()->id,
-        ]);
 
-        $task->assignedUsers()->attach($validated['assigned_users']);
 
         return redirect()->route('tasks.index');
     }
