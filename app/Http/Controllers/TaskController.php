@@ -142,7 +142,7 @@ class TaskController extends Controller
                 'title' => $validated['title'],
                 'start_date' => $validated['start_date'],
                 'end_date' => $validated['end_date'],
-                'created_by' => 1,
+                'created_by' => 2,
             ]);
 
             $task->assignedUsers()->attach($validated['assigned_users']);
