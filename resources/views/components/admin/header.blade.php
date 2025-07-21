@@ -39,18 +39,15 @@
                 <!--! [Start] nxl-lavel-mega-menu-wrapper !-->
 
                 <div class="logo-center text-center">
-                    <div class="logo-block">
-                        <div class="logo-subtitle">Криминалогия тадқиқот институти</div>
-                        <div class="d-flex align-items-center justify-content-center gap-2">
-                            <img src="{{ asset('assets/images/logoo.jfif') }}" alt="logo" class="site-logo" />
+                    <div class="logo-block d-flex align-items-center gap-3">
+                        <img src="{{ asset('assets/images/logoo.jfif') }}" alt="logo" class="site-logo" />
+
+                        <div class="logo-text d-flex flex-column">
+                            <div class="logo-subtitle">Ўзбекистон Республикаси Криминология тадқиқот институти</div>
                             <h1 class="site-title">БОШҚАРУВ, СМАРТ ИЖРО-НАЗОРАТ</h1>
                         </div>
                     </div>
                 </div>
-
-
-
-
 
 
                 <!--! [End] nxl-lavel-mega-menu-wrapper !-->
@@ -72,21 +69,35 @@
                         >
                     </form>
                     <style>
-                        .logo-center {
-                            position: absolute;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            top: 50%;
-                            transform: translate(-50%, -50%);
-                            z-index: 10;
+                        .logo-block {
+                            display: flex;
+                            align-items: center;
+                            gap: 12px; /* logodan matngacha bo'lgan masofa */
                         }
 
                         .site-logo {
-                            width: 45px;
-                            height: 45px;
+                            width: 55px;
+                            height: 55px;
                             border-radius: 50%;
                             object-fit: cover;
                             box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+                        }
+
+                        .logo-text {
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                        }
+
+                        .logo-subtitle {
+                            font-size: 12px;
+                            font-weight: 500;
+                            color: #0072ff;
+                            font-family: 'Orbitron', sans-serif;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            opacity: 0.9;
+                            margin-bottom: 2px;
                         }
 
                         .site-title {
@@ -95,19 +106,11 @@
                             font-weight: bold;
                             color: #0072ff;
                             margin: 0;
-                            letter-spacing: 1.5px;
+                            letter-spacing: 1.2px;
                             text-shadow: 1px 1px 2px rgba(0, 114, 255, 0.3);
                         }
-                        .logo-subtitle {
-                            font-size: 12px;
-                            font-weight: 500;
-                            color: #0072ff;
-                            margin-bottom: 4px;
-                            font-family: 'Orbitron', sans-serif;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            opacity: 0.9;
-                        }
+
+
 
                         .search-box {
                             outline: none;
