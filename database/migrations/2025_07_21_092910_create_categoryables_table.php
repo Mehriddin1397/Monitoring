@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('categoryables', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->morphs('categorizable'); // Polimorfik bog‘lanish
+            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('categoryable_id');
+            $table->string('categoryable_type');
             $table->timestamps();
         });
+
     }
 
     /**

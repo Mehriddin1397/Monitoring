@@ -13,12 +13,9 @@ class Category extends Model
         return self::where('object_type', $type)->get();
     }
 
-    public function tasks()
+    public function categoryables()
     {
-
         return $this->morphedByMany(Task::class, 'categoryable');
-
-
     }
 
     public function documents()

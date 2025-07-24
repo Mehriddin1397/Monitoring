@@ -1,6 +1,6 @@
 <!--! ================================================================ !-->
-@foreach($tasks as $task )
-    <div class="offcanvas offcanvas-end w-50" tabindex="-1" id="tasksDetailsOffcanvasEdit{{ $task->id }}">
+@foreach($documents as $document )
+    <div class="offcanvas offcanvas-end w-50" tabindex="-1" id="tasksDetailsOffcanvasEdit{{ $document->id }}">
         <div class="offcanvas-header border-bottom" style="padding-top: 20px; padding-bottom: 20px">
             <div class="d-flex align-items-center">
                 <div class="avatar-text avatar-md items-details-close-trigger" data-bs-dismiss="offcanvas"
@@ -16,29 +16,19 @@
         </div>
 
         <div class="offcanvas-body">
-            <form action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('documents.update', $document->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
                 <div class="row">
                     <div class="form-group mb-6">
                         <label class="form-label">Топшириқ номи :</label>
-                        <textarea name="title" class="form-control ckeditor" >{{old('title',$task->title)}}</textarea>
+                        <textarea name="title" class="form-control ckeditor" >{{old('title',$document->title)}}</textarea>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Ходимлар:</label>
-                            <select name="assigned_users[]" size="17" class="form-control" multiple>
-                                @foreach($users as $user)
-                                    @if($user->role == 'xodim')
-                                        <option value="{{ $user->id }}"
-                                                @if(collect(old('assigned_users', isset($task) ? $task->assignedUsers->pluck('id')->toArray() : []))->contains($user->id))
-                                                    selected
-                                            @endif
-                                        >{{ $user->name }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
+
                         </div>
                     </div>
                     <div class="col-md-6">

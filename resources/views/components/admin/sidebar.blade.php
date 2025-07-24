@@ -56,11 +56,11 @@
                         <span class="nxl-mtext">Электрон кутибхона</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
                     </a>
                     <ul class="nxl-submenu">
-                        <li class="nxl-item"><a class="nxl-link" href="projects.html">Президент фармон ва қарорлари</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="projects-view.html">Вазир.Махкамасининг фармон,қарор топшириқлари</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="projects-create.html">Институт ҳақидаги барча маълумотлар</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="projects-create.html">Лойиха ва илмий,амалий тадқиқотлар</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="projects-create.html">Ҳалқаро хорижий сафарлар ва ҳамкорлик </a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 4) }}">Президент фармон ва қарорлари</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 5) }}">Вазир.Махкамасининг фармон,қарор топшириқлари</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 6) }}">Институт ҳақидаги барча маълумотлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 7) }}">Лойиха ва илмий,амалий тадқиқотлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 8) }}">Ҳалқаро хорижий сафарлар ва ҳамкорлик </a></li>
                     </ul>
                 </li>
 

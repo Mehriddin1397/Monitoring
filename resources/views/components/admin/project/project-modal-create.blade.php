@@ -47,6 +47,16 @@
                     </div>
 
                 </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        <label class="form-label" for="categories">Топшириқни ким берган:</label>
+                        <select name="categories[]" class="form-select form-control">
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
                 <button type="submit" class="btn btn-primary d-inline-block mt-4">Топшириқни қўшиш</button>
             </div>
         </form>

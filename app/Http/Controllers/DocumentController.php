@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,9 +15,22 @@ class DocumentController extends Controller
      */
     public function index()
     {
-        $documents = Document::with('uploader')->latest()->get();
-        return view('documents.index', compact('documents'));
+        $category = Category::with('documents')->findOrFail(4);
+        $documents = $category->documents;
+
+        return view('', compact('documents','category'));
     }
+
+
+    public function showByCategory($id)
+    {
+        $categories = Category::forObjectType('baza');
+        $category = Category::with('documents')->findOrFail($id);
+        $documents = $category->documents;
+
+        return view('admin.document.index', compact('documents','category','categories'));
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -32,22 +46,25 @@ class DocumentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'category' => 'required|string|max:255',
-            'file'     => 'required|mimes:pdf,doc,docx,ppt,pptx|max:10000',
+            'name' => 'required|string|max:255',
+            'file' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,zip',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
-        $file = $request->file('file');
-        $path = $file->store('documents');
+        // Faylni saqlash
+        $filePath = $request->file('file')->store('documents', 'public');
 
-        Document::create([
-            'name'        => $request->name,
-            'file_path'   => $path,
-            'category'    => $request->category,
+        // Hujjatni yaratish
+        $document = Document::create([
+            'name' => $request->name,
+            'file_path' => $filePath,
             'uploaded_by' => Auth::id(),
         ]);
 
-        return redirect()->route('documents.index')->with('success', 'Fayl muvaffaqiyatli yuklandi!');
+        // Category bilan bog'lash
+        $document->categories()->attach($request->category_id);
+
+        return redirect()->back()->with('success', 'Hujjat muvaffaqiyatli yuklandi!');
     }
 
     /**

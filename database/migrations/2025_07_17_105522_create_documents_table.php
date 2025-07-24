@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Fayl nomi
             $table->string('file_path'); // Saqlangan fayl manzili
-            $table->string('category'); // Kategoriya (masalan: "moliyaviy", "talim", ...)
             $table->foreignId('uploaded_by')->constrained('users')->onDelete('cascade'); // Yuklagan foydalanuvchi
             $table->timestamps();
         });

@@ -11,6 +11,9 @@
                 <div class="page-header-title">
                     <h5 class="m-b-10 ">Электрон кутибхона</h5>
                 </div>
+                <div>
+                    <h5 class="m-b-10 ">{{$category->name}}</h5>
+                </div>
             </div>
             <div class="page-header-right ms-auto">
                 <div class="page-header-right-items">
@@ -112,26 +115,26 @@
                                     </tr>
                                     </thead>
                                     <tbody style="background-color: #e7e7f3">
-                                        @foreach($users as $user)
+                                        @foreach($documents as $document)
                                             <tr class="single-item">
                                                 <td> {{ $loop->iteration }}</td>
                                                 <td>
-                                                    {{ $user->name }}
+                                                    {{ $document->name }}
                                                 </td>
                                                 <td>
-                                                    {{$user->email}}
+                                                    {{$document->uploader->name}}
                                                 </td>
                                                 <td>
-                                                    {{$user->role}}
+                                                    <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank">Yuklab olish</a>
                                                 </td>
                                                 <td>
                                                     <div class="hstack gap-2 justify-content-end">
                                                         <a href="javascript:void(0)" data-bs-toggle="offcanvas"
-                                                           data-bs-target="#tasksDetailsOffcanvasEdit{{ $user->id }}"
+                                                           data-bs-target="#tasksDetailsOffcanvasEdit{{ $document->id }}"
                                                            class="avatar-text avatar-md">
                                                             <i class="feather feather-edit-3"></i>
                                                         </a>
-                                                        <form action="{{ route('users.destroy', $user->id) }}"
+                                                        <form action="{{ route('users.destroy', $document->id) }}"
                                                               method="POST">
                                                             @csrf
                                                             @method('DELETE')
@@ -167,7 +170,7 @@
         }
     </style>
 
-    @include('components.admin.user.user-modal-create')
-    @include('components.admin.user.user-modal-edit', ['users' => $users])
+    @include('components.admin.document.document-modal-create')
+    @include('components.admin.document.document-modal-edit', ['documents' => $documents])
 
 @endsection
