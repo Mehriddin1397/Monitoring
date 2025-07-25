@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Buyruqlar')
+@section('title', 'Электрон база')
 
 @section('content')
 
@@ -17,7 +17,11 @@
                     </div>
 
                     <div class="mb-2">
-                        <a href="{{route('tasks.index')}}" class="btn btn-primary mt-4">Ортга</a>
+                        @foreach($categories as $category)
+                        @if($category->id)
+                        <a href="{{ route('documents.byCategory', $category->id) }}" class="btn btn-primary mt-4">Ортга</a>
+                        @endif
+                        @endforeach
                     </div>
 
                 </div>

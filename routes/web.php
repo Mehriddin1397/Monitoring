@@ -28,6 +28,8 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
 
     Route::get('/projects/{id}/file/{type}', [\App\Http\Controllers\PageController::class, 'showFile'])->name('projects.file');
 
+    Route::get('/document/{id}', [\App\Http\Controllers\DocumentController::class, 'showFile'])->name('document.file');
+
     Route::post('/tasks/{task}/update-status', [\App\Http\Controllers\TaskController::class, 'updateStatus'])->name('updateStatus');
 
     Route::get('/auth-code', [\App\Http\Controllers\AuthCodeController::class, 'show'])->name('auth.code');

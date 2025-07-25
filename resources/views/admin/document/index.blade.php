@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'User')
+@section('title', 'Baza')
 
 @section('content')
 
@@ -8,11 +8,11 @@
         <!-- [ page-header ] start -->
         <div class="page-header " style="background-color: #7878a3">
             <div class="page-header-left d-flex align-items-center">
-                <div class="page-header-title">
+                <div class="page-header-title ">
                     <h5 class="m-b-10 ">Электрон кутибхона</h5>
                 </div>
                 <div>
-                    <h5 class="m-b-10 ">{{$category->name}}</h5>
+                    <h5 class=" text-white ">{{$category->name}}</h5>
                 </div>
             </div>
             <div class="page-header-right ms-auto">
@@ -124,9 +124,18 @@
                                                 <td>
                                                     {{$document->uploader->name}}
                                                 </td>
-                                                <td>
-                                                    <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank">Yuklab olish</a>
+                                                <td class="text-center">
+                                                    <div class="d-inline-flex gap-2">
+                                                        <a href="{{ asset('storage/' . $document->file_path) }}" class="btn btn-primary btn-sm">
+                                                            Юклаб олиш
+                                                        </a>
+                                                        <a href="{{ route('document.file', ['id' => $document->id]) }}" class="btn btn-success btn-sm">
+                                                            Очиш
+                                                        </a>
+                                                    </div>
                                                 </td>
+
+
                                                 <td>
                                                     <div class="hstack gap-2 justify-content-end">
                                                         <a href="javascript:void(0)" data-bs-toggle="offcanvas"

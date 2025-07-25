@@ -22,26 +22,14 @@
 
                 <div class="row">
                     <div class="form-group mb-6">
-                        <label class="form-label">Топшириқ номи :</label>
-                        <textarea name="title" class="form-control ckeditor" >{{old('title',$document->title)}}</textarea>
+                        <label class="form-label">Хужжат номи:</label>
+                        <input type="text" class="form-control" name="name" value="{{old('name',$document->name)}}" required>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-4">
-                            <label class="form-label">Ходимлар:</label>
-
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-4">
-                            <label for="start_date" class="form-label">Топшириқ берилган сана:</label>
-                            <input type="date" class="form-control" name="start_date"
-                                   value="{{ old('start_date', isset($task) ? $task->start_date : '') }}">
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label for="end_date" class="form-label">Топшириқ тугаш муддати(сана):</label>
-                            <input type="date" class="form-control" name="end_date"
-                                   value="{{ old('end_date', isset($task) ? $task->end_date : '') }}">
+                            <label for="name_free_count" class="form-label">Хужжат файли:</label>
+                            <input type="file" class="form-control" name="file" >
+                            <input type="hidden" class="form-control" name="category_id" value="{{$category->id}}">
                         </div>
                     </div>
 
@@ -51,44 +39,7 @@
             </form>
         </div>
 
-        <script>
-            function addParticipant(type) {
-                let container = type === 'pul' ? document.getElementById('pul-participants') : document.getElementById('free-participants');
-                let input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control mb-2';
-                input.name = type === 'pul' ? 'name_pul[]' : 'name_free[]';
-                input.required = true;
-                container.appendChild(input);
-
-            }
-
-
-
-            CKEDITOR.replace('editor45');
-            document.querySelectorAll('.ckeditor').forEach((el) => {
-                CKEDITOR.replace(el);
-            });
-        </script>
     </div>
-    </div>
-
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                document.querySelectorAll('.ckeditor').forEach(function (el) {
-                    // CKEditor ishlashi uchun elementda id bo‘lishi kerak
-                    if (!el.id) {
-                        el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
-                    }
-
-                    // Agar allaqachon CKEditor ulangani bo‘lsa, qayta ulamaslik
-                    if (!CKEDITOR.instances[el.id]) {
-                        CKEDITOR.replace(el.id);
-                    }
-                });
-            });
-        </script>
 
 @endforeach
 
