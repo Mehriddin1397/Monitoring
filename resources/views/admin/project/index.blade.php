@@ -165,6 +165,13 @@
                                             🖨️ Чиқариш
                                         </button>
                                     </div>
+                                    @if (auth()->user()->role === 'admin')
+                                    <div class="mt-2">
+                                        <button onclick="downloadAsWord()" class="btn btn-success">
+                                            📝 Word файл сифатида сақлаш
+                                        </button>
+                                    </div>
+                                    @endif
                                 </div>
 
 
@@ -526,6 +533,65 @@
             printWindow.close();
         }
     </script>
+
+    <script>
+        function downloadAsWord() {
+            let originalTable = document.querySelector('#proposalList');
+            let clonedTable = originalTable.cloneNode(true);
+
+            const removeColumns = [7, 8]; // 0-indeksdan boshlab
+            let theadRow = clonedTable.querySelector('thead tr');
+            removeColumns.slice().reverse().forEach(index => theadRow.deleteCell(index));
+
+            clonedTable.querySelectorAll('tbody tr').forEach(row => {
+                removeColumns.slice().reverse().forEach(index => row.deleteCell(index));
+            });
+
+            // Word fayli uchun style
+            let style = `
+            <style>
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 12px;
+                }
+                th, td {
+                    border: 1px solid #000;
+                    padding: 5px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #f0f0f0;
+                }
+            </style>
+        `;
+
+            let html = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office'
+                  xmlns:w='urn:schemas-microsoft-com:office:word'
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'>${style}</head>
+            <body>
+                <h3>Топшириқлар рўйхати</h3>
+                ${clonedTable.outerHTML}
+            </body>
+            </html>
+        `;
+
+            let blob = new Blob(['\ufeff', html], {
+                type: 'application/msword'
+            });
+
+            let url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
+            let link = document.createElement('a');
+            link.href = url;
+            link.download = 'topshiriqlar.doc';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+
 
 
     <style>
