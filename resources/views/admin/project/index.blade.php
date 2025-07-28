@@ -201,7 +201,7 @@
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
                                             Ижрочилар
                                         </th>
-                                        <th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
                                             Топшириқни берган
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">

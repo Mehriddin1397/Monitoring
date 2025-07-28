@@ -51,7 +51,7 @@
                     <div class="form-group mb-4">
                         <label class="form-label" for="categories">Топшириқни ким берган:</label>
                         <select name="categories[]" class="form-select form-control">
-                            @foreach($categories as $category)
+                            @foreach($categories ?? [] as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
                         </select>

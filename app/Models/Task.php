@@ -29,7 +29,12 @@ class Task extends Model
     public function categories()
     {
         return $this->morphToMany(Category::class, 'categoryable');
+    }
 
+
+    public function statuses()
+    {
+        return $this->hasMany(TaskStatus::class);
     }
 
 }

@@ -39,12 +39,7 @@
                             </a>
                         </li>
                     @endif
-                        <li class="nxl-item nxl-hasmenu">
-                            <a href="{{route('tasks.index')}}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-layout"></i></span>
-                                <span class="nxl-mtext">Топшириқлар</span><span class="nxl-arrow"></span>
-                            </a>
-                        </li>
+
                     @if (in_array(auth()->user()->role, ['admin', 'boshliq']))
 
                             <li class="nxl-item nxl-hasmenu">
@@ -65,9 +60,9 @@
                 @endauth
 
 
-                        @endif
 
-                @endauth
+
+
                 <li class="nxl-item nxl-hasmenu">
                     <a href="javascript:void(0);" class="nxl-link">
                         <span class="nxl-micon"><i class="feather-briefcase"></i></span>
