@@ -196,10 +196,13 @@
                                     <thead class="sticky-top " style="background-color: #c7c7f0; ">
                                     <tr>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Берилган топшириқ
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ мазмуни
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
                                             Ижрочилар
+                                        </th>
+                                        <th>
+                                            Топшириқни берган
                                         </th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
                                             Берилган санаси
@@ -293,6 +296,11 @@
                                             <td>
                                                 @foreach($task->assignedUsers as $user)
                                                     <span class="badge bg-primary">{{ $user->name }}</span> <br>
+                                                @endforeach
+                                            </td>
+                                            <td>
+                                                @foreach($task->categories as $category)
+                                                    {{$category->name}}
                                                 @endforeach
                                             </td>
 

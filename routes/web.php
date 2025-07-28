@@ -20,7 +20,15 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::resource('users',\App\Http\Controllers\UserController::class);
     Route::get('/admin/projects/search', [\App\Http\Controllers\TaskController::class, 'search'])->name('projects.search');
 
+    Route::resource('documents', \App\Http\Controllers\DocumentController::class);
+    Route::resource('categories', \App\Http\Controllers\CategoryController::class);
+
+    Route::get('/category/{id}/documents', [\App\Http\Controllers\DocumentController::class, 'showByCategory'])->name('documents.byCategory');
+
+
     Route::get('/projects/{id}/file/{type}', [\App\Http\Controllers\PageController::class, 'showFile'])->name('projects.file');
+
+    Route::get('/document/{id}', [\App\Http\Controllers\DocumentController::class, 'showFile'])->name('document.file');
 
     Route::post('/tasks/{task}/update-status', [\App\Http\Controllers\TaskController::class, 'updateStatus'])->name('updateStatus');
 

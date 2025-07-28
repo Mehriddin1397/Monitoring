@@ -25,9 +25,11 @@ class Task extends Model
         return $this->belongsToMany(User::class, 'task_user');
     }
 
-    public function statuses()
+
+    public function categories()
     {
-        return $this->hasMany(TaskStatus::class);
+        return $this->morphToMany(Category::class, 'categoryable');
+
     }
 
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\News;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
@@ -26,6 +28,7 @@ class TaskController extends Controller
     public function index() {
 
         $user = auth()->user();
+        $categories = Category::forObjectType('tasks');
         $allUsers = User::where('role', 'xodim')->get();
 
 // 4 ta birinchi foydalanuvchi qo'shilgan vaqti bo'yicha
@@ -60,7 +63,7 @@ class TaskController extends Controller
 
 
 
-        return view('admin.project.index', compact('tasks', 'users','status'));
+        return view('admin.project.index', compact('tasks', 'users','status','categories'));
     }
 
     public function statusFilter($status)
@@ -135,6 +138,8 @@ class TaskController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'assigned_users' => 'required|array',
+            'categories' => 'array',  // Kategoriyalar array bo‘lishi kerak
+            'categories.*' => 'exists:categories,id',// Kategoriyalar faqat mavjud IDlar bo‘lishi kerak
         ]);
 
         if (auth()->user()->id == 26) {
@@ -162,6 +167,10 @@ class TaskController extends Controller
 
 
 
+
+        if ($request->has('categories')) {
+            $task->categories()->attach($request->categories);
+        }
 
         return redirect()->route('tasks.index');
     }
@@ -234,6 +243,15 @@ class TaskController extends Controller
             }
         }
 
+
+        // Kategoriyalarni yangilash (eski kategoriyalarni o‘chirib, yangilarini qo‘shish)
+        if ($request->has('categories') && !empty($request->categories)) {
+
+            $task->categories()->sync($request->categories);
+        } else {
+            // Agar hech narsa tanlanmasa, barcha bog‘lanishlarni olib tashlaydi
+            $task->categories()->detach();
+        }
 
         return redirect()->back()->with('success', 'Статус янгиланди');
     }
