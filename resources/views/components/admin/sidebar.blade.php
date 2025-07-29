@@ -72,7 +72,7 @@
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 1) }}">Президент фармон ва қарорлари</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 2) }}">Вазирлар Махкамасининг фармон,қарор топшириқлари</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 3) }}">Институт ҳақидаги барча маълумотлар</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 4) }}">Лойиха ва илмий,амалий тадқиқотлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 4) }}">Лойиҳа ва илмий-амалий тадқиқотлар</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 5) }}">Ҳалқаро хорижий сафарлар ва ҳамкорлик </a></li>
                     </ul>
                 </li>
