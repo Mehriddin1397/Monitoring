@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -86,38 +87,125 @@ class PageController extends Controller
         return view('admin.project.pdf', compact('project', 'filePath'));
     }
 
+
+
     public function hisobot(Request $request)
     {
         $from = $request->input('from_date');
         $to = $request->input('to_date');
 
+        $allCategories = Category::where('object_type', 'tasks')->get()->keyBy('id');
+
         if (!$from || !$to) {
-            return view('pages.hisobot')->with('summary', null);
+            return view('pages.hisobot')->with([
+                'userStats' => [],
+                'allCategories' => $allCategories,
+                'globalSummary' => [],
+            ]);
         }
 
         $fromDate = Carbon::parse($from)->startOfDay();
         $toDate = Carbon::parse($to)->endOfDay();
-
-        $tasks = Task::with('statuses')
-            ->whereBetween('created_at', [$fromDate, $toDate])
-            ->get()
-            ->unique('id');
-
         $today = Carbon::today();
 
-        $summary = [
+        $tasks = Task::with(['statuses', 'categories', 'assignedUsers'])
+            ->whereBetween('created_at', [$fromDate, $toDate])
+            ->get();
+
+        $users = User::with('assignedTasks')->get();
+
+        $userStats = [];
+
+        foreach ($users as $user) {
+            $userTasks = $tasks->filter(function ($task) use ($user) {
+                return $task->assignedUsers->contains('id', $user->id);
+            });
+
+            if ($userTasks->isEmpty()) {
+                continue;
+            }
+
+            $summary = [
+                'full_name' => $user->name,
+                'total' => 0,
+                'completed' => 0,
+                'extended' => 0,
+                'extended_then_completed' => 0,
+                'in_process' => 0,
+                'not_completed' => 0,
+                'categories' => [],
+            ];
+
+            foreach ($allCategories as $catId => $cat) {
+                $summary['categories'][$catId] = 0;
+            }
+
+            foreach ($userTasks as $task) {
+                $summary['total']++;
+
+                $statuses = $task->statuses->sortBy('created_at')->pluck('status')->values()->all();
+
+                $seenExtended = false;
+                $isExtendedThenCompleted = false;
+
+                foreach ($statuses as $status) {
+                    if ($status === 'uzaytirildi') {
+                        $seenExtended = true;
+                    }
+                    if ($seenExtended && $status === 'bajarildi') {
+                        $isExtendedThenCompleted = true;
+                        break;
+                    }
+                }
+
+                if ($isExtendedThenCompleted) {
+                    $summary['extended_then_completed']++;
+                }
+
+                if (in_array($task->status, ['yangi', 'bajarilmoqda']) && $task->end_date >= $today) {
+                    $summary['in_process']++;
+                }
+
+                if ($task->status === 'uzaytirildi') {
+                    $summary['extended']++;
+                }
+
+                if ($task->status === 'bajarildi') {
+                    $summary['completed']++;
+                }
+
+                if ($task->status === 'bajarilmadi') {
+                    $summary['not_completed']++;
+                }
+
+                foreach ($task->categories as $cat) {
+                    if (isset($summary['categories'][$cat->id])) {
+                        $summary['categories'][$cat->id]++;
+                    }
+                }
+            }
+
+            $userStats[] = $summary;
+        }
+
+        // 🔁 GLOBAL STATISTIKA (BARCHA TASKLAR BO‘YICHA, UNIKAL)
+        $globalSummary = [
             'total' => 0,
-            'in_process' => 0,
-            'extended' => 0,
             'completed' => 0,
-            'not_completed' => 0,
+            'extended' => 0,
             'extended_then_completed' => 0,
+            'in_process' => 0,
+            'not_completed' => 0,
+            'categories' => [],
         ];
 
-        foreach ($tasks as $task) {
-            $summary['total']++;
+        foreach ($allCategories as $catId => $cat) {
+            $globalSummary['categories'][$catId] = 0;
+        }
 
-            // Statuslar ketma-ketligini tekshirish
+        foreach ($tasks as $task) {
+            $globalSummary['total']++;
+
             $statuses = $task->statuses->sortBy('created_at')->pluck('status')->values()->all();
 
             $seenExtended = false;
@@ -134,31 +222,34 @@ class PageController extends Controller
             }
 
             if ($isExtendedThenCompleted) {
-                $summary['extended_then_completed']++;
-                continue;
+                $globalSummary['extended_then_completed']++;
             }
 
             if (in_array($task->status, ['yangi', 'bajarilmoqda']) && $task->end_date >= $today) {
-                $summary['in_process']++;
+                $globalSummary['in_process']++;
             }
 
             if ($task->status === 'uzaytirildi') {
-                $summary['extended']++;
+                $globalSummary['extended']++;
             }
 
             if ($task->status === 'bajarildi') {
-                $summary['completed']++;
+                $globalSummary['completed']++;
             }
 
-            if ($task->status == 'bajarilmadi') {
-                $summary['not_completed']++;
+            if ($task->status === 'bajarilmadi') {
+                $globalSummary['not_completed']++;
+            }
+
+            foreach ($task->categories as $cat) {
+                if (isset($globalSummary['categories'][$cat->id])) {
+                    $globalSummary['categories'][$cat->id]++;
+                }
             }
         }
 
-        return view('pages.hisobot', compact('summary'));
+        return view('pages.hisobot', compact('userStats', 'allCategories', 'globalSummary'));
     }
-
-
 
 
 

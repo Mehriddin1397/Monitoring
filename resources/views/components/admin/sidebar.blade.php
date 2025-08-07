@@ -40,7 +40,7 @@
                         </li>
                     @endif
 
-                    @if (in_array(auth()->user()->role, ['admin', 'boshliq']))
+                    @if (in_array(auth()->user()->role, ['admin']))
 
                             <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('monitoring.umumiy')}}" class="nxl-link">

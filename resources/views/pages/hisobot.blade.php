@@ -128,15 +128,18 @@
                                 <div class="d-flex justify-content-between align-items-end flex-wrap mb-4">
 
                                     <!-- Chap tarafdagi forma -->
-                                    <form method="GET" action="{{ route('monitoring.hisobot') }}" class="form-inline d-flex flex-wrap align-items-end">
+                                    <form method="GET" action="{{ route('monitoring.hisobot') }}"
+                                          class="form-inline d-flex flex-wrap align-items-end">
                                         <div class="form-group me-3 mb-2">
                                             <label class="me-2 fw-bold">Дан:</label>
-                                            <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control shadow-sm" required>
+                                            <input type="date" name="from_date" value="{{ request('from_date') }}"
+                                                   class="form-control shadow-sm" required>
                                         </div>
 
                                         <div class="form-group me-3 mb-2">
                                             <label class="me-2 fw-bold">Гача:</label>
-                                            <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control shadow-sm" required>
+                                            <input type="date" name="to_date" value="{{ request('to_date') }}"
+                                                   class="form-control shadow-sm" required>
                                         </div>
 
                                         <button type="submit" class="btn btn-success mb-2 custom-btn">
@@ -186,48 +189,78 @@
                             </style>
 
 
-
                             <table class="table table-hover " id="proposalList">
-                                <thead class="sticky-top " style="background-color: #c7c7f0; ">
+                                <thead>
                                 <tr>
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
+                                    <th>№</th>
+                                    <th>Ф.И.Ш</th>
+                                    <th class="vertical-text">Келиб тушган</th>
+                                    <th class="vertical-text">Топширилган (муддатида)</th>
+                                    <th class="vertical-text">Топширилган (м.ўзайтирилган)</th>
+                                    <th class="vertical-text">Ўзайтирилган</th>
+                                    <th class="vertical-text">Жараёнда</th>
+                                    <th class="vertical-text">Бажарилмаган</th>
 
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">
-                                        Келиб тушган топшириқлар сони
-                                    </th>
 
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">
-                                        Топширилган (муддатида)
-                                    </th>
-
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Топширилган (муддати ўзайтирилган)
-                                    </th>
-
-                                    <th style="font-weight: bold; font-size: 13px; color: #333; "> Ўзайтирилган
-                                    </th>
-
-                                    <th> Жараёнда
-                                    </th>
-
-                                    <th style="font-weight: bold; font-size: 13px; color: #333;">Бажарилмаган
-                                    </th>
+                                    {{-- Ustunlar --}}
+                                    @foreach($allCategories as $cat)
+                                        <th class="vertical-text">{{ $cat->name }}дан</th>
+                                    @endforeach
 
                                 </tr>
                                 </thead>
-                                <tbody style=" background-color: #e7e7f3  ">
-                                @if(isset($summary))
-                                <tr class="single-item" style="background-color: #e7e7f3">
-                                    <td></td>
-                                    <td style="color: black; font-weight: bold">{{ $summary['total'] }}</td>
-                                    <td style="color: #00e000; font-weight: bold ">{{$summary['completed'] }}</td>
-                                    <td> {{$summary['extended_then_completed']}}</td>
-                                    <td style="color: #d3aa13;font-weight: bold">{{$summary['extended'] }}</td>
-                                    <td style="color: #2305dd; font-weight: bold">{{ $summary['in_process'] }}</td>
-                                    <td style="color: red;font-weight: bold ">{{ $summary['not_completed'] }}</td>
+
+                                <tbody>
+                                @foreach($userStats as $index => $stat)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $stat['full_name'] }}</td>
+                                        <td style="text-align: center">{{ $stat['total'] }}</td>
+                                        <td style="text-align: center">{{ $stat['completed'] }}</td>
+                                        <td style="text-align: center">{{ $stat['extended_then_completed'] }}</td>
+                                        <td style="text-align: center">{{ $stat['extended'] }}</td>
+                                        <td style="text-align: center">{{ $stat['in_process'] }}</td>
+                                        <td style="text-align: center">{{ $stat['not_completed'] }}</td>
+
+                                        {{-- Qiymatlar --}}
+                                        @foreach($allCategories as $cat)
+                                            <td style="text-align: center">{{ $stat['categories'][$cat->id] ?? 0 }}</td>
+                                        @endforeach
+
+                                    </tr>
+                                @endforeach
+                                <tr class="text-fonds">
+                                    <td colspan="2" style="text-align: center">Жами</td>
+                                    <td style="text-align: center">{{  $globalSummary['total'] ?? 0 }}</td>
+                                    <td style="text-align: center">{{ $globalSummary['completed'] ?? 0 }}</td>
+                                    <td style="text-align: center">{{ $globalSummary['extended_then_completed'] ?? 0 }}</td>
+                                    <td style="text-align: center">{{ $globalSummary['extended'] ?? 0 }}</td>
+                                    <td style="text-align: center">{{ $globalSummary['in_process'] ?? 0 }}</td>
+                                    <td style="text-align: center">{{ $globalSummary['not_completed'] ?? 0 }}</td>
+
+                                    @foreach($allCategories as $catId => $cat)
+                                        <td style="text-align: center">{{ $globalSummary['categories'][$catId] ?? 0 }}</td>
+                                    @endforeach
                                 </tr>
-                                @endif
                                 </tbody>
+
+
                                 <style>
+                                    .vertical-text {
+                                        writing-mode: vertical-rl;
+                                        transform: rotate(180deg);
+                                        font-weight: bold;
+                                        font-size: 13px;
+                                        color: #333;
+                                        text-align: center;
+                                        vertical-align: middle;
+                                        padding: 10px;
+                                        height: 150px; /* balandlik beriladi */
+                                        max-width: 40px; /* ustun kengligi */
+                                        white-space: normal; /* matn pastga tushadi */
+                                        word-break: break-word; /* uzun so'zlar bo'linadi */
+                                    }
+
                                     .text-fonds {
                                         font-weight: bold;
                                         font-size: 20px;
