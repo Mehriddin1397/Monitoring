@@ -35,21 +35,24 @@
                         <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('categories.index')}}" class="nxl-link">
                                 <span class="nxl-micon"><i class="feather-layout"></i></span>
-                                <span class="nxl-mtext"> <strong>Kategoriyalar</strong></span><span class="nxl-arrow"></span>
+                                <span class="nxl-mtext"> <strong>Kategoriyalar</strong></span><span
+                                    class="nxl-arrow"></span>
                             </a>
                         </li>
                     @endif
 
                     @if (in_array(auth()->user()->role, ['admin']))
 
-                            <li class="nxl-item nxl-hasmenu">
+                        <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('monitoring.umumiy')}}" class="nxl-link">
                                 <span class="nxl-micon"><i class="feather-cast"></i></span>
                                 <span class="nxl-mtext">Ходимлар статистикаси</span><span class="nxl-arrow"></span>
                             </a>
                         </li>
+                    @endif
+                    @if (in_array(auth()->user()->role, ['admin','boshliq']))
 
-                            <li class="nxl-item nxl-hasmenu">
+                        <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('monitoring.hisobot')}}" class="nxl-link">
                                 <span class="nxl-micon"><i class="feather-users"></i></span>
                                 <span class="nxl-mtext">Ҳисобот</span><span class="nxl-arrow"></span>
@@ -60,23 +63,25 @@
                 @endauth
 
 
-
-
-
                 <li class="nxl-item nxl-hasmenu">
                     <a href="javascript:void(0);" class="nxl-link">
                         <span class="nxl-micon"><i class="feather-briefcase"></i></span>
-                        <span class="nxl-mtext">Электрон кутубхона</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                        <span class="nxl-mtext">Электрон кутубхона</span><span class="nxl-arrow"><i
+                                class="feather-chevron-right"></i></span>
                     </a>
                     <ul class="nxl-submenu">
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 1) }}">Президент фармон ва қарорлари</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 2) }}">Вазирлар Махкамасининг фармон,қарор топшириқлари</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 3) }}">Институт ҳақидаги барча маълумотлар</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 4) }}">Лойиҳа ва илмий-амалий тадқиқотлар</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 5) }}">Ҳалқаро хорижий сафарлар ва ҳамкорлик </a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 1) }}">Президент
+                                фармон ва қарорлари</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 2) }}">Вазирлар
+                                Махкамасининг фармон,қарор топшириқлари</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 3) }}">Институт
+                                ҳақидаги барча маълумотлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 4) }}">Лойиҳа ва
+                                илмий-амалий тадқиқотлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 5) }}">Ҳалқаро
+                                хорижий сафарлар ва ҳамкорлик </a></li>
                     </ul>
                 </li>
-
 
 
             </ul>
