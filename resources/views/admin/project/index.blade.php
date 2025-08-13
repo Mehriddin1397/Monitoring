@@ -415,7 +415,7 @@
                                                             <input type="file" name="document"
                                                                    onchange="this.form.submit()">
                                                         </form>
-                                                        <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}"
+                                                        <a href="{{ route('project.file', ['id' => $task->id, 'type' => 'buyruq']) }}"
                                                            class="btn btn-success">
                                                             Очиш
                                                         </a>
@@ -430,7 +430,7 @@
                                                     @endif
                                                 @else
                                                     @if($task->document)
-                                                        <a href="{{ route('projects.file', ['id' => $task->id, 'type' => 'buyruq']) }}"
+                                                        <a href="{{ route('project.file', ['id' => $task->id, 'type' => 'buyruq']) }}"
                                                            class="btn btn-success">
                                                             Очиш
                                                         </a>

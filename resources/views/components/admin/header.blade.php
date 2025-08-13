@@ -59,7 +59,7 @@
         <div class="header-right ms-auto">
             <div class="d-flex align-items-center">
                 <div class="dropdown nxl-h-item nxl-header-search">
-                    <form id="searchForm" action="{{ route('projects.search') }}" method="get">
+                    <form id="searchForm" action="{{ route('search') }}" method="get">
                         <input
                             type="text"
                             class="search-box"

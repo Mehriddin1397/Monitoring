@@ -18,7 +18,7 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::resource('tasks', \App\Http\Controllers\TaskController::class)->except(['show']);
 
     Route::resource('users',\App\Http\Controllers\UserController::class);
-    Route::get('/admin/projects/search', [\App\Http\Controllers\TaskController::class, 'search'])->name('projects.search');
+    Route::get('/admin/project/search', [\App\Http\Controllers\TaskController::class, 'search'])->name('search');
 
     Route::resource('documents', \App\Http\Controllers\DocumentController::class);
     Route::resource('categories', \App\Http\Controllers\CategoryController::class);
@@ -26,7 +26,7 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::get('/category/{id}/documents', [\App\Http\Controllers\DocumentController::class, 'showByCategory'])->name('documents.byCategory');
 
 
-    Route::get('/projects/{id}/file/{type}', [\App\Http\Controllers\PageController::class, 'showFile'])->name('projects.file');
+    Route::get('/project/{id}/file/{type}', [\App\Http\Controllers\PageController::class, 'showFile'])->name('project.file');
 
     Route::get('/document/{id}', [\App\Http\Controllers\DocumentController::class, 'showFile'])->name('document.file');
 
@@ -43,6 +43,11 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::get('/tasks/completed', [\App\Http\Controllers\TaskController::class, 'completed'])->name('tasks.completed');
     Route::get('/monitoring/umumiy', [\App\Http\Controllers\TaskController::class, 'umumiyStatistika'])->name('monitoring.umumiy');
     Route::get('/monitoring/hisobot', [\App\Http\Controllers\PageController::class, 'hisobot'])->name('monitoring.hisobot');
+
+    Route::resource('projects',\App\Http\Controllers\ProjectController::class);
+    Route::get('/admin/projects/search', [\App\Http\Controllers\ProjectController::class, 'search'])->name('projects.search');
+
+    Route::get('/projects/{id}/file/{type}', [\App\Http\Controllers\PageController::class, 'showFilee'])->name('projects_file');
 
 
 

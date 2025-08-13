@@ -251,6 +251,23 @@ class PageController extends Controller
         return view('pages.hisobot', compact('userStats', 'allCategories', 'globalSummary'));
     }
 
+    public function showFilee($id, $type)
+    {
+        $project = Project::findOrFail($id);
+
+        if ($type === 'buyruq') {
+            $filePath = $project->file_buyruq;
+        } elseif ($type === 'qushimcha') {
+            $filePath =  $project->file_qushimcha;
+        } else {
+            abort(404, 'Fayl topilmadi');
+        }
+
+
+
+        return view('admin.projectt.pdf', compact('project', 'filePath'));
+    }
+
 
 
 }

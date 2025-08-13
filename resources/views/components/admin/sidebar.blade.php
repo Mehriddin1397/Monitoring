@@ -40,6 +40,14 @@
                             </a>
                         </li>
                     @endif
+                @if(in_array(auth()->user()->role, ['admin']) || auth()->user()->id == 10)
+                    <li class="nxl-item nxl-hasmenu">
+                        <a href="{{route('projects.index')}}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-layout"></i></span>
+                            <span class="nxl-mtext">Loyihalar</span><span class="nxl-arrow"></span>
+                        </a>
+                    </li>
+                    @endif
 
                     @if (in_array(auth()->user()->role, ['admin']))
 

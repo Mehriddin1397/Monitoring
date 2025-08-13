@@ -1,0 +1,124 @@
+<!--! [Start] Tasks Details Offcanvas !-->
+<!--! ================================================================ !-->
+<div class="offcanvas offcanvas-end w-50" tabindex="-1" id="tasksDetailsOffcanvas" xmlns="http://www.w3.org/1999/html">
+    <div class="offcanvas-header border-bottom" style="padding-top: 20px; padding-bottom: 20px">
+        <div class="d-flex align-items-center">
+            <div class="avatar-text avatar-md items-details-close-trigger" data-bs-dismiss="offcanvas"
+                 data-bs-toggle="tooltip" data-bs-trigger="hover" title="Details Close"><i
+                    class="feather-arrow-left"></i></div>
+            <span class="vr text-muted mx-4"></span>
+            <a href="javascript:void(0);">
+                <h2 class="fs-14 fw-bold text-truncate-1-line">Slide </h2>
+                <span class="fs-12 fw-normal text-muted text-truncate-1-line">Loyiha yaratish</span>
+            </a>
+        </div>
+
+    </div>
+    <div class="offcanvas-body">
+        <form action="{{ route('projects.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        <label class="form-label">Loyiha nomi:</label>
+                        <input type="text" name="name" class="form-control">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label">Loyiha buyrug'i(pdf):</label>
+                        <input type="file" name="file_buyruq" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        <label class="form-label">Loyiha qo'shimcha buyrug'i(pdf):</label>
+                        <input type="file" name="file_qushimcha" class="form-control">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="name_pul_count" class="form-label">Guruh soni</label>
+                        <input type="number" class="form-control" id="name_pul_count" min="1" required>
+                    </div>
+                    <div id="name_pul"></div>
+                    <script>
+                        document.getElementById('name_pul_count').addEventListener('input', function() {
+                            let count = parseInt(this.value);
+                            let container = document.getElementById('name_pul');
+                            container.innerHTML = ''; // Avvalgi inputlarni tozalash
+
+                            if (count > 0) {
+                                for (let i = 0; i < count; i++) {
+                                    let div = document.createElement('div');
+                                    div.classList.add('mb-3');
+
+                                    let label = document.createElement('label');
+                                    label.innerText = `Qatnashuvchi ${i + 1} F.I.Sh:`;
+                                    div.appendChild(label);
+
+                                    let input = document.createElement('input');
+                                    input.type = 'text';
+                                    input.name = `name_pul[]`;
+                                    input.classList.add('form-control');
+                                    input.required = true;
+                                    div.appendChild(input);
+
+                                    container.appendChild(div);
+                                }
+                            }
+                        });
+                    </script>
+
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        <label for="name_free_count" class="form-label">Kungillilar soni</label>
+                        <input type="number" class="form-control" id="name_free_count" min="1" required>
+                    </div>
+                    <div id="name_free"></div>
+                    <script>
+                        document.getElementById('name_free_count').addEventListener('input', function() {
+                            let count = parseInt(this.value);
+                            let container = document.getElementById('name_free');
+                            container.innerHTML = ''; // Avvalgi inputlarni tozalash
+
+                            if (count > 0) {
+                                for (let i = 0; i < count; i++) {
+                                    let div = document.createElement('div');
+                                    div.classList.add('mb-3');
+
+                                    let label = document.createElement('label');
+                                    label.innerText = `Qatnashuvchi ${i + 1} F.I.Sh:`;
+                                    div.appendChild(label);
+
+                                    let input = document.createElement('input');
+                                    input.type = 'text';
+                                    input.name = `name_free[]`;
+                                    input.classList.add('form-control');
+                                    input.required = true;
+                                    div.appendChild(input);
+
+                                    container.appendChild(div);
+                                }
+                            }
+                        });
+                    </script>
+                    <div class="form-group mb-4">
+                        <label for="name_free_count" class="form-label">Loyiha boshlig'i F.I.SH:</label>
+                        <input type="text" name="pro_bos_name" class="form-control"  required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="name_free_count" class="form-label">Telefon raqami:</label>
+                        <input type="text" class="form-control" name="tel_number"  required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="name_free_count" class="form-label">Ish joyi:</label>
+                        <input type="text" class="form-control"  name="job" required>
+                    </div>
+
+                </div>
+                <button type="submit" class="btn btn-primary d-inline-block mt-4">Loyihani qo'shish</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+<!--! ================================================================ !-->
+<!--! [End] Tasks Details Offcanvas !-->
