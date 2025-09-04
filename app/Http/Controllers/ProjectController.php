@@ -11,11 +11,15 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::with('participants')->get();
+        $user = auth()->user();
 
-        // Qatnashuvchilarni ajratib olish
-
-
+        if (in_array($user->role, ['boshliq', 'admin'])) {
+            $projects = Project::with('participants')->get();
+        } else {
+            $projects = Project::with('participants')
+                ->where('user_id', $user->id)
+                ->get();
+        }
 
         return view('admin.projectt.index', compact('projects'));
     }
@@ -23,48 +27,64 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string',
             'name_pul' =>  'required|array|min:1',
             'name_pul.*'=> 'required|string|max:255',
-            'name_free'=> 'required|array|min:1',
-            'name_free.*' => 'required|string|max:255',
             'pro_bos_name' =>'required',
-            'tel_number' => 'required',
-            'job' => 'required',
+            'manba' => 'string|nullable',
+            'job' => 'string|nullable',
+            'izoh' => 'string|nullable',
             'file_buyruq' => 'required|file|mimes:pdf,doc,docx',
-            'file_qushimcha' => 'required|file|mimes:pdf,doc,docx',
+            'file_qushimcha' => 'file|mimes:pdf,doc,docx',
 
         ]);
 
-        $file_buyruq = $request->file('file_buyruq')->store('project', 'public');
-        $file_qushimcha = $request->file('file_qushimcha')->store('project', 'public');
 
+
+        $request->validate([
+            'name' => 'required|string',
+            'name_pul' =>  'required|array|min:1',
+            'name_pul.*'=> 'required|string|max:255',
+            'pro_bos_name' =>'required',
+            'manba' => 'string|nullable',
+            'job' => 'string|nullable',
+            'izoh' => 'string|nullable',
+            'file_buyruq' => 'required|file|mimes:pdf,doc,docx',
+            'file_qushimcha' => 'nullable|file|mimes:pdf,doc,docx',
+        ]);
+
+// Asosiy faylni saqlash
+        $file_buyruq = $request->file('file_buyruq')->store('project', 'public');
+
+// Loyiha yaratish
         $project = Project::create([
             'name' => $request->name,
-            'file_buyruq'=>$file_buyruq,
-            'file_qushimcha'=>$file_qushimcha,
+            'file_buyruq' => $file_buyruq,
             'pro_bos_name' => $request->pro_bos_name,
-            'tel_number' => $request->tel_number,
+            'manba' => $request->manba,
+            'izoh' => $request->izoh,
             'job' => $request->job,
+            'user_id' => auth()->id(),
         ]);
 
-        // Pullik qatnashuvchilarni saqlash
+// Pullik qatnashuvchilarni saqlash
         foreach ($request->name_pul as $participantName) {
             Participant::create([
                 'name' => $participantName,
                 'project_id' => $project->id,
-                'type' => 'pul', // Qo'shimcha ma'lumot sifatida pullik yoki tekin ekanligini saqlash
+                'type' => 'pul',
             ]);
         }
 
-        // Bepul qatnashuvchilarni saqlash
-        foreach ($request->name_free as $participantName) {
-            Participant::create([
-                'name' => $participantName,
-                'project_id' => $project->id,
-                'type' => 'free', // Qo'shimcha ma'lumot sifatida
+// Qo‘shimcha faylni tekshirish va saqlash
+        if ($request->hasFile('file_qushimcha')) {
+            $file_qushimcha = $request->file('file_qushimcha')->store('project', 'public');
+            $project->update([
+                'file_qushimcha' => $file_qushimcha
             ]);
         }
+
+
 
         return redirect()->route('projects.index');
 
@@ -80,17 +100,17 @@ class ProjectController extends Controller
     {
         // Validayatsiya
         $request->validate([
-            'name' => 'required|string|max:255',
-            'name_pul' => 'required|array|min:1',
-            'name_pul.*' => 'required|string|max:255',
-            'name_free' => 'required|array|min:1',
-            'name_free.*' => 'required|string|max:255',
-            'pro_bos_name' => 'required|string|max:255',
-            'tel_number' => 'required|string|max:15',
-            'job' => 'required|string|max:255',
-            'file_buyruq' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
-            'file_qushimcha' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'name' => 'required|string',
+            'name_pul' =>  'required|array|min:1',
+            'name_pul.*'=> 'required|string|max:255',
+            'pro_bos_name' =>'required',
+            'manba' => 'string|nullable',
+            'job' => 'string|nullable',
+            'izoh' => 'string|nullable',
+            'file_buyruq' => 'nullable|file|mimes:pdf,doc,docx',
+            'file_qushimcha' => 'nullable|file|mimes:pdf,doc,docx',
         ]);
+
 
         // Loyiha ma'lumotlarini olish
         $project = Project::findOrFail($id);
@@ -110,10 +130,11 @@ class ProjectController extends Controller
         $project->update([
             'name' => $request->name,
             'pro_bos_name' => $request->pro_bos_name,
-            'tel_number' => $request->tel_number,
             'job' => $request->job,
+            'manba' => $request->manba,
+            'izoh' => $request->izoh,
             'file_buyruq' => $project->file_buyruq,
-            'file_qushimcha' => $project->file_qushimcha,
+
         ]);
 
         // Eski qatnashuvchilarni o‘chirish
@@ -128,11 +149,10 @@ class ProjectController extends Controller
             ]);
         }
 
-        foreach ($request->name_free as $participantName) {
-            Participant::create([
-                'name' => $participantName,
-                'project_id' => $project->id,
-                'type' => 'free',
+        if ($request->hasFile('file_qushimcha')) {
+            $file_qushimcha = $request->file('file_qushimcha')->store('project', 'public');
+            $project->update([
+                'file_qushimcha' => $file_qushimcha
             ]);
         }
 
@@ -150,14 +170,30 @@ class ProjectController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('query');
+        $user = auth()->user();
 
-        // Qidiruv natijalarini olish
-        $projects = Project::where('pro_bos_name', 'LIKE', "%{$query}%")
-            ->orWhereHas('participants', function ($q) use ($query) {
-                $q->where('name', 'LIKE', "%{$query}%");
-            })
-            ->with('participants')
-            ->get();
+        $projectsQuery = Project::with('participants');
+
+        // Agar user boshliq yoki admin bo'lsa, barcha projectlar ichida qidirsin
+        if ($user->role == 'boshliq' || $user->role == 'admin') {
+            $projectsQuery->where(function ($q) use ($query) {
+                $q->where('pro_bos_name', 'LIKE', "%{$query}%")
+                    ->orWhereHas('participants', function ($q2) use ($query) {
+                        $q2->where('name', 'LIKE', "%{$query}%");
+                    });
+            });
+        } else {
+            // Faqat o'zi yaratgan projectlar ichida qidirish
+            $projectsQuery->where('user_id', $user->id)
+                ->where(function ($q) use ($query) {
+                    $q->where('pro_bos_name', 'LIKE', "%{$query}%")
+                        ->orWhereHas('participants', function ($q2) use ($query) {
+                            $q2->where('name', 'LIKE', "%{$query}%");
+                        });
+                });
+        }
+
+        $projects = $projectsQuery->get();
 
         return view('admin.projectt.search', compact('projects','query'));
     }

@@ -47,8 +47,10 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::resource('projects',\App\Http\Controllers\ProjectController::class);
     Route::get('/admin/projects/search', [\App\Http\Controllers\ProjectController::class, 'search'])->name('projects.search');
 
+
     Route::get('/projects/{id}/file/{type}', [\App\Http\Controllers\PageController::class, 'showFilee'])->name('projects_file');
 
+    Route::post('/pro_documents/{project}', [\App\Http\Controllers\Pro_documentController::class, 'store'])->name('pro_document.store');
 
 
 

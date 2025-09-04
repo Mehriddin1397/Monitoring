@@ -9,8 +9,8 @@
                 </div>
                 <span class="vr text-muted mx-4"></span>
                 <a href="javascript:void(0);">
-                    <h2 class="fs-14 fw-bold text-truncate-1-line">Loyiha</h2>
-                    <span class="fs-12 fw-normal text-muted text-truncate-1-line">Loyihani o'zgartirish</span>
+                    <h2 class="fs-14 fw-bold text-truncate-1-line">Лойиҳа</h2>
+                    <span class="fs-12 fw-normal text-muted text-truncate-1-line">Лойиҳани ўзгартириш</span>
                 </a>
             </div>
         </div>
@@ -21,53 +21,47 @@
                 @method('PUT')
 
                 <div class="mb-3">
-                    <label for="name" class="form-label">Loyiha nomi</label>
+                    <label for="name" class="form-label">Лойиҳа номи:</label>
                     <input type="text" class="form-control" name="name" value="{{ $project->name }}" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="pro_bos_name" class="form-label">Loyiha boshqaruvchisi</label>
+                    <label for="pro_bos_name" class="form-label">Маъсул ижрочи Ф.И.Ш, тел рақ:</label>
                     <input type="text" class="form-control" name="pro_bos_name" value="{{ $project->pro_bos_name }}" required>
                 </div>
 
-                <div class="mb-3">
-                    <label for="tel_number" class="form-label">Telefon raqam</label>
-                    <input type="text" class="form-control" name="tel_number" value="{{ $project->tel_number }}" required>
+                <div class="form-group mb-4">
+                    <label for="name_free_count" class="form-label">Молиялаштириш манбаси ва суммаси:</label>
+                    <input type="text" class="form-control" name="manba" value="{{ $project->manba }}" >
                 </div>
 
                 <div class="mb-3">
-                    <label for="job" class="form-label">Ish joyi</label>
+                    <label for="job" class="form-label">Иш жойи ва лавозими:</label>
                     <input type="text" class="form-control" name="job" value="{{ $project->job }}" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="file_buyruq" class="form-label">Buyruq fayli</label>
+                    <label for="file_buyruq" class="form-label">Лойиҳа буйруғи(pdf)</label>
                     <input type="file" class="form-control" name="file_buyruq">
                 </div>
 
                 <div class="mb-3">
-                    <label for="file_qushimcha" class="form-label">Qo‘shimcha fayl</label>
+                    <label for="file_qushimcha" class="form-label">Лойиҳа қўшимча буйруғи(pdf)</label>
                     <input type="file" class="form-control" name="file_qushimcha">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Guruh tarkibi</label>
+                    <label class="form-label">Гурух таркиби</label>
                     <div id="pul-participants">
                         @foreach($project->participants->where('type', 'pul') as $participant)
-                            <input type="text" class="form-control mb-2" name="name_pul[]" value="{{ $participant->name }}" required>
+                            <input type="text" class="form-control mb-2" name="name_pul[]" value="{{ $participant->name }}" >
                         @endforeach
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="addParticipant('pul')">+ Qo‘shish</button>
+                    <button type="button" class="btn btn-secondary" onclick="addParticipant('pul')">+ Қўшиш</button>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Ko'ngilli qatnashuvchilar</label>
-                    <div id="free-participants">
-                        @foreach($project->participants->where('type', 'free') as $participant)
-                            <input type="text" class="form-control mb-2" name="name_free[]" value="{{ $participant->name }}" required>
-                        @endforeach
-                    </div>
-                    <button type="button" class="btn btn-secondary" onclick="addParticipant('free')">+ Qo‘shish</button>
+                <div class="form-group mb-4">
+                    <label for="name_free_count" class="form-label">Изох:</label>
+                    <input type="text" class="form-control"  name="izoh" value="{{$project->izoh}}">
                 </div>
 
                 <button type="submit" class="btn btn-primary">Yangilash</button>

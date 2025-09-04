@@ -9,7 +9,7 @@
             <span class="vr text-muted mx-4"></span>
             <a href="javascript:void(0);">
                 <h2 class="fs-14 fw-bold text-truncate-1-line">Slide </h2>
-                <span class="fs-12 fw-normal text-muted text-truncate-1-line">Loyiha yaratish</span>
+                <span class="fs-12 fw-normal text-muted text-truncate-1-line">Лойиҳа яратиш</span>
             </a>
         </div>
 
@@ -20,21 +20,21 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-4">
-                        <label class="form-label">Loyiha nomi:</label>
+                        <label class="form-label">Лойиҳа номи:</label>
                         <input type="text" name="name" class="form-control">
                     </div>
                     <div class="form-group mb-4">
-                        <label class="form-label">Loyiha buyrug'i(pdf):</label>
+                        <label class="form-label">Лойиҳа буйруғи(pdf):</label>
                         <input type="file" name="file_buyruq" class="form-control">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-4">
-                        <label class="form-label">Loyiha qo'shimcha buyrug'i(pdf):</label>
+                        <label class="form-label">Лойиҳа қўшимча буйруғи(pdf):</label>
                         <input type="file" name="file_qushimcha" class="form-control">
                     </div>
                     <div class="form-group mb-4">
-                        <label for="name_pul_count" class="form-label">Guruh soni</label>
+                        <label for="name_pul_count" class="form-label">Гурух сони:</label>
                         <input type="number" class="form-control" id="name_pul_count" min="1" required>
                     </div>
                     <div id="name_pul"></div>
@@ -50,7 +50,7 @@
                                     div.classList.add('mb-3');
 
                                     let label = document.createElement('label');
-                                    label.innerText = `Qatnashuvchi ${i + 1} F.I.Sh:`;
+                                    label.innerText = `Қатнашувчи ${i + 1} Ф.И.Ш:`;
                                     div.appendChild(label);
 
                                     let input = document.createElement('input');
@@ -68,49 +68,53 @@
 
                 </div>
                 <div class="col-md-6">
+{{--                    <div class="form-group mb-4">--}}
+{{--                        <label for="name_free_count" class="form-label">Kungillilar soni</label>--}}
+{{--                        <input type="number" class="form-control" id="name_free_count" min="1" required>--}}
+{{--                    </div>--}}
+{{--                    <div id="name_free"></div>--}}
+{{--                    <script>--}}
+{{--                        document.getElementById('name_free_count').addEventListener('input', function() {--}}
+{{--                            let count = parseInt(this.value);--}}
+{{--                            let container = document.getElementById('name_free');--}}
+{{--                            container.innerHTML = ''; // Avvalgi inputlarni tozalash--}}
+
+{{--                            if (count > 0) {--}}
+{{--                                for (let i = 0; i < count; i++) {--}}
+{{--                                    let div = document.createElement('div');--}}
+{{--                                    div.classList.add('mb-3');--}}
+
+{{--                                    let label = document.createElement('label');--}}
+{{--                                    label.innerText = `Qatnashuvchi ${i + 1} F.I.Sh:`;--}}
+{{--                                    div.appendChild(label);--}}
+
+{{--                                    let input = document.createElement('input');--}}
+{{--                                    input.type = 'text';--}}
+{{--                                    input.name = `name_free[]`;--}}
+{{--                                    input.classList.add('form-control');--}}
+{{--                                    input.required = true;--}}
+{{--                                    div.appendChild(input);--}}
+
+{{--                                    container.appendChild(div);--}}
+{{--                                }--}}
+{{--                            }--}}
+{{--                        });--}}
+{{--                    </script>--}}
                     <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Kungillilar soni</label>
-                        <input type="number" class="form-control" id="name_free_count" min="1" required>
-                    </div>
-                    <div id="name_free"></div>
-                    <script>
-                        document.getElementById('name_free_count').addEventListener('input', function() {
-                            let count = parseInt(this.value);
-                            let container = document.getElementById('name_free');
-                            container.innerHTML = ''; // Avvalgi inputlarni tozalash
-
-                            if (count > 0) {
-                                for (let i = 0; i < count; i++) {
-                                    let div = document.createElement('div');
-                                    div.classList.add('mb-3');
-
-                                    let label = document.createElement('label');
-                                    label.innerText = `Qatnashuvchi ${i + 1} F.I.Sh:`;
-                                    div.appendChild(label);
-
-                                    let input = document.createElement('input');
-                                    input.type = 'text';
-                                    input.name = `name_free[]`;
-                                    input.classList.add('form-control');
-                                    input.required = true;
-                                    div.appendChild(input);
-
-                                    container.appendChild(div);
-                                }
-                            }
-                        });
-                    </script>
-                    <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Loyiha boshlig'i F.I.SH:</label>
+                        <label for="name_free_count" class="form-label">Маъсул ижрочи Ф.И.Ш, тел рақ:</label>
                         <input type="text" name="pro_bos_name" class="form-control"  required>
                     </div>
                     <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Telefon raqami:</label>
-                        <input type="text" class="form-control" name="tel_number"  required>
+                        <label for="name_free_count" class="form-label">Молиялаштириш манбаси ва суммаси:</label>
+                        <input type="text" class="form-control" name="manba" >
                     </div>
                     <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Ish joyi:</label>
+                        <label for="name_free_count" class="form-label">Иш жойи ва лавозими:</label>
                         <input type="text" class="form-control"  name="job" required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="name_free_count" class="form-label">Изох:</label>
+                        <input type="text" class="form-control"  name="izoh">
                     </div>
 
                 </div>

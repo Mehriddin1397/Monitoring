@@ -9,17 +9,17 @@
         <div class="page-header">
             <div class="page-header-left d-flex align-items-center">
                 <div class="page-header-title">
-                    <h5 class="m-b-10">Loyihalar</h5>
+                    <h5 class="m-b-10">Лойиҳалар</h5>
                 </div>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Home</a></li>
-                    <li class="breadcrumb-item">Loyihalar</li>
+                    <li class="breadcrumb-item">Лойиҳалар</li>
                 </ul>
             </div>
             <div class="nxl-lavel-mega-menu-wrapper d-flex gap-3 "style="margin-left: 20px">
                 <form action="{{ route('projects.search') }}" method="GET" class="d-flex">
-                    <input type="text" name="query" class="form-control me-2" placeholder="Ism yoki loyiha boshqaruvchisi...">
-                    <button type="submit" class="btn btn-primary">Qidirish</button>
+                    <input type="text" name="query" class="form-control me-2" placeholder="Исм ёки лойиҳа бошқарувчиси...">
+                    <button type="submit" class="btn btn-primary">Қидириш</button>
                 </form>
                 {{--                    <form id="searchForm" action="{{ route('projects.search') }}" method="get" >--}}
                 {{--                        <input type="text" class="search-box" name="query" placeholder="Izlash..." required>--}}
@@ -54,7 +54,7 @@
                     <div class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
                         <a href="javascript:void(0);" class="btn btn-primary "  data-bs-toggle="offcanvas" data-bs-target="#tasksDetailsOffcanvas">
                             <i class="feather-plus me-2"></i>
-                            <span>Loyiha yaratish</span>
+                            <span>Лойиҳа яратиш</span>
                         </a>
                     </div>
                 </div>
@@ -132,21 +132,26 @@
                         <div class="card-body p-0">
                             <div class="table-responsive table-container">
                                 <table class="table table-hover " id="proposalList">
-                                    <thead>
+                                    <thead class="sticky-top " style="background-color: #c7c7f0; ">
                                     <tr>
                                         <th>#</th>
-                                        <th>Loyiha</th>
-                                        <th>Buyruq</th>
-                                        <th>Qo'shimcha buyruq</th>
-                                        <th>Guruh tarkibi</th>
-                                        <th>Guruh jamoatchilik asosida</th>
-                                        <th>F.I.Sh</th>
-                                        <th>Tel_number</th>
-                                        <th>Ish joyi</th>
-                                        <th class="text-end">Tahrirlash</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа номи</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Буйруқ</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Қўшимча буйруқ</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Гурух таркиби</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа молиялаштириш манбаси ва суммаси</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳанинг маъсул ижрочиси Ф.И.Ш, тел рақам</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа бошлиғининг иш жойи ва лавозими</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа хисоботлари</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Изох</th>
+                                        <th class="text-end">Тахрирлаш</th>
                                     </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody style="
+
+                                    background-color: #e7e7f3
+
+                                    ">
                                     @foreach($projects as $project)
                                         <tr class="single-item">
                                             <td> {{ $loop->iteration }}</td>
@@ -155,19 +160,20 @@
                                             </td>
                                             @php
                                                 $pulParticipants = $project->participants->where('type', 'pul');
-                                                $freeParticipants = $project->participants->where('type', 'free');
                                             @endphp
                                             <td>
                                                 <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'buyruq']) }}" >
-                                                    Hujjatini ochish
+                                                    Хужжатни очиш
                                                 </a>
 
 
                                             </td>
                                             <td>
+                                                @if($project->	file_qushimcha)
                                                 <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'qushimcha']) }}" >
-                                                    Hujjatni ochish
+                                                    Хужжатни очиш
                                                 </a>
+                                                @endif
                                             </td>
                                             <td>
                                                 @foreach($pulParticipants as $pul)
@@ -175,18 +181,35 @@
                                                 @endforeach
                                             </td>
                                             <td>
-                                                @foreach($freeParticipants as $pul)
-                                                    {{$pul->name}} <br>
-                                                @endforeach
+                                               {{$project->manba}}
                                             </td>
                                             <td>
                                                 {{$project->pro_bos_name}}
                                             </td>
                                             <td>
-                                                {{$project->tel_number}}
+                                                {{$project->job}}
                                             </td>
                                             <td>
-                                                {{$project->job}}
+                                                {{-- Hujjat yuklash formasi --}}
+                                                <form action="{{ route('pro_document.store', $project->id) }}" method="POST" enctype="multipart/form-data" style="margin-bottom: 5px;">
+                                                    @csrf
+                                                    <input type="file" name="file" required>
+                                                    <button type="submit">Юклаш</button>
+                                                </form>
+
+                                                {{-- Yuklangan hujjatlar --}}
+                                                @if($project->pro_documents->count() > 0)
+                                                    @foreach($project->pro_documents as $doc)
+                                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank">
+                                                            <button class="button mt-2" type="button">Хужжатни очиш</button> <br>
+                                                        </a>
+                                                    @endforeach
+                                                @else
+                                                    <span>Хужжат йўқ</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                {{$project->izoh}}
                                             </td>
 
                                             <td>

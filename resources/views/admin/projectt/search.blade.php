@@ -12,45 +12,49 @@
                 <div class="card-body" style="min-height: 80vh">
                     <!-- Order Information -->
                     <div class="mb-5">
-                            <h2>Qidiruv natijalari: "{{ $query }}"</h2>
+                            <h2>Қидирув натижалари: "{{ $query }}"</h2>
                         @if($projects->isEmpty())
-                            <div class="alert alert-warning">Hech qanday loyiha topilmadi.</div>
+                            <div class="alert alert-warning">Ҳеч қандай лойиҳа топилмади.</div>
                         @else
                             <table class="table table-hover" id="proposalList">
                                 <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Loyiha</th>
-                                    <th>Buyruq</th>
-                                    <th>Qo'shimcha buyruq</th>
-                                    <th>Guruh tarkibi</th>
-                                    <th>Guruh tarkibi jamoatchilik asosida</th>
-                                    <th>F.I.Sh</th>
-                                    <th>Tel_number</th>
-                                    <th>Ish joyi</th>
-                                    <th class="text-end">Tahrirlash</th>
+                                    <th>Лойиҳа номи</th>
+                                    <th>Буйруқ</th>
+                                    <th>Қўшимча буйруқ</th>
+                                    <th>Гурух таркиби</th>
+                                    <th>Лойиҳа молиялаштириш манбаси ва суммаси</th>
+                                    <th>Лойиҳанинг маъсул ижрочиси Ф.И.Ш, тел рақам</th>
+                                    <th>Иш жойи ва лавозими</th>
+                                    <th>Лойиҳа хисоботлари</th>
+                                    <th>Изох</th>
+                                    <th class="text-end">Тахрирлаш</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach($projects as $index => $project)
+                                @foreach($projects as $project)
                                     <tr class="single-item">
-                                        <td>{{ $index + 1 }}</td>
+                                        <td> {{ $loop->iteration }}</td>
                                         <td>
                                             {{ $project->name }}
                                         </td>
                                         @php
                                             $pulParticipants = $project->participants->where('type', 'pul');
-                                            $freeParticipants = $project->participants->where('type', 'free');
                                         @endphp
                                         <td>
-                                            <a href="#">
-                                                Buyruq fayli
+                                            <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'buyruq']) }}" >
+                                                Хужжатни очиш
                                             </a>
+
+
                                         </td>
                                         <td>
-                                            <a href="#">
-                                                Qo'shimcha buyruq
-                                            </a>
+                                            @if($project->	file_qushimcha)
+                                                <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'qushimcha']) }}" >
+                                                    Хужжатни очиш
+                                                </a>
+                                            @endif
                                         </td>
                                         <td>
                                             @foreach($pulParticipants as $pul)
@@ -58,25 +62,44 @@
                                             @endforeach
                                         </td>
                                         <td>
-                                            @foreach($freeParticipants as $pul)
-                                                {{$pul->name}} <br>
-                                            @endforeach
+                                            {{$project->manba}}
                                         </td>
                                         <td>
                                             {{$project->pro_bos_name}}
                                         </td>
                                         <td>
-                                            {{$project->tel_number}}
+                                            {{$project->job}}
                                         </td>
                                         <td>
-                                            {{$project->job}}
+                                            {{-- Hujjat yuklash formasi --}}
+                                            <form action="{{ route('pro_document.store', $project->id) }}" method="POST" enctype="multipart/form-data" style="margin-bottom: 5px;">
+                                                @csrf
+                                                <input type="file" name="file" required>
+                                                <button type="submit">Yuklash</button>
+                                            </form>
+
+                                            {{-- Yuklangan hujjatlar --}}
+                                            @if($project->pro_documents->count() > 0)
+                                                @foreach($project->pro_documents as $doc)
+                                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank">
+                                                        <button class="button mt-2" type="button">Hujjatni ochish</button> <br>
+                                                    </a>
+                                                @endforeach
+                                            @else
+                                                <span>Hujjat yo‘q</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            {{$project->izoh}}
                                         </td>
 
                                         <td>
                                             <div class="hstack gap-2 justify-content-end">
+                                                @if($project->user_id == auth()->user()->id)
                                                 <a href="javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#tasksDetailsOffcanvasEdit{{ $project->id }}" class="avatar-text avatar-md">
                                                     <i class="feather feather-edit-3"></i>
                                                 </a>
+                                                @endif
                                                 <form action="{{ route('projects.destroy', $project->id) }}" method="POST">
                                                     @csrf
                                                     @method('DELETE')
@@ -100,4 +123,5 @@
                 </div>
             </div>
         </div>
+    @include('components.admin.projectt.project-modal-edit', ['projects' => $projects])
 @endsection
