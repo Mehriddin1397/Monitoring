@@ -305,12 +305,12 @@
                                             </td>
 
                                             <td>
-                                                {{$task->start_date}}
+                                                {{ \Carbon\Carbon::parse($task->start_date)->format('d-m-Y') }}
                                             </td>
                                             <td>
-
-                                                {{$task->end_date}}
+                                                {{ \Carbon\Carbon::parse($task->end_date)->format('d-m-Y') }}
                                             </td>
+
                                             <td>
 
                                                 @if ($task->status === 'bajarildi')
