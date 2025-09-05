@@ -21,7 +21,7 @@
                 <div class="col-md-6">
                     <div class="form-group mb-4">
                         <label class="form-label">Лойиҳа номи:</label>
-                        <input type="text" name="name" class="form-control">
+                        <textarea name="name" rows="10" id="editor1" class="form-control"></textarea>
                     </div>
                     <div class="form-group mb-4">
                         <label class="form-label">Лойиҳа буйруғи(pdf):</label>

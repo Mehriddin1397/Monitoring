@@ -22,7 +22,7 @@
 
                 <div class="mb-3">
                     <label for="name" class="form-label">Лойиҳа номи:</label>
-                    <input type="text" class="form-control" name="name" value="{{ $project->name }}" required>
+                    <textarea name="name"  class="form-control ckeditor">{{old('name',$project->name)}}</textarea>
                 </div>
 
                 <div class="mb-3">

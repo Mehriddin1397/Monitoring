@@ -12,7 +12,7 @@
                 <div class="card-body" style="min-height: 80vh">
                     <!-- Order Information -->
                     <div class="mb-5">
-                            <h2>Қидирув натижалари: "{{ $query }}"</h2>
+                        <h2>Қидирув натижалари: "{{ $query }}"</h2>
                         @if($projects->isEmpty())
                             <div class="alert alert-warning">Ҳеч қандай лойиҳа топилмади.</div>
                         @else
@@ -43,7 +43,7 @@
                                             $pulParticipants = $project->participants->where('type', 'pul');
                                         @endphp
                                         <td>
-                                            <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'buyruq']) }}" >
+                                            <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'buyruq']) }}">
                                                 Хужжатни очиш
                                             </a>
 
@@ -51,7 +51,7 @@
                                         </td>
                                         <td>
                                             @if($project->	file_qushimcha)
-                                                <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'qushimcha']) }}" >
+                                                <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'qushimcha']) }}">
                                                     Хужжатни очиш
                                                 </a>
                                             @endif
@@ -72,7 +72,8 @@
                                         </td>
                                         <td>
                                             {{-- Hujjat yuklash formasi --}}
-                                            <form action="{{ route('pro_document.store', $project->id) }}" method="POST" enctype="multipart/form-data" style="margin-bottom: 5px;">
+                                            <form action="{{ route('pro_document.store', $project->id) }}" method="POST"
+                                                  enctype="multipart/form-data" style="margin-bottom: 5px;">
                                                 @csrf
                                                 <input type="file" name="file" required>
                                                 <button type="submit">Yuklash</button>
@@ -82,7 +83,9 @@
                                             @if($project->pro_documents->count() > 0)
                                                 @foreach($project->pro_documents as $doc)
                                                     <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank">
-                                                        <button class="button mt-2" type="button">Hujjatni ochish</button> <br>
+                                                        <button class="button mt-2" type="button">Hujjatni ochish
+                                                        </button>
+                                                        <br>
                                                     </a>
                                                 @endforeach
                                             @else
@@ -96,17 +99,23 @@
                                         <td>
                                             <div class="hstack gap-2 justify-content-end">
                                                 @if($project->user_id == auth()->user()->id)
-                                                <a href="javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#tasksDetailsOffcanvasEdit{{ $project->id }}" class="avatar-text avatar-md">
-                                                    <i class="feather feather-edit-3"></i>
-                                                </a>
+                                                    <a href="javascript:void(0)" data-bs-toggle="offcanvas"
+                                                       data-bs-target="#tasksDetailsOffcanvasEdit{{ $project->id }}"
+                                                       class="avatar-text avatar-md">
+                                                        <i class="feather feather-edit-3"></i>
+                                                    </a>
                                                 @endif
-                                                <form action="{{ route('projects.destroy', $project->id) }}" method="POST">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="avatar-text avatar-md" onclick="return confirm('Are you sure?')">
-                                                        <i class="feather feather-trash-2"></i>
-                                                    </button>
-                                                </form>
+                                                @if(auth()->user()->role == 'admin')
+                                                    <form action="{{ route('projects.destroy', $project->id) }}"
+                                                          method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="avatar-text avatar-md"
+                                                                onclick="return confirm('Are you sure?')">
+                                                            <i class="feather feather-trash-2"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

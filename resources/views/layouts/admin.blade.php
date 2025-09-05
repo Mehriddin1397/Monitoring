@@ -277,6 +277,14 @@
 <!--! END: Apps Init !-->
 <!--! BEGIN: Theme Customizer  !-->
 <script src="{{asset('assets/js/theme-customizer-init.min.js')}}"></script>
+
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script>
+    CKEDITOR.replace('editor1');
+    document.querySelectorAll('.ckeditor').forEach((el) => {
+        CKEDITOR.replace(el);
+    });
+</script>
 <!--! END: Theme Customizer !-->
 </body>
 

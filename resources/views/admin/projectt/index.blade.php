@@ -132,6 +132,7 @@
                         <div class="card-body p-0">
                             <div class="table-responsive table-container">
                                 <table class="table table-hover " id="proposalList">
+
                                     <thead class="sticky-top " style="background-color: #c7c7f0; ">
                                     <tr>
                                         <th>#</th>
@@ -147,16 +148,12 @@
                                         <th class="text-end">Тахрирлаш</th>
                                     </tr>
                                     </thead>
-                                    <tbody style="
-
-                                    background-color: #e7e7f3
-
-                                    ">
+                                    <tbody style="background-color: #e7e7f3">
                                     @foreach($projects as $project)
                                         <tr class="single-item">
                                             <td> {{ $loop->iteration }}</td>
-                                            <td>
-                                                {{ $project->name }}
+                                            <td style="width: 150px;">
+                                                {!! $project->name !!}
                                             </td>
                                             @php
                                                 $pulParticipants = $project->participants->where('type', 'pul');
@@ -217,6 +214,7 @@
                                                     <a href="javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#tasksDetailsOffcanvasEdit{{ $project->id }}" class="avatar-text avatar-md">
                                                         <i class="feather feather-edit-3"></i>
                                                     </a>
+                                                    @if(auth()->user()->role == 'admin')
                                                     <form action="{{ route('projects.destroy', $project->id) }}" method="POST">
                                                         @csrf
                                                         @method('DELETE')
@@ -224,6 +222,7 @@
                                                             <i class="feather feather-trash-2"></i>
                                                         </button>
                                                     </form>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
@@ -240,6 +239,11 @@
 
     </div>
     <style>
+        #proposalList th {
+            text-align: center;  /* Matnni markazga qo‘yadi */
+            vertical-align: middle; /* Vertikal markazga qo‘yadi */
+        }
+
         .table-container {
             overflow-x: auto !important; /* Gorizontal skroll qo‘shadi */
             width: 100%;
@@ -247,6 +251,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+
         }
     </style>
 
