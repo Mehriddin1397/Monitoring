@@ -141,7 +141,7 @@
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Гурух таркиби</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа молиялаштириш манбаси ва суммаси</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳанинг маъсул ижрочиси Ф.И.Ш, тел рақам</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа бошлиғининг иш жойи ва лавозими</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа рахбарининг иш жойи ва лавозими</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа хисоботлари</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Изох</th>
                                         <th class="text-end">Тахрирлаш</th>

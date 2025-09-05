@@ -36,7 +36,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="job" class="form-label">Иш жойи ва лавозими:</label>
+                    <label for="job" class="form-label">Лойиха рахбарининг Иш жойи ва лавозими:</label>
                     <input type="text" class="form-control" name="job" value="{{ $project->job }}" required>
                 </div>
 

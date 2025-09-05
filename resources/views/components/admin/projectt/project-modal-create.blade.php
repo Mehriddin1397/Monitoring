@@ -109,7 +109,7 @@
                         <input type="text" class="form-control" name="manba" >
                     </div>
                     <div class="form-group mb-4">
-                        <label for="name_free_count" class="form-label">Иш жойи ва лавозими:</label>
+                        <label for="name_free_count" class="form-label">Лойиха рахбарининг Иш жойи ва лавозими:</label>
                         <input type="text" class="form-control"  name="job" required>
                     </div>
                     <div class="form-group mb-4">
