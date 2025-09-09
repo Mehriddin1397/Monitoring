@@ -27,17 +27,17 @@
 
                 <div class="mb-3">
                     <label for="pro_bos_name" class="form-label">Маъсул ижрочи Ф.И.Ш, тел рақ:</label>
-                    <input type="text" class="form-control" name="pro_bos_name" value="{{ $project->pro_bos_name }}" required>
+                    <textarea name="pro_bos_name"  class="form-control ckeditor">{{old('pro_bos_name',$project->pro_bos_name)}}</textarea>
                 </div>
 
                 <div class="form-group mb-4">
                     <label for="name_free_count" class="form-label">Молиялаштириш манбаси ва суммаси:</label>
-                    <input type="text" class="form-control" name="manba" value="{{ $project->manba }}" >
+                    <textarea name="manba"  class="form-control ckeditor">{{old('manba',$project->manba)}}</textarea>
                 </div>
 
                 <div class="mb-3">
                     <label for="job" class="form-label">Лойиха рахбарининг Иш жойи ва лавозими:</label>
-                    <input type="text" class="form-control" name="job" value="{{ $project->job }}" required>
+                    <textarea name="job"  class="form-control ckeditor">{{old('job',$project->job)}}</textarea>
                 </div>
 
                 <div class="mb-3">
@@ -61,7 +61,7 @@
                 </div>
                 <div class="form-group mb-4">
                     <label for="name_free_count" class="form-label">Изох:</label>
-                    <input type="text" class="form-control"  name="izoh" value="{{$project->izoh}}">
+                    <textarea name="izoh"  class="form-control ckeditor">{{old('izoh',$project->izoh)}}</textarea>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Yangilash</button>

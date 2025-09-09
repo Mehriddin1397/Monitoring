@@ -178,13 +178,13 @@
                                                 @endforeach
                                             </td>
                                             <td>
-                                               {{$project->manba}}
+                                               {!! $project->manba !!}
                                             </td>
                                             <td>
-                                                {{$project->pro_bos_name}}
+                                                {!! $project->pro_bos_name !!}
                                             </td>
                                             <td>
-                                                {{$project->job}}
+                                                {!! $project->job !!}
                                             </td>
                                             <td>
                                                 {{-- Hujjat yuklash formasi --}}
@@ -206,7 +206,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                {{$project->izoh}}
+                                                {!! $project->izoh !!}
                                             </td>
 
                                             <td>

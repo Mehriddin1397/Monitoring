@@ -68,53 +68,21 @@
 
                 </div>
                 <div class="col-md-6">
-{{--                    <div class="form-group mb-4">--}}
-{{--                        <label for="name_free_count" class="form-label">Kungillilar soni</label>--}}
-{{--                        <input type="number" class="form-control" id="name_free_count" min="1" required>--}}
-{{--                    </div>--}}
-{{--                    <div id="name_free"></div>--}}
-{{--                    <script>--}}
-{{--                        document.getElementById('name_free_count').addEventListener('input', function() {--}}
-{{--                            let count = parseInt(this.value);--}}
-{{--                            let container = document.getElementById('name_free');--}}
-{{--                            container.innerHTML = ''; // Avvalgi inputlarni tozalash--}}
-
-{{--                            if (count > 0) {--}}
-{{--                                for (let i = 0; i < count; i++) {--}}
-{{--                                    let div = document.createElement('div');--}}
-{{--                                    div.classList.add('mb-3');--}}
-
-{{--                                    let label = document.createElement('label');--}}
-{{--                                    label.innerText = `Qatnashuvchi ${i + 1} F.I.Sh:`;--}}
-{{--                                    div.appendChild(label);--}}
-
-{{--                                    let input = document.createElement('input');--}}
-{{--                                    input.type = 'text';--}}
-{{--                                    input.name = `name_free[]`;--}}
-{{--                                    input.classList.add('form-control');--}}
-{{--                                    input.required = true;--}}
-{{--                                    div.appendChild(input);--}}
-
-{{--                                    container.appendChild(div);--}}
-{{--                                }--}}
-{{--                            }--}}
-{{--                        });--}}
-{{--                    </script>--}}
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Маъсул ижрочи Ф.И.Ш, тел рақ:</label>
-                        <input type="text" name="pro_bos_name" class="form-control"  required>
+                        <textarea name="pro_bos_name" rows="10"  class="form-control ckeditor"></textarea>
                     </div>
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Молиялаштириш манбаси ва суммаси:</label>
-                        <input type="text" class="form-control" name="manba" >
+                        <textarea name="manba" rows="10"  class="form-control ckeditor"></textarea>
                     </div>
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Лойиха рахбарининг Иш жойи ва лавозими:</label>
-                        <input type="text" class="form-control"  name="job" required>
+                        <textarea name="job" rows="10"  class="form-control ckeditor"></textarea>
                     </div>
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Изох:</label>
-                        <input type="text" class="form-control"  name="izoh">
+                        <textarea name="izoh" rows="10"  class="form-control ckeditor"></textarea>
                     </div>
 
                 </div>
