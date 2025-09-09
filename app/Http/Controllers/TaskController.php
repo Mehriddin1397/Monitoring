@@ -257,9 +257,13 @@ class TaskController extends Controller
     }
 
     public function destroy(Task $task){
+        if (auth()->check() && auth()->user()->role === 'admin') {
         $task->delete();
 
         return back();
+        }
+        else
+            abort(403, 'Sizga bu sahifaga kirish taqiqlangan.');
     }
 
 

@@ -17,6 +17,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        if (auth()->check() && auth()->user()->role === 'admin') {
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
@@ -29,11 +30,15 @@ class UserController extends Controller
         User::create($validated);
 
         return redirect()->route('users.index');
+        }
+        else
+            abort(403, 'Sizga bu sahifaga kirish taqiqlangan.');
     }
 
 
     public function update(Request $request, User $user)
     {
+        if (auth()->check() && auth()->user()->role === 'admin') {
         $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -50,12 +55,20 @@ class UserController extends Controller
         $user->update($validated);
 
         return redirect()->route('users.index');
+        }
+        else
+            abort(403, 'Sizga bu sahifaga kirish taqiqlangan.');
+
     }
 
     public function destroy(User $user)
     {
-        $user->delete();
-        return back();
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            $user->delete();
+            return back();
+        }
+        else
+            abort(403, 'Sizga bu sahifaga kirish taqiqlangan.');
     }
 }
 
