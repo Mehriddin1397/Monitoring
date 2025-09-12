@@ -160,18 +160,18 @@
                                     </div>
 
                                     <!-- O'ng tarafdagi print tugma -->
-                                    <div class="mt-2">
-                                        <button onclick="printTable()" class="btn btn-primary">
-                                            🖨️ Чиқариш
-                                        </button>
-                                    </div>
-                                    @if (auth()->user()->role === 'admin')
+{{--                                    <div class="mt-2">--}}
+{{--                                        <button onclick="printTable()" class="btn btn-primary">--}}
+{{--                                            🖨️ Чиқариш--}}
+{{--                                        </button>--}}
+{{--                                    </div>--}}
+
                                     <div class="mt-2">
                                         <button onclick="downloadAsWord()" class="btn btn-success">
                                             📝 Word файл сифатида сақлаш
                                         </button>
                                     </div>
-                                    @endif
+
                                 </div>
 
 
