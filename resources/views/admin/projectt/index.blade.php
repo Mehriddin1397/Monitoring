@@ -159,17 +159,15 @@
                                                 $pulParticipants = $project->participants->where('type', 'pul');
                                             @endphp
                                             <td>
-                                                <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'buyruq']) }}" >
-                                                    Хужжатни очиш
-                                                </a>
-
-
+                                                <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $project->file_buyruq) }}')">
+                                                    Кўриш
+                                                </button>
                                             </td>
                                             <td>
-                                                @if($project->	file_qushimcha)
-                                                <a href="{{ route('projects_file', ['id' => $project->id, 'type' => 'qushimcha']) }}" >
-                                                    Хужжатни очиш
-                                                </a>
+                                                @if($project->file_qushimcha)
+                                                    <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $project->file_qushimcha) }}')">
+                                                        Кўриш
+                                                    </button>
                                                 @endif
                                             </td>
                                             <td>
@@ -197,14 +195,21 @@
                                                 {{-- Yuklangan hujjatlar --}}
                                                 @if($project->pro_documents->count() > 0)
                                                     @foreach($project->pro_documents as $doc)
-                                                        <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank">
-                                                            <button class="button mt-2" type="button">Хужжатни очиш</button> <br>
-                                                        </a>
+                                                        <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $doc->file_path) }}')">
+                                                            Кўриш
+                                                        </button>
                                                     @endforeach
                                                 @else
                                                     <span>Хужжат йўқ</span>
                                                 @endif
                                             </td>
+                                            <!-- Modal oynasi -->
+                                            <div id="pdfModal" class="custom-modal">
+                                                <div class="custom-modal-content">
+                                                    <span class="close-btn" onclick="closeModal()">&times;</span>
+                                                    <iframe id="pdfFrame" src="" width="100%" height="600px" style="border:none;"></iframe>
+                                                </div>
+                                            </div>
                                             <td>
                                                 {!! $project->izoh !!}
                                             </td>

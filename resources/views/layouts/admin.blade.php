@@ -33,6 +33,8 @@
     <script src="https:oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https:oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+
 </head>
 
 <style>
@@ -46,6 +48,68 @@
 </style>
 
 <body>
+
+<style>
+    /* Orqa fon */
+    .custom-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Modal oynasi */
+    .custom-modal-content {
+        background: #fff;
+        margin: 5% auto;
+        padding: 15px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 1000px;
+        position: relative;
+    }
+
+    /* Yopish tugmasi */
+    .close-btn {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #000;
+        cursor: pointer;
+    }
+
+    .close-btn:hover {
+        color: red;
+    }
+</style>
+
+
+<script>
+    function openModal(pdfUrl) {
+        document.getElementById('pdfFrame').src = pdfUrl;
+        document.getElementById('pdfModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('pdfModal').style.display = 'none';
+        document.getElementById('pdfFrame').src = '';
+    }
+
+    // Orqa fonni bosganda yopiladi
+    window.onclick = function(event) {
+        let modal = document.getElementById('pdfModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
 <!--! ================================================================ !-->
 <!--! [Start] Navigation Manu !-->
 <!--! ================================================================ !-->

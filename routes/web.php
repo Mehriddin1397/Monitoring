@@ -22,6 +22,8 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
 
     Route::resource('documents', \App\Http\Controllers\DocumentController::class);
     Route::resource('categories', \App\Http\Controllers\CategoryController::class);
+    Route::resource('articles', \App\Http\Controllers\ArticleController::class);
+    Route::resource('participants', \App\Http\Controllers\ParticipantController::class);
 
     Route::get('/category/{id}/documents', [\App\Http\Controllers\DocumentController::class, 'showByCategory'])->name('documents.byCategory');
 

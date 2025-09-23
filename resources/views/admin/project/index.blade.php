@@ -415,10 +415,9 @@
                                                             <input type="file" name="document"
                                                                    onchange="this.form.submit()">
                                                         </form>
-                                                        <a href="{{ route('project.file', ['id' => $task->id, 'type' => 'buyruq']) }}"
-                                                           class="btn btn-success">
-                                                            Очиш
-                                                        </a>
+                                                        <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $task->document) }}')">
+                                                            Кўриш
+                                                        </button>
                                                     @else
                                                         <form action="{{ route('file.upload') }}" method="POST"
                                                               enctype="multipart/form-data">
@@ -430,10 +429,9 @@
                                                     @endif
                                                 @else
                                                     @if($task->document)
-                                                        <a href="{{ route('project.file', ['id' => $task->id, 'type' => 'buyruq']) }}"
-                                                           class="btn btn-success">
-                                                            Очиш
-                                                        </a>
+                                                        <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $task->document) }}')">
+                                                            Кўриш
+                                                        </button>
                                                     @else
                                                         <p>Файл йуқ</p>
                                                     @endif
@@ -441,6 +439,13 @@
 
 
                                             </td>
+                                            <!-- Modal oynasi -->
+                                            <div id="pdfModal" class="custom-modal">
+                                                <div class="custom-modal-content">
+                                                    <span class="close-btn" onclick="closeModal()">&times;</span>
+                                                    <iframe id="pdfFrame" src="" width="100%" height="600px" style="border:none;"></iframe>
+                                                </div>
+                                            </div>
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">
                                                     @if(auth()->user()->role == 'xodim'  )

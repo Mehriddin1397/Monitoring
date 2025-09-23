@@ -122,7 +122,9 @@ class ProjectController extends Controller
         }
 
         if ($request->hasFile('file_qushimcha')) {
-            Storage::delete($project->file_qushimcha);
+            if ($project->file_qushimcha) {
+                Storage::delete($project->file_qushimcha);
+            }
             $project->file_qushimcha = $request->file('file_qushimcha')->store('documents');
         }
 

@@ -39,6 +39,13 @@
                                     class="nxl-arrow"></span>
                             </a>
                         </li>
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="{{route('participants.index')}}" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-layout"></i></span>
+                                <span class="nxl-mtext"> <strong>Maqola mualliflari</strong></span><span
+                                    class="nxl-arrow"></span>
+                            </a>
+                        </li>
                     @endif
 
                     <li class="nxl-item nxl-hasmenu">
@@ -69,6 +76,12 @@
                     @endif
 
                 @endauth
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="{{ route('documents.byCategory', 3) }}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                        <span class="nxl-mtext">Институт буйруқ ва фармойишлари</span><span class="nxl-arrow"></span>
+                    </a>
+                </li>
 
 
                 <li class="nxl-item nxl-hasmenu">
@@ -82,8 +95,7 @@
                                 фармон ва қарорлари</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 2) }}">Вазирлар
                                 Махкамасининг фармон,қарор топшириқлари</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 3) }}">Институт
-                                ҳақидаги барча маълумотлар</a></li>
+
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 4) }}">Лойиҳа ва
                                 илмий-амалий тадқиқотлар</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 5) }}">Ҳалқаро
