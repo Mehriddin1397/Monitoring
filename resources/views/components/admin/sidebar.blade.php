@@ -39,6 +39,8 @@
                                     class="nxl-arrow"></span>
                             </a>
                         </li>
+                    @endif
+                    @if (auth()->user()->role !== 'xodim' || auth()->user()->id == 22)
                         <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('participants.index')}}" class="nxl-link">
                                 <span class="nxl-micon"><i class="feather-layout"></i></span>
