@@ -71,27 +71,71 @@
                 </div>
             </form>
         </div>
+        <div class="offcanvas-body">
+            <form action="{{ route('articles.update',$article->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row">
+                    <div class="col-md-">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Мақола номи:</label>
+                            <textarea name="title" class="form-control ckeditor" rows="10">{{old('title',$article->title)}}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Мақола эгаси:</label>
+                            <select name="participants[]"  size="17" class="form-control" required multiple>
+                                @foreach($participants as $p)
+                                    <option value="{{$p->id}}">{{ $p->full_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="categories">Нашр этилган жой:</label>
+                            <input type="text" name="publish_place" placeholder="Nashr etilgan joy">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="categories">Мақола пдфи:</label>
+                            <input type="file" name="article_pdf">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="categories">Хулоса пдфи:</label>
+                            <input type="file" name="conclusion_pdf">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="categories">Таърифлар сони:</label>
+                            <input type="number" name="definitions" placeholder="Ta'riflar soni">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="categories">Таснифлар сони:</label>
+                            <input type="number" name="classifications" placeholder="Tasniflar soni">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="categories">Таклифлар сони:</label>
+                            <input type="number" name="suggestions" placeholder="Takliflar soni">
+                        </div>
+                    </div>
 
-        <script>
-            function addParticipant(type) {
-                let container = type === 'pul' ? document.getElementById('pul-participants') : document.getElementById('free-participants');
-                let input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control mb-2';
-                input.name = type === 'pul' ? 'name_pul[]' : 'name_free[]';
-                input.required = true;
-                container.appendChild(input);
-
-            }
 
 
 
-            CKEDITOR.replace('editor45');
-            document.querySelectorAll('.ckeditor').forEach((el) => {
-                CKEDITOR.replace(el);
-            });
-        </script>
-    </div>
+                    <button type="submit" class="btn btn-primary d-inline-block mt-4">Сақлаш</button>
+                </div>
+            </form>
+        </div>
+
     </div>
 
 

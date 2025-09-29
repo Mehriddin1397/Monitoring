@@ -106,80 +106,96 @@
                                     <tr>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Nomi</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nashr etilgan joyi</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">Таърифлар сони</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">Таснифлар сони</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">Таклифлар сони</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">umumiy ball</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">Maqola PDF</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">Xulosa PDF</th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Nashr etilgan
+                                            joyi
+                                        </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
+                                            Таърифлар <br> сони
+                                        </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
+                                            Таснифлар <br> сони
+                                        </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
+                                            Таклифлар <br> сони
+                                        </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
+                                            umumiy <br> ball
+                                        </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
+                                            Maqola PDF
+                                        </th>
+                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
+                                            Xulosa PDF
+                                        </th>
                                         <th class="text-end">Tahrirlash</th>
                                     </tr>
                                     </thead>
                                     <tbody style="background-color: #e7e7f3">
-                                                                        @foreach($articles as $article)
-                                    <tr class="single-item">
-                                        <td> {{ $loop->iteration }}</td>
-                                        <td>
-                                            {!!  $article->title !!}
-                                        </td>
-                                        <td>
-                                            {{$article->publish_place }}
-                                        </td>
-                                        @foreach($article->articleScores as $score)
+
+                                    @foreach($articles as $article)
+                                        <tr class="single-item">
+                                            <td> {{ $loop->iteration }}</td>
                                             <td>
-                                                {{$score->definitions }}
+                                                {!!  $article->title !!}
                                             </td>
                                             <td>
-                                                {{$score->classifications }}
+                                                {{$article->publish_place }}
                                             </td>
+                                            @foreach($article->articleScores as $score)
+                                                <td>
+                                                    {{$score->definitions }}
+                                                </td>
+                                                <td>
+                                                    {{$score->classifications }}
+                                                </td>
+                                                <td>
+                                                    {{$score->suggestions }}
+                                                </td>
+                                                <td>
+                                                    {{$score->total_score }}
+                                                </td>
+                                            @endforeach
                                             <td>
-                                                {{$score->suggestions }}
-                                            </td>
-                                            <td>
-                                                {{$score->total_score }}
-                                            </td>
-                                        @endforeach
-                                        <td>
-                                            @if($article->article_pdf)
-                                                <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $article->article_pdf) }}')">
-                                                    Кўриш
-                                                </button>
-                                            @endif
+                                                @if($article->article_pdf)
+                                                    <button class="btn btn-primary btn-sm"
+                                                            onclick="openModal('{{ asset('storage/' . $article->article_pdf) }}')">
+                                                        Кўриш
+                                                    </button>
+                                                @endif
 
 
-
-                                        </td>
-                                        <td>
-                                            @if($article->conclusion_pdf)
-                                                <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $article->conclusion_pdf) }}')">
-                                                    Кўриш
-                                                </button>
-                                            @endif
-                                        </td>
-                                        <td>
-                                                                                            <div class="hstack gap-2 justify-content-end">
-                                                                                                <a href="javascript:void(0)" data-bs-toggle="offcanvas"
-                                                                                                   data-bs-target="#tasksDetailsOffcanvasEdit "
-                                                                                                   class="avatar-text avatar-md">
-                                                                                                    <i class="feather feather-edit-3"></i>
-                                                                                                </a>
-                                                                                                <form
-                                                                                                    action="{{ route('articles.destroy', $article->id) }}"
-                                                                                                    method="POST">
-                                                                                                    @csrf
-                                                                                                    @method('DELETE')
-                                                                                                    <button
-                                                                                                        type="submit"
-                                                                                                        class="avatar-text avatar-md"
-                                                                                                        onclick="return confirm('Uchirasizmi ?')">
-                                                                                                        <i class="feather feather-trash-2"></i>
-                                                                                                    </button>
-                                                                                                </form>
-                                                                                            </div>
-                                        </td>
-                                    </tr>
-                                                                        @endforeach
+                                            </td>
+                                            <td>
+                                                @if($article->conclusion_pdf)
+                                                    <button class="btn btn-primary btn-sm"
+                                                            onclick="openModal('{{ asset('storage/' . $article->conclusion_pdf) }}')">
+                                                        Кўриш
+                                                    </button>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="hstack gap-2 justify-content-end">
+                                                    <a href="javascript:void(0)" data-bs-toggle="offcanvas"
+                                                       data-bs-target="#tasksDetailsOffcanvasEdit "
+                                                       class="avatar-text avatar-md">
+                                                        <i class="feather feather-edit-3"></i>
+                                                    </a>
+                                                    <form
+                                                        action="{{ route('articles.destroy', $article->id) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button
+                                                            type="submit"
+                                                            class="avatar-text avatar-md"
+                                                            onclick="return confirm('Uchirasizmi ?')">
+                                                            <i class="feather feather-trash-2"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                     </tbody>
                                 </table>
 
@@ -188,75 +204,10 @@
                                 <div id="pdfModal" class="custom-modal">
                                     <div class="custom-modal-content">
                                         <span class="close-btn" onclick="closeModal()">&times;</span>
-                                        <iframe id="pdfFrame" src="" width="100%" height="600px" style="border:none;"></iframe>
+                                        <iframe id="pdfFrame" src="" width="100%" height="600px"
+                                                style="border:none;"></iframe>
                                     </div>
                                 </div>
-
-{{--                                <style>--}}
-{{--                                    /* Orqa fon */--}}
-{{--                                    .custom-modal {--}}
-{{--                                        display: none;--}}
-{{--                                        position: fixed;--}}
-{{--                                        z-index: 9999;--}}
-{{--                                        left: 0;--}}
-{{--                                        top: 0;--}}
-{{--                                        width: 100%;--}}
-{{--                                        height: 100%;--}}
-{{--                                        overflow: auto;--}}
-{{--                                        background-color: rgba(0, 0, 0, 0.5);--}}
-{{--                                    }--}}
-
-{{--                                    /* Modal oynasi */--}}
-{{--                                    .custom-modal-content {--}}
-{{--                                        background: #fff;--}}
-{{--                                        margin: 5% auto;--}}
-{{--                                        padding: 15px;--}}
-{{--                                        border-radius: 10px;--}}
-{{--                                        width: 80%;--}}
-{{--                                        max-width: 1000px;--}}
-{{--                                        position: relative;--}}
-{{--                                    }--}}
-
-{{--                                    /* Yopish tugmasi */--}}
-{{--                                    .close-btn {--}}
-{{--                                        position: absolute;--}}
-{{--                                        right: 15px;--}}
-{{--                                        top: 10px;--}}
-{{--                                        font-size: 24px;--}}
-{{--                                        font-weight: bold;--}}
-{{--                                        color: #000;--}}
-{{--                                        cursor: pointer;--}}
-{{--                                    }--}}
-
-{{--                                    .close-btn:hover {--}}
-{{--                                        color: red;--}}
-{{--                                    }--}}
-{{--                                </style>--}}
-
-
-{{--                                <script>--}}
-{{--                                    function openModal(pdfUrl) {--}}
-{{--                                        document.getElementById('pdfFrame').src = pdfUrl;--}}
-{{--                                        document.getElementById('pdfModal').style.display = 'block';--}}
-{{--                                    }--}}
-
-{{--                                    function closeModal() {--}}
-{{--                                        document.getElementById('pdfModal').style.display = 'none';--}}
-{{--                                        document.getElementById('pdfFrame').src = '';--}}
-{{--                                    }--}}
-
-{{--                                    // Orqa fonni bosganda yopiladi--}}
-{{--                                    window.onclick = function(event) {--}}
-{{--                                        let modal = document.getElementById('pdfModal');--}}
-{{--                                        if (event.target === modal) {--}}
-{{--                                            closeModal();--}}
-{{--                                        }--}}
-{{--                                    }--}}
-{{--                                </script>--}}
-
-
-
-
                             </div>
                         </div>
                     </div>
@@ -278,6 +229,6 @@
     </style>
 
     @include('components.admin.articles.project-modal-create')
-{{--    @include('components.admin.user.user-modal-edit', ['users' => $users])--}}
+    {{--    @include('components.admin.user.user-modal-edit', ['users' => $users])--}}
 
 @endsection
