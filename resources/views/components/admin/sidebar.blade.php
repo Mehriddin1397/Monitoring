@@ -44,7 +44,7 @@
                         <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('participants.index')}}" class="nxl-link">
                                 <span class="nxl-micon"><i class="feather-layout"></i></span>
-                                <span class="nxl-mtext"> <strong>Maqola mualliflari</strong></span><span
+                                <span class="nxl-mtext"> <strong>Жамоат хавфсизлиги бўйича ташаббус индекси</strong></span><span
                                     class="nxl-arrow"></span>
                             </a>
                         </li>
@@ -104,6 +104,20 @@
                                 хорижий сафарлар ва ҳамкорлик </a></li>
                     </ul>
                 </li>
+                <li class="nxl-item nxl-hasmenu">
+                    <a href="javascript:void(0);" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-settings"></i></span>
+                        <span class="nxl-mtext">Лабаратория</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                    </a>
+                    <ul class="nxl-submenu">
+                        <li class="nxl-item"><a class="nxl-link" href="#">Топшириқлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="#">Жараёндаги ишлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="#">Режалаштирилган ишлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="#">Бажарилган ишлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="#">Таклифлар</a></li>
+                    </ul>
+                </li>
+
 
 
             </ul>
