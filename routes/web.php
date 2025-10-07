@@ -25,6 +25,12 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::resource('articles', \App\Http\Controllers\ArticleController::class);
     Route::resource('participants', \App\Http\Controllers\ParticipantController::class);
 
+    Route::resource('ongoing-works', \App\Http\Controllers\OngoingWorkController::class);
+    Route::resource('planned-works', \App\Http\Controllers\PlannedWorkController::class);
+    Route::resource('completed-works', \App\Http\Controllers\CompletedWorkController::class);
+    Route::resource('suggestions', \App\Http\Controllers\SuggestionController::class);
+
+
     Route::get('/category/{id}/documents', [\App\Http\Controllers\DocumentController::class, 'showByCategory'])->name('documents.byCategory');
 
 

@@ -111,10 +111,10 @@
                     </a>
                     <ul class="nxl-submenu">
                         <li class="nxl-item"><a class="nxl-link" href="#">Топшириқлар</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="#">Жараёндаги ишлар</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="#">Режалаштирилган ишлар</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="#">Бажарилган ишлар</a></li>
-                        <li class="nxl-item"><a class="nxl-link" href="#">Таклифлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{route('ongoing-works.index')}}">Жараёндаги ишлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{route('planned-works.index')}}">Режалаштирилган ишлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{route('completed-works.index')}}">Бажарилган ишлар</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{route('suggestions.index')}}">Таклифлар</a></li>
                     </ul>
                 </li>
 

@@ -70,19 +70,19 @@
                 <div class="col-md-6">
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Маъсул ижрочи Ф.И.Ш, тел рақ:</label>
-                        <textarea name="pro_bos_name" rows="10"  class="form-control ckeditor"></textarea>
+                        <textarea name="pro_bos_name" rows="10" id="editor2"  class="form-control "></textarea>
                     </div>
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Молиялаштириш манбаси ва суммаси:</label>
-                        <textarea name="manba" rows="10"  class="form-control ckeditor"></textarea>
+                        <textarea name="manba" rows="10"  id="editor3" class="form-control"></textarea>
                     </div>
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Лойиха рахбарининг Иш жойи ва лавозими:</label>
-                        <textarea name="job" rows="10"  class="form-control ckeditor"></textarea>
+                        <textarea name="job" rows="10" id="editor4" class="form-control "></textarea>
                     </div>
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Изох:</label>
-                        <textarea name="izoh" rows="10"  class="form-control ckeditor"></textarea>
+                        <textarea name="izoh" rows="10" id="editor5"  class="form-control "></textarea>
                     </div>
 
                 </div>

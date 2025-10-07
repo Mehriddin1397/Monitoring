@@ -345,8 +345,23 @@
 <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 <script>
     CKEDITOR.replace('editor1');
-    document.querySelectorAll('.ckeditor').forEach((el) => {
-        CKEDITOR.replace(el);
+    CKEDITOR.replace('editor2');
+    CKEDITOR.replace('editor3');
+    CKEDITOR.replace('editor4');
+    CKEDITOR.replace('editor5');
+    CKEDITOR.replace('editor6');
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.ckeditor').forEach(function (el) {
+            // CKEditor ishlashi uchun elementda id bo‘lishi kerak
+            if (!el.id) {
+                el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
+            }
+
+            // Agar allaqachon CKEditor ulangani bo‘lsa, qayta ulamaslik
+            if (!CKEDITOR.instances[el.id]) {
+                CKEDITOR.replace(el.id);
+            }
+        });
     });
 </script>
 <!--! END: Theme Customizer !-->

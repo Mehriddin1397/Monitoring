@@ -64,19 +64,7 @@
 
 
         <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                document.querySelectorAll('.ckeditor').forEach(function (el) {
-                    // CKEditor ishlashi uchun elementda id bo‘lishi kerak
-                    if (!el.id) {
-                        el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
-                    }
 
-                    // Agar allaqachon CKEditor ulangani bo‘lsa, qayta ulamaslik
-                    if (!CKEDITOR.instances[el.id]) {
-                        CKEDITOR.replace(el.id);
-                    }
-                });
-            });
         </script>
 
 
