@@ -71,6 +71,7 @@ class TaskController extends Controller
         $user = auth()->user();
         $users = User::all();
         $now = now();
+        $categories = Category::forObjectType('tasks');
 
         if ($status === 'bajarilmoqda') {
             $statuses = ['yangi', 'bajarilmoqda'];
@@ -99,7 +100,7 @@ class TaskController extends Controller
             $tasks = $query->orderBy('end_date', 'asc')->get();
         }
 
-        return view('admin.project.index', compact('tasks', 'users', 'status'));
+        return view('admin.project.index', compact('tasks', 'users', 'status','categories'));
     }
 
 
