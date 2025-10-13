@@ -40,15 +40,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->role !== 'xodim' || auth()->user()->id == 21)
-                        <li class="nxl-item nxl-hasmenu">
-                            <a href="{{route('participants.index')}}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-layout"></i></span>
-                                <span class="nxl-mtext"> <strong>Жамоат хавфсизлиги бўйича ташаббус индекси</strong></span><span
-                                    class="nxl-arrow"></span>
-                            </a>
-                        </li>
-                    @endif
+
 
                     <li class="nxl-item nxl-hasmenu">
                         <a href="{{route('projects.index')}}" class="nxl-link">
@@ -110,7 +102,6 @@
                         <span class="nxl-mtext">Лабаратория</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
                     </a>
                     <ul class="nxl-submenu">
-                        <li class="nxl-item"><a class="nxl-link" href="#">Топшириқлар</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{route('ongoing-works.index')}}">Жараёндаги ишлар</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{route('planned-works.index')}}">Режалаштирилган ишлар</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{route('completed-works.index')}}">Бажарилган ишлар</a></li>
