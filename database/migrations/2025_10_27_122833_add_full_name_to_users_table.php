@@ -15,7 +15,7 @@ return new class extends Migration
 
             // ilmiy xodim belgisi
             if (!Schema::hasColumn('users', 'is_scientific')) {
-                $table->boolean('is_scientific')->default(false)->after('degree');
+                $table->boolean('is_scientific')->default(false);
             }
             // yangi ustunlar qo‘shish
             if (!Schema::hasColumn('users', 'full_name')) {
