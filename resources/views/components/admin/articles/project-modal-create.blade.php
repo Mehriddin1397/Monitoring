@@ -26,16 +26,6 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-4">
-                        <label class="form-label">Мақола эгаси:</label>
-                        <select name="participants[]"  size="17" class="form-control" required multiple>
-                            @foreach($participants as $p)
-                                    <option value="{{$p->id}}">{{ $p->full_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-4">
                         <label class="form-label" for="categories">Нашр этилган жой:</label>
                         <input type="text" name="publish_place" placeholder="Nashr etilgan joy">
                     </div>
@@ -46,35 +36,8 @@
                         <input type="file" name="article_pdf">
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-4">
-                        <label class="form-label" for="categories">Хулоса пдфи:</label>
-                        <input type="file" name="conclusion_pdf">
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-4">
-                        <label class="form-label" for="categories">Таърифлар сони:</label>
-                        <input type="number" name="definitions" placeholder="Ta'riflar soni">
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-4">
-                        <label class="form-label" for="categories">Таснифлар сони:</label>
-                        <input type="number" name="classifications" placeholder="Tasniflar soni">
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-4">
-                        <label class="form-label" for="categories">Таклифлар сони:</label>
-                        <input type="number" name="suggestions" placeholder="Takliflar soni">
-                    </div>
-                </div>
 
-
-
-
-                <button type="submit" class="btn btn-primary d-inline-block mt-4">Топшириқни қўшиш</button>
+                <button type="submit" class="btn btn-primary d-inline-block mt-4">Қўшиш</button>
             </div>
         </form>
     </div>

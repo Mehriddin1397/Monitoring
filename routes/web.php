@@ -60,6 +60,8 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
 
     Route::post('/pro_documents/{project}', [\App\Http\Controllers\Pro_documentController::class, 'store'])->name('pro_document.store');
 
+    Route::post('/articles/check', [\App\Http\Controllers\ArticleController::class, 'check'])->name('articles.check');
+
 
 
 

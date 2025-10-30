@@ -20,8 +20,25 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-4">
-                        <label class="form-label">Ism va familiya:</label>
+                        <label class="form-label">Ism va familiya qisqa:</label>
                         <input type="text" name="name" class="form-control">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label">Ism va familiya tuliq:</label>
+                        <input type="text" name="full_name" class="form-control">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label">Lavozimi:</label>
+                        <input type="text" name="position" class="form-control">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label">Ilmiy darajasi:</label>
+                        <input type="text" name="degree" class="form-control">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label">Telefon raqami:</label>
+                        <input type="text" name="tel_number" class="form-control">
                     </div>
                     <div class="form-group mb-4">
                         <label>Email</label>
@@ -37,6 +54,14 @@
                         </select>
                     </div>
                     <div class="form-group mb-4">
+                        <label>Ilmiy xodimmi yuq</label>
+                        <select name="is_scientific" class="form-control" required>
+                            <option> </option>
+                                <option value="1" >Ilmiy xodim</option>
+                                <option value="0" >Oddiy xodim</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-4">
                         @if(!isset($user))
                             <div class="mb-3">
                                 <label>Parol</label>
@@ -44,14 +69,14 @@
                             </div>
                         @else
                             <div class="mb-3">
-                                <label>Yangi parol (ixtiyoriy)</label>
+                                <label>Yangi parol: </label>
                                 <input type="password" name="password" class="form-control">
                             </div>
                         @endif
                     </div>
                     <div class="form-group mb-4">
                             <div class="mb-3">
-                                <label>Maxsus kod</label>
+                                <label>Maxsus kod: </label>
                                 <input type="text" name="auth_code" class="form-control">
                             </div>
                     </div>

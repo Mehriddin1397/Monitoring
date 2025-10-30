@@ -48,6 +48,12 @@
                             <span class="nxl-mtext">Лойиҳалар</span><span class="nxl-arrow"></span>
                         </a>
                     </li>
+                    <li class="nxl-item nxl-hasmenu">
+                        <a href="{{route('articles.index')}}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-layout"></i></span>
+                            <span class="nxl-mtext">И-индекс</span><span class="nxl-arrow"></span>
+                        </a>
+                    </li>
 
 
                     @if (in_array(auth()->user()->role, ['admin']))

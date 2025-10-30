@@ -27,6 +27,28 @@
                             <input type="text" name="name" class="form-control"
                                    value="{{ old('name', $user->name ?? '') }}" required>
                         </div>
+
+                        <div class="form-group mb-4">
+                            <label>F.I.Sh tuliq</label>
+                            <input type="text" name="full_name" class="form-control"
+                                   value="{{ old('full_name', $user->full_name ?? '') }}" required>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label>Lavozimi:</label>
+                            <input type="text" name="position" class="form-control"
+                                   value="{{ old('position', $user->position ?? '') }}" required>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label>Ilmiy unvoni:</label>
+                            <input type="text" name="degree" class="form-control"
+                                   value="{{ old('degree', $user->degree ?? '') }}" required>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label>Tel_raqami:</label>
+                            <input type="text" name="tel_number" class="form-control"
+                                   value="{{ old('tel_number', $user->tel_number ?? '') }}" required>
+                        </div>
+
                         <div class="form-group mb-4">
                             <label>Email</label>
                             <input type="email" name="email" class="form-control"
@@ -41,6 +63,18 @@
                                 <option
                                     value="{{ $role }}" {{ (old('role', $user->role ?? '') == $role) ? 'selected' : '' }}>{{ $role }}</option>
                             @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label>Role</label>
+                        <select name="is_scientific" class="form-control" >
+                            <option> </option>
+                                <option
+                                    value="1" {{ (old('is_scientific', $user->is_scientific ?? '') == 1) ? 'selected' : '' }}>Ilmiy xodim
+                                </option>
+                            <option
+                                    value="0" {{ (old('is_scientific', $user->is_scientific ?? '') == 0) ? 'selected' : '' }}>Oddiy xodim
+                                </option>
                         </select>
                     </div>
                     <div class="form-group mb-4">
