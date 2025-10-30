@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // 1. Avval foydalanuvchi (id = 2) mavjudligini tekshiramiz, agar yo'q bo'lsa — yaratamiz
+        // 1️⃣ Default foydalanuvchi (id = 2) mavjud bo‘lmasa, yaratamiz
         $userExists = DB::table('users')->where('id', 2)->exists();
 
         if (!$userExists) {
@@ -18,32 +18,41 @@ return new class extends Migration
                 'name' => 'Default User',
                 'email' => 'default_user@example.com',
                 'password' => bcrypt('password'),
-                'role' => 'author', // agar users jadvalida role bo‘lsa
+                'role' => 'boshliq', // mavjud rollarga mos variant
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
 
-        // 2. Maqolalarda user_id mavjud bo‘lmasa, vaqtincha 2-chi userga bog‘laymiz
-        if (Schema::hasTable('articles')) {
-            DB::statement('UPDATE articles SET user_id = 2 WHERE user_id IS NULL OR user_id = 0');
-        }
-
-        // 3. Endi ustunlarni xavfsiz tarzda qo‘shamiz
+        // 2️⃣ Ustunlarni qo‘shamiz (avval ustun bo‘lmasa)
         Schema::table('articles', function (Blueprint $table) {
-
             if (!Schema::hasColumn('articles', 'user_id')) {
-                $table->foreignId('user_id')->after('id')->constrained('users')->onDelete('cascade');
+                $table->foreignId('user_id')
+                    ->nullable()
+                    ->after('id')
+                    ->constrained('users')
+                    ->onDelete('cascade');
             }
 
             if (!Schema::hasColumn('articles', 'checked_by')) {
-                $table->foreignId('checked_by')->nullable()->after('user_id')->constrained('users')->onDelete('set null');
+                $table->foreignId('checked_by')
+                    ->nullable()
+                    ->after('user_id')
+                    ->constrained('users')
+                    ->onDelete('set null');
             }
 
             if (!Schema::hasColumn('articles', 'status')) {
-                $table->enum('status', ['pending', 'checked'])->default('pending')->after('conclusion_pdf');
+                $table->enum('status', ['pending', 'checked'])
+                    ->default('pending')
+                    ->after('conclusion_pdf');
             }
         });
+
+        // 3️⃣ Endi user_id mavjud bo‘lganidan keyin update qilamiz
+        if (Schema::hasColumn('articles', 'user_id')) {
+            DB::statement("UPDATE articles SET user_id = 2 WHERE user_id IS NULL OR user_id = 0");
+        }
     }
 
     public function down(): void
