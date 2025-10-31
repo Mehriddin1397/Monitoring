@@ -21,4 +21,9 @@ class ArticleScore extends Model
     {
         return $this->belongsTo(Article::class);
     }
+
+    public function evaluator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
 }

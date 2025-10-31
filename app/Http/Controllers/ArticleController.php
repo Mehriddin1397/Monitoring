@@ -15,7 +15,7 @@ class ArticleController extends Controller
         $user = Auth::user();
 
         // Maxsus foydalanuvchilar (masalan, admin yoki tekshiruvchi)
-        $specialUsers = [1, 2]; // bu yerga kerakli user_id larni qo‘shish mumkin
+        $specialUsers = [59, 2]; // bu yerga kerakli user_id larni qo‘shish mumkin
 
         if (in_array($user->id, $specialUsers) || $user->role === 'admin') {
             $articles = Article::with(['user', 'articleScores'])->latest()->paginate(10);
@@ -35,9 +35,9 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'publish_place' => 'required|string|max:255',
-            'article_pdf' => 'required|mimes:pdf|max:2048',
+            'title' => 'required|string',
+            'publish_place' => 'required|string',
+            'article_pdf' => 'required|mimes:pdf|max:20488',
         ]);
 
         // PDF yuklash
@@ -64,7 +64,7 @@ class ArticleController extends Controller
             'definitions' => 'required|integer|min:0',
             'classifications' => 'required|integer|min:0',
             'suggestions' => 'required|integer|min:0',
-            'conclusion_pdf' => 'required|mimes:pdf|max:2048',
+            'conclusion_pdf' => 'required|mimes:pdf|max:20488',
         ]);
 
         $article = Article::findOrFail($request->article_id);
@@ -107,8 +107,8 @@ class ArticleController extends Controller
         $article = Article::findOrFail($id);
 
         $request->validate([
-            'title' => 'required|string|max:255',
-            'publish_place' => 'required|string|max:255',
+            'title' => 'required|string',
+            'publish_place' => 'required|string',
         ]);
 
         $article->update([

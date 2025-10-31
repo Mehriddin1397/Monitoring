@@ -64,4 +64,9 @@ class User extends Authenticatable
         return $this->hasMany(Suggestion::class);
     }
 
+    public function articles()
+    {
+        return $this->hasMany(\App\Models\Article::class, 'user_id');
+    }
+
 }
