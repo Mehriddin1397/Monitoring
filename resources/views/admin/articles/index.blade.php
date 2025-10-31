@@ -137,7 +137,7 @@
                                             <td>
                                                 @if($article->status == 'pending')
                                                     <p style="color: red">⏳ Текширилмаган</p>
-                                                    @if (in_array($user->id, [1, 2]) || $user->role === 'admin')
+                                                    @if (in_array($user->id, [59, 2]) || $user->role === 'admin')
                                                         <button class="btn btn-sm btn-success"
                                                                 onclick="openCheckModal({{ $article->id }}, '{{ $article->title }}')">
                                                             Текшириш
