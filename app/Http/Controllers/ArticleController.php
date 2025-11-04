@@ -18,9 +18,9 @@ class ArticleController extends Controller
         $specialUsers = [59, 2]; // bu yerga kerakli user_id larni qo‘shish mumkin
 
         if (in_array($user->id, $specialUsers) || $user->role === 'admin') {
-            $articles = Article::with(['user', 'articleScores'])->latest()->paginate(10);
+            $articles = Article::with(['user', 'articleScore'])->latest()->paginate(10);
         } else {
-            $articles = Article::with(['user', 'articleScores'])
+            $articles = Article::with(['user', 'articleScore'])
                 ->where('user_id', $user->id)
                 ->latest()
                 ->paginate(10);

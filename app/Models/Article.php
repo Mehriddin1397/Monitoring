@@ -32,7 +32,7 @@ class Article extends Model {
     /**
      * Maqola uchun baholar
      */
-    public function articleScores()
+    public function articleScore()
     {
         return $this->hasMany(ArticleScore::class, 'article_id');
     }

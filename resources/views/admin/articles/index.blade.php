@@ -151,7 +151,7 @@
 
 
                                             <td>
-                                            @foreach($article->articleScores as $score)
+                                            @foreach($article->articleScore as $score)
 
                                                         {{$score->total_score }}
 

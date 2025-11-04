@@ -138,11 +138,11 @@
                                         <th>#</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа номи</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Буйруқ</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Қўшимча буйруқ</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Гурух таркиби</th>
+{{--                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Қўшимча буйруқ</th>--}}
+                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Гуруҳ таркиби</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа молиялаштириш манбаси ва суммаси</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳанинг маъсул ижрочиси Ф.И.Ш, тел рақам</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа рахбарининг иш жойи ва лавозими</th>
+{{--                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа рахбарининг иш жойи ва лавозими</th>--}}
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Лойиҳа хисоботлари</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Изох</th>
                                         <th class="text-end">Тахрирлаш</th>
@@ -163,13 +163,13 @@
                                                     Кўриш
                                                 </button>
                                             </td>
-                                            <td>
-                                                @if($project->file_qushimcha)
-                                                    <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $project->file_qushimcha) }}')">
-                                                        Кўриш
-                                                    </button>
-                                                @endif
-                                            </td>
+{{--                                            <td>--}}
+{{--                                                @if($project->file_qushimcha)--}}
+{{--                                                    <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $project->file_qushimcha) }}')">--}}
+{{--                                                        Кўриш--}}
+{{--                                                    </button>--}}
+{{--                                                @endif--}}
+{{--                                            </td>--}}
                                             <td>
                                                 @foreach($pulParticipants as $pul)
                                                     {{$pul->name}} <br>
@@ -178,24 +178,32 @@
                                             <td>
                                                {!! $project->manba !!}
                                             </td>
-                                            <td>
-                                                {!! $project->pro_bos_name !!}
-                                            </td>
+{{--                                            <td>--}}
+{{--                                                {!! $project->pro_bos_name !!}--}}
+{{--                                            </td>--}}
                                             <td>
                                                 {!! $project->job !!}
                                             </td>
                                             <td>
                                                 {{-- Hujjat yuklash formasi --}}
-                                                <form action="{{ route('pro_document.store', $project->id) }}" method="POST" enctype="multipart/form-data" style="margin-bottom: 5px;">
+                                                <form id="autoUploadForm" action="{{ route('pro_document.store', $project->id) }}" method="POST" enctype="multipart/form-data" style="margin-bottom: 5px;">
                                                     @csrf
-                                                    <input type="file" name="file" required>
-                                                    <button type="submit">Юклаш</button>
+                                                    <input type="file" name="file" id="fileInput" required>
                                                 </form>
+
+                                                <script>
+                                                    document.getElementById('fileInput').addEventListener('change', function() {
+                                                        if (this.files.length > 0) {
+                                                            document.getElementById('autoUploadForm').submit();
+                                                        }
+                                                    });
+                                                </script>
+
 
                                                 {{-- Yuklangan hujjatlar --}}
                                                 @if($project->pro_documents->count() > 0)
                                                     @foreach($project->pro_documents as $doc)
-                                                        <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $doc->file_path) }}')">
+                                                        <button class="btn btn-primary btn-sm mb-1" onclick="openModal('{{ asset('storage/' . $doc->file_path) }}')">
                                                             Кўриш
                                                         </button>
                                                     @endforeach
