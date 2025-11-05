@@ -40,13 +40,17 @@ class ScientificController extends Controller
             return [
                 'id' => $article->id,
                 'title' => $article->title,
-                'pdf' => $article->conclusion_pdf,
-                'total_score' => optional($article->articleScore)->total_score ?? 0,
+                'pdf' => $article->article_pdf,
+                'definitions' => $article->articleScore->definitions,
+                'classifications'=> $article->articleScore->classifications,
+                'suggestions'=> $article->articleScore->suggestions,
+                'total_score' => $article->articleScore->total_score ?? 0,
+                'publish_place' => $article->publish_place,
             ];
         });
 
         return response()->json([
-            'scientist' => $scientist->name,
+            'scientist' => $scientist->full_name,
             'articles' => $articles
         ]);
     }

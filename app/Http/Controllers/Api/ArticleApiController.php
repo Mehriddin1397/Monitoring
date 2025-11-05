@@ -12,15 +12,15 @@ class ArticleApiController extends Controller
     public function show($id)
     {
         $article = Article::with('articleScore')->findOrFail($id);
-        $totalScore = $article->articleScore->avg('total_score'); // o‘rtacha baho
-        $definitions = $article->articleScore->avg('definitions'); // o‘rtacha baho
-        $classifications = $article->articleScore->avg('classifications'); // o‘rtacha baho
-        $suggestions = $article->articleScore->avg('suggestions'); // o‘rtacha baho
+        $totalScore = $article->articleScore->total_score; // o‘rtacha baho
+        $definitions = $article->articleScore->definitions; // o‘rtacha baho
+        $classifications = $article->articleScore->classifications; // o‘rtacha baho
+        $suggestions = $article->articleScore->suggestions; // o‘rtacha baho
 
         return response()->json([
             'id' => $article->id,
             'title' => $article->title,
-            'pdf' => $article->conclusion_pdf,
+            'pdf' => $article->article_pdf,
             'scores' => [
                 'definitions' => $definitions ?? 0,
                 'classifications' => $classifications ?? 0,
