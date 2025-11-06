@@ -20,6 +20,7 @@ class ScientificController extends Controller
                 $totalScore = $scientist->articles->sum(function ($article) {
                     return optional($article->articleScore)->total_score ?? 0;
                 });
+
                 $scientist->total_score = $totalScore;
                 return $scientist;
             })
@@ -31,6 +32,7 @@ class ScientificController extends Controller
         ]);
     }
 
+
     // 2️⃣ Bitta xodimning maqolalari
     public function articles($id)
     {
@@ -41,11 +43,12 @@ class ScientificController extends Controller
                 'id' => $article->id,
                 'title' => $article->title,
                 'pdf' => $article->article_pdf,
-                'definitions' => $article->articleScore->definitions,
-                'classifications'=> $article->articleScore->classifications,
-                'suggestions'=> $article->articleScore->suggestions,
-                'total_score' => $article->articleScore->total_score ?? 0,
+                'definitions' => optional($article->articleScore)->definitions ?? 0,
+                'classifications'=> optional($article->articleScore)->classifications ?? 0,
+                'suggestions'=> optional($article->articleScore)->suggestions ?? 0,
+                'total_score' => optional($article->articleScore)->total_score ?? 0,
                 'publish_place' => $article->publish_place,
+                'status' => $article->status,
             ];
         });
 
@@ -54,4 +57,5 @@ class ScientificController extends Controller
             'articles' => $articles
         ]);
     }
+
 }

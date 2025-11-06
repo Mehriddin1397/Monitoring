@@ -34,6 +34,6 @@ class Article extends Model {
      */
     public function articleScore()
     {
-        return $this->hasMany(ArticleScore::class, 'article_id');
+        return $this->hasOne(ArticleScore::class, 'article_id');
     }
 }

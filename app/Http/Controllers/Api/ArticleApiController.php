@@ -12,21 +12,21 @@ class ArticleApiController extends Controller
     public function show($id)
     {
         $article = Article::with('articleScore')->findOrFail($id);
-        $totalScore = $article->articleScore->total_score; // o‘rtacha baho
-        $definitions = $article->articleScore->definitions; // o‘rtacha baho
-        $classifications = $article->articleScore->classifications; // o‘rtacha baho
-        $suggestions = $article->articleScore->suggestions; // o‘rtacha baho
+
+        $score = $article->articleScore; // endi object
 
         return response()->json([
             'id' => $article->id,
-            'title' => $article->title,
-            'pdf' => $article->article_pdf,
+            'title' => strip_tags($article->title),
+            'publish_place' => strip_tags($article->publish_place),
+            'status' => $article->status,
+            'pdf' => $article->article_pdf ? url('storage/' . $article->article_pdf) : null,
             'scores' => [
-                'definitions' => $definitions ?? 0,
-                'classifications' => $classifications ?? 0,
-                'suggestions' => $suggestions ?? 0,
-                'total_score' => $totalScore ?? 0,
+                'definitions' => $score->definitions ?? 0,
+                'classifications' => $score->classifications ?? 0,
+                'suggestions' => $score->suggestions ?? 0,
+                'total_score' => $score->total_score ?? 0,
             ]
-        ]);
+        ], 200);
     }
 }

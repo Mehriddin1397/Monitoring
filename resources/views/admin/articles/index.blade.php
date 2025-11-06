@@ -151,13 +151,9 @@
 
 
                                             <td>
-                                            @foreach($article->articleScore as $score)
 
-                                                        {{$score->total_score }}
+                                                        {{$article->articleScore->total_score ?? 0 }}
 
-
-
-                                                    @endforeach
                                                 </td>
 
                                             <td>
