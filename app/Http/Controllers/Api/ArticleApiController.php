@@ -21,6 +21,7 @@ class ArticleApiController extends Controller
             'publish_place' => strip_tags($article->publish_place),
             'status' => $article->status,
             'pdf' => $article->article_pdf ? url('storage/' . $article->article_pdf) : null,
+            'user_id'=>$article->user_id,
             'scores' => [
                 'definitions' => $score->definitions ?? 0,
                 'classifications' => $score->classifications ?? 0,
