@@ -13,6 +13,17 @@ Route::post('/',[\App\Http\Controllers\PageController::class,'login'])->name('lo
 Route::post('/logout',[\App\Http\Controllers\PageController::class,'logout'])->name('logout');
 
 
+
+
+
+Route::get('/test-sms', function () {
+    $phone = "998980008669"; // o'z raqaming
+    $response = \App\Services\EskizSmsService::send($phone);
+    return $response->json();
+});
+
+
+
 Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () {
     Route::get('/dashboard',[\App\Http\Controllers\PageController::class,'dashboard'])->name('dashboard');
     Route::resource('tasks', \App\Http\Controllers\TaskController::class)->except(['show']);
@@ -63,6 +74,6 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::post('/articles/check', [\App\Http\Controllers\ArticleController::class, 'check'])->name('articles.check');
 
 
-
-
 });
+
+
