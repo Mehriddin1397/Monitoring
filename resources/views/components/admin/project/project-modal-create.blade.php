@@ -27,10 +27,11 @@
                 <div class="col-md-6">
                     <div class="form-group mb-4">
                         <label class="form-label">Ходимлар:</label>
-                        <select name="assigned_users[]" size="17" class="form-control" required multiple>
-                            @foreach($users as $user)
+                        <select name="assigned_users[]" size="17" class="form-control" required multiple style="font-size: 20px;">
+
+                        @foreach($users as $user)
                                 @if($user->role == 'xodim')
-                                    <option value="{{$user->id}}">{{ $user->name }}</option>
+                                    <option value="{{$user->id}}">{{ $user->full_name }}</option>
                                 @endif
                             @endforeach
                         </select>

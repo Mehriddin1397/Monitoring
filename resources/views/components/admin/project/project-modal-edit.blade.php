@@ -28,14 +28,14 @@
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Ходимлар:</label>
-                            <select name="assigned_users[]" size="17" class="form-control" multiple>
+                            <select name="assigned_users[]" size="17" class="form-control" required multiple style="font-size: 20px;">
                                 @foreach($users as $user)
                                     @if($user->role == 'xodim')
                                         <option value="{{ $user->id }}"
                                                 @if(collect(old('assigned_users', isset($task) ? $task->assignedUsers->pluck('id')->toArray() : []))->contains($user->id))
                                                     selected
                                             @endif
-                                        >{{ $user->name }}</option>
+                                        >{{ $user->full_name }}</option>
                                     @endif
                                 @endforeach
                             </select>
