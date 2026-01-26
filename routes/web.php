@@ -41,6 +41,8 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::resource('completed-works', \App\Http\Controllers\CompletedWorkController::class);
     Route::resource('suggestions', \App\Http\Controllers\SuggestionController::class);
 
+    Route::resource('library', \App\Http\Controllers\LibraryController::class);
+
 
     Route::get('/category/{id}/documents', [\App\Http\Controllers\DocumentController::class, 'showByCategory'])->name('documents.byCategory');
 
@@ -72,6 +74,8 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::post('/pro_documents/{project}', [\App\Http\Controllers\Pro_documentController::class, 'store'])->name('pro_document.store');
 
     Route::post('/articles/check', [\App\Http\Controllers\ArticleController::class, 'check'])->name('articles.check');
+
+    Route::get('/library-search', [\App\Http\Controllers\LibraryController::class, 'search'])->name('library.search');
 
 
 });

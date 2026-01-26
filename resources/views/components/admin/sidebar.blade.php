@@ -93,6 +93,7 @@
                     <ul class="nxl-submenu">
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 1) }}">Президент
                                 фармон ва қарорлари</a></li>
+                        <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Маълумотлар банки</a></li>
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 2) }}">Вазирлар
                                 Махкамасининг фармон,қарор топшириқлари</a></li>
 
