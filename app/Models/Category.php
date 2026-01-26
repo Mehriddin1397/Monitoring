@@ -22,4 +22,8 @@ class Category extends Model
     {
         return $this->morphedByMany(Document::class, 'categoryable');
     }
+    public function libraries()
+    {
+        return $this->morphedByMany(Library::class, 'categoryable');
+    }
 }

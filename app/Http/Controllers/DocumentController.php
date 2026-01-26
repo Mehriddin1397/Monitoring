@@ -19,7 +19,7 @@ class DocumentController extends Controller
         $category = Category::with('documents')->findOrFail(4);
         $documents = $category->documents;
 
-        return view('', compact('documents','category'));
+        return view('admin.document.index', compact('documents','category'));
     }
 
 
@@ -36,10 +36,7 @@ class DocumentController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        //
-    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -71,18 +68,7 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Document $document)
-    {
-        return Storage::download($document->file_path);
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.

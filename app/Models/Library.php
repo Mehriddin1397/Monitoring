@@ -14,4 +14,9 @@ class Library extends Model
         'author',
         'pdf_path'
     ];
+
+    public function categories()
+    {
+        return $this->morphToMany(Category::class, 'categoryable');
+    }
 }

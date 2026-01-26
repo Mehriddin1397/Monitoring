@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Library;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class LibraryController extends Controller
 {
     public function index()
     {
-        $libraries = Library::latest()->get();
+        $category = Category::with('libraries')->findOrFail(4);
+        $libraries = $category->libraries;
         return view('admin.library.index', compact('libraries'));
     }
 
@@ -25,11 +28,14 @@ class LibraryController extends Controller
 
         $path = $request->file('pdf')->store('pdfs', 'public');
 
-        Library::create([
+        $library = Library::create([
             'name' => $request->name,
             'author' => $request->author,
             'pdf_path' => $path
         ]);
+
+        $library->categories()->attach($request->category_id);
+
 
         return redirect()->route('library.index');
     }
@@ -42,13 +48,31 @@ class LibraryController extends Controller
             'author' => 'required'
         ]);
 
-        $library->update($request->only('name', 'author'));
+
+
+        // Agar fayl bo'lsa, uni yangilaymiz
+        if ($request->hasFile('file')) {
+            // Eski faylni o‘chirish (ixtiyoriy)
+            Storage::disk('public')->delete($library->pdf_path);
+
+            // Yangi faylni saqlash
+            $filePath = $request->file('file')->store('pdfs', 'public');
+            $library->pdf_path = $filePath;
+        }
+
+        $library->update($request->only('name', 'author'));// Hujjat nomini yangilash
+
+
+        // Kategoriya aloqasini yangilash
+        $library->categories()->sync([$request->category_id]);
 
         return redirect()->route('library.index');
     }
 
     public function destroy(Library $library)
     {
+        Storage::delete($library->pdf_path);
+
         $library->delete();
         return back();
     }
