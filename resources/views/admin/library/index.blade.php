@@ -239,11 +239,11 @@
                                                             @if (auth()->user()->role !== 'xodim' || auth()->user()->id == 59)
                                                             <div class="hstack gap-2 justify-content-end">
                                                                 <a href="javascript:void(0)" data-bs-toggle="offcanvas"
-                                                           data-bs-target="#tasksDetailsOffcanvasEdit{{ $document->id }}"
+                                                           data-bs-target="#tasksDetailsOffcanvasEdit${item.id}"
                                                            class="avatar-text avatar-md">
                                                             <i class="feather feather-edit-3"></i>
                                                         </a>
-                                                                <form action="{{ route('library.destroy', $document->id) }}" method="POST">
+                                                                <form action="/admin/library/${item.id}" method="POST">
                                                                 @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="avatar-text avatar-md"
