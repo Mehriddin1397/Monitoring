@@ -99,16 +99,16 @@
                             </a>
                             <ul class="nxl-submenu">
                                 <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Дарсликлар</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',3) }}">Монографиялар</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',5) }}">Услубий қўлланмалар</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Ўқув қўлланмалар</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Диссертациялар</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Авторефратлар</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Илмий лойиҳалар</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Давлат ҳисоботлари</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Меморандумлар</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Журналлар</a></li>
-                                <li class="nxl-item"><a class="nxl-link" href="{{ route('library.index') }}">Конференция тўпламлари</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',12) }}">Монографиялар</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',13) }}">Услубий қўлланмалар</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',14) }}">Ўқув қўлланмалар</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',15) }}">Диссертациялар</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',16) }}">Авторефратлар</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',17) }}">Илмий лойиҳалар</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',18) }}">Давлат ҳисоботлари</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',19) }}">Меморандумлар</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',20) }}">Журналлар</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="{{ route('libraries.byCategory',21) }}">Конференция тўпламлари</a></li>
                             </ul>
                         </li>
                         <li class="nxl-item"><a class="nxl-link" href="{{ route('documents.byCategory', 1) }}">Президент
