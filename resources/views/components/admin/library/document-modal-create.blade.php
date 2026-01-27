@@ -34,6 +34,7 @@
                     <div class="form-group mb-4">
                         <label for="name_free_count" class="form-label">Хужжат файли:</label>
                         <input type="file" class="form-control" name="pdf" required>
+                        <input type="hidden" class="form-control" name="category_id" value="{{$category->id}}">
 
                     </div>
                 </div>

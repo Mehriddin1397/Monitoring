@@ -137,6 +137,7 @@
                                 <table class="table table-hover" id="proposalList">
                                     <thead style="background-color: #c7c7f0">
                                     <tr>
+
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Хужжат номи</th>
                                         <th style="font-weight: bold; font-size: 13px; color: #333;">Муаллифи</th>
@@ -199,7 +200,7 @@
                                     document.addEventListener('DOMContentLoaded', function () {
                                         const searchInput = document.getElementById('search');
                                         const resultBody = document.getElementById('result');
-                                        const searchUrl = "{{ route('library.search') }}"; // /admin/library-search
+                                        const searchUrl = "{{ route('library.search') }}";
 
                                         if (!searchInput || !resultBody) {
                                             console.error('Search input yoki result tbody topilmadi');

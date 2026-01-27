@@ -33,6 +33,9 @@
                         <option value="baza" {{ old('object_type', $category->object_type ?? '') == 'baza' ? 'selected' : '' }}>
                             Elektron baza
                         </option>
+                        <option value="library" {{ old('object_type', $category->object_type ?? '') == 'library' ? 'selected' : '' }}>
+                            Ma'lumotlar banki
+                        </option>
                     </select>
                 </div>
 

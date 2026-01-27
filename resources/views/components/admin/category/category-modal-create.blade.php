@@ -28,6 +28,7 @@
                         <select name="object_type" class="form-select form-control" required>
                             <option value="tasks">Topshiriqlar</option>
                             <option value="baza">Elektron Baza</option>
+                            <option value="library">Ma'lumotlar banki</option>
                         </select>
                     </div>
                 </div>

@@ -45,6 +45,7 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
 
 
     Route::get('/category/{id}/documents', [\App\Http\Controllers\DocumentController::class, 'showByCategory'])->name('documents.byCategory');
+    Route::get('/category/{id}/libraries', [\App\Http\Controllers\LibraryController::class, 'showByLib_Category'])->name('libraries.byCategory');
 
 
     Route::get('/project/{id}/file/{type}', [\App\Http\Controllers\PageController::class, 'showFile'])->name('project.file');

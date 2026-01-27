@@ -11,9 +11,19 @@ class LibraryController extends Controller
 {
     public function index()
     {
-        $category = Category::with('libraries')->findOrFail(4);
+        $category = Category::with('libraries')->findOrFail(3);
+
         $libraries = $category->libraries;
-        return view('admin.library.index', compact('libraries'));
+        return view('admin.library.index', compact('libraries', 'category'));
+    }
+
+    public function showByLib_Category($id)
+    {
+        $categories = Category::forObjectType('library');
+        $category = Category::with('libraries')->findOrFail($id);
+        $libraries = $category->libraries;
+
+        return view('admin.library.index', compact('libraries','category','categories'));
     }
 
 
