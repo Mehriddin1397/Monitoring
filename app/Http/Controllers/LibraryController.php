@@ -47,7 +47,7 @@ class LibraryController extends Controller
         $library->categories()->attach($request->category_id);
 
 
-        return redirect()->route('library.index');
+        return redirect()->back()->with('success', 'Hujjat muvaffaqiyatli yuklandi!');
     }
 
 

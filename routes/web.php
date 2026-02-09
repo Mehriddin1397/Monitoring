@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\EskizSmsService;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/tes/boss', function () {
@@ -16,10 +17,26 @@ Route::post('/logout',[\App\Http\Controllers\PageController::class,'logout'])->n
 
 
 
-Route::get('/test-sms', function () {
-    $phone = "998980008669"; // o'z raqaming
-    $response = \App\Services\EskizSmsService::send($phone);
-    return $response->json();
+Route::get('/test-sms', function (EskizSmsService $smsService) {
+    // 1. Aloqa va balansni tekshiramiz
+    $status = $smsService->getAccountStatus();
+
+    if ($status['status'] === 'error') {
+        return "Xatolik: " . $status['message'];
+    }
+
+    // 2. Agar balans bo'lsa, o'z raqamingizga test xabar yuboring
+    if ($status['balance'] > 0) {
+        $testPhone = "998942551397"; // O'z raqamingizni yozing
+        $testSms = $smsService->sendSms($testPhone, "Sizda 2s ta topshiriq muddati tugamoqda. Topshirishga 1s vaqt qoldi.");
+
+        return [
+            'account' => $status,
+            'sms_response' => $testSms
+        ];
+    }
+
+    return "Balans yetarli emas: " . $status['balance'];
 });
 
 

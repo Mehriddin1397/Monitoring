@@ -14,6 +14,7 @@ class Task extends Model
         'created_by',
         'assigned_users',
         'status',
+        'task_type',
     ];
 
 

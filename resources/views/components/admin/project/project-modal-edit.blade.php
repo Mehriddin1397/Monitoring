@@ -65,6 +65,15 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="form-label" for="categories">Топшириқни бир марталикми ёки йил якунигача:</label>
+                            <select name="task_type" class="form-select form-control">
+                                <option value="once">Бир марталик</option>
+                                <option value="yearly">Йил якунигача</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <button type="submit" class="btn btn-primary d-inline-block mt-4">Сақлаш</button>
 

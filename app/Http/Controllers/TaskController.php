@@ -140,6 +140,7 @@ class TaskController extends Controller
             'end_date' => 'required|date',
             'assigned_users' => 'required|array',
             'categories' => 'array',  // Kategoriyalar array bo‘lishi kerak
+            'task_type' => 'required|in:once,yearly',
             'categories.*' => 'exists:categories,id',// Kategoriyalar faqat mavjud IDlar bo‘lishi kerak
         ]);
 
@@ -147,8 +148,12 @@ class TaskController extends Controller
             $task = Task::create([
                 'title' => $validated['title'],
                 'start_date' => $validated['start_date'],
-                'end_date' => $validated['end_date'],
+                'end_date' => $validated['task_type'] === 'yearly'
+                    ? Carbon::parse($validated['end_date'])->endOfMonth()
+                    : $validated['end_date'],
                 'created_by' => 2,
+                'task_type' => $validated['task_type'],
+                'status' => 'yangi'
             ]);
 
             $task->assignedUsers()->attach($validated['assigned_users']);
@@ -158,8 +163,12 @@ class TaskController extends Controller
             $task = Task::create([
                 'title' => $validated['title'],
                 'start_date' => $validated['start_date'],
-                'end_date' => $validated['end_date'],
-                'created_by' => auth()->user()->id,
+                'end_date' => $validated['task_type'] === 'yearly'
+                    ? Carbon::parse($validated['end_date'])->endOfMonth()
+                    : $validated['end_date'],
+                'created_by' => auth()->id(),
+                'task_type' => $validated['task_type'],
+                'status' => 'yangi'
             ]);
 
             $task->assignedUsers()->attach($validated['assigned_users']);
@@ -177,10 +186,11 @@ class TaskController extends Controller
     }
 
 
+
     public function updateStatus(Request $request, Task $task)
     {
         $request->validate([
-            'status' => 'required|in:yangi,bajarilmoqda,uzaytirildi,bajarildi',
+            'status' => 'required|in:yangi,bajarilmoqda,uzaytirildi,bajarildi,bajarilmadi',
             'end_date' => 'nullable|date',
         ]);
 
@@ -188,27 +198,59 @@ class TaskController extends Controller
             abort(403);
         }
 
-        if (!$task->document && $request->status == "bajarildi") {
-            abort(403, 'Хужжат юкланмаган');
-        }
+        $oldStatus = $task->status;
+        $newStatus = $request->status;
+        $today = now();
 
+        // 1. Titlega status o'zgargan sanani yozish
+        $task->title = $task->title . " (Status o'zgardi: " . $today->format('d.m.Y') . ")";
+        $task->status = $newStatus;
 
-
-        $task->status = $request->status;
-
-        if ($request->status === 'uzaytirildi') {
-            if (!$request->filled('end_date')) {
-                return back()->withErrors(['end_date' => 'Илтимос, янги муддатни танланг']);
-            }
-            $task->end_date = $request->end_date; // Eslatma: bu ustun mavjud bo‘lishi kerak
+        if ($newStatus === 'uzaytirildi') {
+            $task->end_date = $request->end_date;
         }
 
         $task->save();
-        $task->statuses()->create([
-            'status' => $request->status
-        ]);
 
-        return redirect()->back()->with('success', 'Статус янгиланди');
+        // Statuslar tarixini saqlash
+        $task->statuses()->create(['status' => $newStatus]);
+
+        // 2. YILLIK TOPSHIRIQ MANTIQI
+        // Agar topshiriq yillik bo'lsa va u yakunlansa (bajarildi yoki bajarilmadi)
+        if ($task->task_type === 'yearly' && in_array($newStatus, ['bajarildi', 'bajarilmadi'])) {
+
+            $currentDeadline = Carbon::parse($task->end_date);
+            $nextMonthDeadline = $currentDeadline->copy()->addMonth()->endOfMonth();
+
+            // Agar keyingi oy hali shu yilning ichida bo'lsa
+            if ($nextMonthDeadline->year == $currentDeadline->year) {
+
+                // Yangi topshiriq nusxasini yaratish
+                $newTask = Task::create([
+                    'title' => $this->cleanTitle($task->getOriginal('title')), // Qavssiz original nomni olish
+                    'start_date' => $currentDeadline->copy()->addDay(), // Keyingi kun boshlanadi
+                    'end_date' => $nextMonthDeadline,
+                    'created_by' => $task->created_by,
+                    'status' => 'yangi',
+                    'task_type' => 'yearly',
+                ]);
+
+                // Xodimlarni biriktirish
+                $newTask->assignedUsers()->attach($task->assignedUsers->pluck('id')->toArray());
+
+                // Kategoriyalarni biriktirish
+                $newTask->categories()->attach($task->categories->pluck('id')->toArray());
+            }
+        }
+
+        return redirect()->back()->with('success', 'Статус янгиланди va keyingi oy uchun topshiriq yaratildi');
+    }
+
+    /**
+     * Titleni tozalash (oldingi sanalarni olib tashlash uchun yordamchi funksiya)
+     */
+    private function cleanTitle($title) {
+        return preg_replace('/\s\(Status o\'zgardi:.*?\)/', '', $title);
     }
 
 
@@ -224,6 +266,7 @@ class TaskController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'assigned_users' => 'required|array',
+            'task_type' => 'required|in:once,yearly',
         ]);
 
 
@@ -231,7 +274,10 @@ class TaskController extends Controller
         $task->update([
             'title' => $validated['title'],
             'start_date' => $validated['start_date'],
-            'end_date' => $validated['end_date'],
+            'end_date' => $validated['task_type'] === 'yearly'
+                ? Carbon::parse($validated['end_date'])->endOfMonth()
+                : $validated['end_date'],
+            'task_type' => $validated['task_type'],
         ]);
 
         // Assigned user-larni yangilash
