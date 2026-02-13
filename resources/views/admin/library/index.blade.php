@@ -50,7 +50,7 @@
                         </a>
                     </div>
                     @auth
-                        @if (auth()->user()->role !== 'xodim' || auth()->user()->id == 59)
+                        @if (auth()->user()->role !== 'xodim' || auth()->user()->id == 59 || auth()->user()->id == 40)
                             <div class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
                                 <a href="javascript:void(0);" class="btn btn-primary " data-bs-toggle="offcanvas"
                                    data-bs-target="#tasksDetailsOffcanvas">

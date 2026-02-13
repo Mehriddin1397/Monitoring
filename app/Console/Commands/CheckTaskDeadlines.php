@@ -45,8 +45,8 @@ class CheckTaskDeadlines extends Command
         // Bugungi topshiriqlar
         $todayCount = Task::whereDate('end_date', $today)->count();
 
-//        $adminPhone = '998942551397';
-        $adminPhone = '998941050078';
+        $adminPhone = '998942551397';
+//        $adminPhone = '998941050078';
 
         $smsService->send(
             $adminPhone,
