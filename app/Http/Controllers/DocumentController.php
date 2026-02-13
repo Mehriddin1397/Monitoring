@@ -108,7 +108,7 @@ class DocumentController extends Controller
     {
         Storage::delete($document->file_path);
         $document->delete();
-        return redirect()->route('documents.index')->with('success', 'Fayl o‘chirildi');
+        return redirect()->back();
     }
 
 
