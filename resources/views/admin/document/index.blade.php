@@ -147,7 +147,7 @@
                                                            class="avatar-text avatar-md">
                                                             <i class="feather feather-edit-3"></i>
                                                         </a>
-                                                        <form action="{{ route('users.destroy', $document->id) }}"
+                                                        <form action="{{ route('documents.destroy', $document->id) }}"
                                                               method="POST">
                                                             @csrf
                                                             @method('DELETE')
