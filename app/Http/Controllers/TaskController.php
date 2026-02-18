@@ -144,6 +144,8 @@ class TaskController extends Controller
             'categories.*' => 'exists:categories,id',// Kategoriyalar faqat mavjud IDlar bo‘lishi kerak
         ]);
 
+        $taskType = $validated['task_type'] ?? 'once';
+
         if (auth()->user()->id == 26) {
             $task = Task::create([
                 'title' => $validated['title'],
@@ -160,16 +162,19 @@ class TaskController extends Controller
         }
         else {
 
+
+
             $task = Task::create([
                 'title' => $validated['title'],
                 'start_date' => $validated['start_date'],
-                'end_date' => $validated['task_type'] === 'yearly'
+                'end_date' => $taskType === 'yearly'
                     ? Carbon::parse($validated['end_date'])->endOfMonth()
                     : $validated['end_date'],
                 'created_by' => auth()->id(),
-                'task_type' => $validated['task_type'],
+                'task_type' => $taskType,
                 'status' => 'yangi'
             ]);
+
 
             $task->assignedUsers()->attach($validated['assigned_users']);
         }
@@ -271,14 +276,17 @@ class TaskController extends Controller
 
 
         // Ma'lumotlarni yangilash
+        $taskType = $validated['task_type'] ?? 'once';
+
         $task->update([
             'title' => $validated['title'],
             'start_date' => $validated['start_date'],
-            'end_date' => $validated['task_type'] === 'yearly'
+            'end_date' => $taskType === 'yearly'
                 ? Carbon::parse($validated['end_date'])->endOfMonth()
                 : $validated['end_date'],
-            'task_type' => $validated['task_type'],
+            'task_type' => $taskType,
         ]);
+
 
         // Assigned user-larni yangilash
         $task->assignedUsers()->sync($validated['assigned_users']);
