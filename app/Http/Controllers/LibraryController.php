@@ -76,7 +76,7 @@ class LibraryController extends Controller
         // Kategoriya aloqasini yangilash
         $library->categories()->sync([$request->category_id]);
 
-        return redirect()->route('library.index');
+        return redirect()->back();
     }
 
     public function destroy(Library $library)
