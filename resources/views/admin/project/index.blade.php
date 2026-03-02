@@ -9,7 +9,7 @@
         <div class="page-header " style="background-color: #7878a3">
             <div class="page-header-left d-flex align-items-center">
                 <div class="page-header-title">
-                    <h5 class="m-b-10  text-white" >Топшириқлар</h5>
+                    <h5 class="m-b-10  text-white">Топшириқлар</h5>
                 </div>
             </div>
             <div style="
@@ -138,7 +138,7 @@
                                     @php
                                         $currentStatus = request()->route('status');
                                     @endphp
-                                    <!-- Chap tarafdagi 4ta status tugma -->
+                                        <!-- Chap tarafdagi 4ta status tugma -->
                                     <div class="d-flex gap-1 mb-3">
                                         <a href="{{ route('tasks.status', 'bajarilmoqda') }}"
                                            class="custom-btn btn btn-primary {{ request()->route('status') === 'bajarilmoqda' ? 'active' : '' }}">
@@ -160,11 +160,11 @@
                                     </div>
 
                                     <!-- O'ng tarafdagi print tugma -->
-{{--                                    <div class="mt-2">--}}
-{{--                                        <button onclick="printTable()" class="btn btn-primary">--}}
-{{--                                            🖨️ Чиқариш--}}
-{{--                                        </button>--}}
-{{--                                    </div>--}}
+                                    {{--                                    <div class="mt-2">--}}
+                                    {{--                                        <button onclick="printTable()" class="btn btn-primary">--}}
+                                    {{--                                            🖨️ Чиқариш--}}
+                                    {{--                                        </button>--}}
+                                    {{--                                    </div>--}}
 
                                     <div class="mt-2">
                                         <button onclick="downloadAsWord()" class="btn btn-success">
@@ -331,20 +331,23 @@
                                                     <p class="{{ $color }}">
                                                         Бажарилмади
                                                 @elseif(auth()->user()->id == $task->created_by )
-                                                    <form action="{{ route('updateStatus', $task->id) }}" method="POST" id="status-form-{{ $task->id }}">
+                                                    <form action="{{ route('updateStatus', $task->id) }}" method="POST"
+                                                          id="status-form-{{ $task->id }}">
                                                         @csrf
                                                         @method('POST')
 
-                                                        <select name="status" class="form-control" required onchange="handleStatusChange(this, {{ $task->id }})">
+                                                        <select name="status" class="form-control" required
+                                                                onchange="handleStatusChange(this, {{ $task->id }})">
                                                             @foreach(['yangi', 'bajarilmoqda', 'uzaytirildi', 'bajarildi'] as $status)
-                                                                <option value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
+                                                                <option
+                                                                    value="{{ $status }}" {{ $task->status === $status ? 'selected' : '' }}>
                                                                     @if($status == 'yangi' )
                                                                         Янги
                                                                     @elseif( $status == 'bajarilmoqda')
                                                                         Жараёнда
                                                                     @elseif( $status == 'uzaytirildi')
                                                                         Узайтирилди
-                                                                    @elseif( $status == 'bajarildi' &&  $task->document)
+                                                                    @elseif( $status == 'bajarildi' &&  $task->files)
                                                                         Бажарилди
                                                                     @endif
                                                                 </option>
@@ -352,7 +355,8 @@
                                                         </select>
 
                                                         {{-- Sana inputi faqat "uzaytirildi" holatda ko‘rsatiladi --}}
-                                                        <div id="date-container-{{ $task->id }}" style="display: none; margin-top: 10px;">
+                                                        <div id="date-container-{{ $task->id }}"
+                                                             style="display: none; margin-top: 10px;">
                                                             <label>Янги муддат:</label>
                                                             <input type="date" name="end_date" class="form-control"
                                                                    onchange="document.getElementById('status-form-{{ $task->id }}').submit();">
@@ -381,7 +385,6 @@
                                                             }
                                                         });
                                                     </script>
-
 
                                                 @else
                                                     @if($task->status == 'yangi')
@@ -417,13 +420,25 @@
                                                         </form>
                                                         @foreach($task->files as $file)
                                                             {{ $file->user->name }}
-                                                            <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $file->file_path) }}')">
+                                                            <button class="btn btn-primary btn-sm"
+                                                                    onclick="openModal('{{ asset('storage/' . $file->file_path) }}')">
+                                                                Кўриш
+                                                            </button>
+                                                            <br>
+                                                        @endforeach
+
+                                                        @if($task->document)
+
+                                                            <button class="btn btn-primary btn-sm"
+                                                                    onclick="openModal('{{ asset('storage/' . $task->document) }}')">
                                                                 Кўриш
                                                             </button>
                                                             <br>
 
-                                                        @endforeach
 
+                                                        @else
+                                                            <p>Файл йуқ</p>
+                                                        @endif
                                                     @else
                                                         <form action="{{ route('tasks.files.upload') }}" method="POST"
                                                               enctype="multipart/form-data">
@@ -432,17 +447,43 @@
                                                             <input type="file" name="file"
                                                                    onchange="this.form.submit()">
                                                         </form>
+
+                                                        @if($task->document)
+
+                                                            <button class="btn btn-primary btn-sm"
+                                                                    onclick="openModal('{{ asset('storage/' . $task->document) }}')">
+                                                                Кўриш
+                                                            </button>
+                                                            <br>
+
+
+                                                        @else
+                                                            <p>Файл йуқ</p>
+                                                        @endif
                                                     @endif
                                                 @else
                                                     @if($task->files)
                                                         @foreach($task->files as $file)
                                                             {{ $file->user->name }}
-                                                            <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $file->file_path) }}')">
+                                                            <button class="btn btn-primary btn-sm"
+                                                                    onclick="openModal('{{ asset('storage/' . $file->file_path) }}')">
                                                                 Кўриш
                                                             </button>
                                                             <br>
 
                                                         @endforeach
+                                                    @else
+                                                        <p>Файл йуқ</p>
+                                                    @endif
+                                                    @if($task->document)
+
+                                                            <button class="btn btn-primary btn-sm"
+                                                                    onclick="openModal('{{ asset('storage/' . $task->document) }}')">
+                                                                Кўриш
+                                                            </button>
+                                                            <br>
+
+
                                                     @else
                                                         <p>Файл йуқ</p>
                                                     @endif
@@ -454,7 +495,8 @@
                                             <div id="pdfModal" class="custom-modal">
                                                 <div class="custom-modal-content">
                                                     <span class="close-btn" onclick="closeModal()">&times;</span>
-                                                    <iframe id="pdfFrame" src="" width="100%" height="600px" style="border:none;"></iframe>
+                                                    <iframe id="pdfFrame" src="" width="100%" height="600px"
+                                                            style="border:none;"></iframe>
                                                 </div>
                                             </div>
                                             <td>
