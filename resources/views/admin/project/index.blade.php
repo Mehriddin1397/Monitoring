@@ -407,7 +407,7 @@
 
 
                                                 @if($task->assignedUsers->contains(Auth::user()->id))
-                                                    @if($task->document)
+                                                    @if($task->files)
                                                         <form action="{{ route('tasks.files.upload') }}" method="POST"
                                                               enctype="multipart/form-data">
                                                             @csrf

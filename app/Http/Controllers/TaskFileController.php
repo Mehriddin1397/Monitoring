@@ -11,6 +11,7 @@ class TaskFileController extends Controller
 {
     public function store(Request $request)
     {
+
         $request->validate([
             'file' => 'required|file|max:10240',
             'task_id' => 'required|exists:tasks,id',
@@ -22,6 +23,8 @@ class TaskFileController extends Controller
             $task->assignedUsers->contains(auth()->id()),
             403
         );
+
+
 
 
 
