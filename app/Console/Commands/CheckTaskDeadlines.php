@@ -38,7 +38,8 @@ class CheckTaskDeadlines extends Command
         foreach ($userTaskCounts as $data) {
             $smsService->send(
                 $data['phone'],
-                "Sizda {$data['count']} ta topshiriq muddati tugamoqda. Topshirishga 2-kun vaqt qoldi."
+                "Smart Ijro-Nazorat tizimida {$data['count']} ta topshiriq muddati tugamoqda. Topshirishga 2-kun vaqt qoldi."
+
             );
         }
 

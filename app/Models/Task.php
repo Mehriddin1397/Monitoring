@@ -38,4 +38,9 @@ class Task extends Model
         return $this->hasMany(TaskStatus::class);
     }
 
+    public function files()
+    {
+        return $this->hasMany(TaskFile::class);
+    }
+
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TaskFileController;
 use App\Services\EskizSmsService;
 use Illuminate\Support\Facades\Route;
 
@@ -94,6 +95,10 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::post('/articles/check', [\App\Http\Controllers\ArticleController::class, 'check'])->name('articles.check');
 
     Route::get('/library-search', [\App\Http\Controllers\LibraryController::class, 'search'])->name('library.search');
+
+    Route::post('/tasks/upload-file',
+        [TaskFileController::class, 'store']
+    )->name('tasks.files.upload');
 
 
 });

@@ -69,4 +69,9 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Article::class, 'user_id');
     }
 
+    public function taskFiles()
+    {
+        return $this->hasMany(TaskFile::class);
+    }
+
 }

@@ -408,30 +408,41 @@
 
                                                 @if($task->assignedUsers->contains(Auth::user()->id))
                                                     @if($task->document)
-                                                        <form action="{{ route('file.upload') }}" method="POST"
+                                                        <form action="{{ route('tasks.files.upload') }}" method="POST"
                                                               enctype="multipart/form-data">
                                                             @csrf
                                                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                            <input type="file" name="document"
+                                                            <input type="file" name="file"
                                                                    onchange="this.form.submit()">
                                                         </form>
-                                                        <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $task->document) }}')">
-                                                            Кўриш
-                                                        </button>
+                                                        @foreach($task->files as $file)
+                                                            {{ $file->user->name }}
+                                                            <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $file->file_path) }}')">
+                                                                Кўриш
+                                                            </button>
+                                                            <br>
+
+                                                        @endforeach
+
                                                     @else
-                                                        <form action="{{ route('file.upload') }}" method="POST"
+                                                        <form action="{{ route('tasks.files.upload') }}" method="POST"
                                                               enctype="multipart/form-data">
                                                             @csrf
                                                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                            <input type="file" name="document"
+                                                            <input type="file" name="file"
                                                                    onchange="this.form.submit()">
                                                         </form>
                                                     @endif
                                                 @else
-                                                    @if($task->document)
-                                                        <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $task->document) }}')">
-                                                            Кўриш
-                                                        </button>
+                                                    @if($task->files)
+                                                        @foreach($task->files as $file)
+                                                            {{ $file->user->name }}
+                                                            <button class="btn btn-primary btn-sm" onclick="openModal('{{ asset('storage/' . $file->file_path) }}')">
+                                                                Кўриш
+                                                            </button>
+                                                            <br>
+
+                                                        @endforeach
                                                     @else
                                                         <p>Файл йуқ</p>
                                                     @endif

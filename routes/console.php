@@ -9,6 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Har daqiqada yuborish uchun:
-Schedule::command('tasks:send-reminders')->dailyAt('09:00');
+Schedule::command('tasks:send-reminders')->dailyAt('04:00');
 
-Schedule::command('tasks:check-deadlines')->dailyAt('09:00');
+Schedule::command('tasks:check-deadlines')->dailyAt('04:00');
