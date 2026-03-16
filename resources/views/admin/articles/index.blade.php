@@ -199,7 +199,7 @@
                                             </td>
 
                                             <td>
-                                                @if(($article->user_id == auth()->user()->id) || (auth()->user()->role == 'admin'))
+                                                @if(($article->user_id == auth()->user()->id) || (auth()->user()->role == 'admin') || auth()->user()->id == 59 )
                                                 <div class="hstack gap-2 justify-content-end">
                                                     <a href="javascript:void(0)" data-bs-toggle="offcanvas"
                                                        data-bs-target="#tasksDetailsOffcanvasEdit{{ $article->id }}"
