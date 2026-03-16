@@ -10,23 +10,29 @@ use Illuminate\Support\Facades\Storage;
 
 class ArticleController extends Controller
 {
-    public function index()
+
+    public function index(Request $request)
     {
         $user = Auth::user();
 
-        // Maxsus foydalanuvchilar (masalan, admin yoki tekshiruvchi)
-        $specialUsers = [59, 2]; // bu yerga kerakli user_id larni qo‘shish mumkin
+        $year = $request->get('year'); // 2025 yoki 2026
 
-        if (in_array($user->id, $specialUsers) || $user->role === 'admin') {
-            $articles = Article::with(['user', 'articleScore'])->latest()->get();
-        } else {
-            $articles = Article::with(['user', 'articleScore'])
-                ->where('user_id', $user->id)
-                ->latest()
-                ->paginate(10);
+        $specialUsers = [59, 2];
+
+        $query = Article::with(['user', 'articleScore']);
+
+        if (!(in_array($user->id, $specialUsers) || $user->role === 'admin')) {
+            $query->where('user_id', $user->id);
         }
 
-        return view('admin.articles.index', compact('articles', 'user'));
+        // yil bo'yicha filter
+        if ($year) {
+            $query->whereYear('created_at', $year);
+        }
+
+        $articles = $query->latest()->get();
+
+        return view('admin.articles.index', compact('articles', 'user', 'year'));
     }
 
     /**

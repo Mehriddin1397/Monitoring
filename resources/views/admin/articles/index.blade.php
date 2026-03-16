@@ -101,6 +101,29 @@
                     <div class="card stretch stretch-full">
                         <div class="card-body p-0">
                             <div class="table-responsive table-container">
+                                <div class="mb-3 d-flex gap-2">
+
+                                    <a href="{{ route('articles.index', ['year' => 2025]) }}"
+                                       class="btn {{ $year == 2025 ? 'btn-primary' : 'btn-outline-primary' }}">
+                                        2025 йил юкланган мақолалар
+                                    </a>
+
+                                    <a href="{{ route('articles.index', ['year' => 2026]) }}"
+                                       class="btn {{ $year == 2026 ? 'btn-success' : 'btn-outline-success' }}">
+                                        2026 йил юкланган мақолалар
+                                    </a>
+
+                                    <a href="{{ route('articles.index') }}"
+                                       class="btn {{ $year == null ? 'btn-secondary' : 'btn-outline-secondary' }} ">
+                                        Барчаси
+                                    </a>
+
+                                    <a href="https://uzkti.uz/" target="_blank"
+                                       class="btn btn-danger">
+                                        I-index saytiga o'tish
+                                    </a>
+
+                                </div>
                                 <table class="table table-hover " id="proposalList">
                                     <thead style="background-color: #c7c7f0">
                                     <tr>
