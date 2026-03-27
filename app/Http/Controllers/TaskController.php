@@ -31,13 +31,18 @@ class TaskController extends Controller
         $categories = Category::forObjectType('tasks');
         $allUsers = User::where('role', 'xodim')->get();
 
-// 4 ta birinchi foydalanuvchi qo'shilgan vaqti bo'yicha
-        $firstUsers = $allUsers->sortBy('created_at')->take(4);
+// Boshiga chiqarilishi kerak bo'lgan ID lar ro'yxati
+        $specialIds = [4, 83, 6, 70];
 
-// Qolgan foydalanuvchilarni alfavit tartibida
-        $remainingUsers = $allUsers->diff($firstUsers)->sortBy('name');
+// 1. Faqat shu ID ga ega userlarni ajratib olamiz va ularni array ketma-ketligida taxlaymiz
+        $firstUsers = $allUsers->whereIn('id', $specialIds)->sortBy(function($user) use ($specialIds) {
+            return array_search($user->id, $specialIds);
+        });
 
-// Yakuniy ro'yxatni birlashtiramiz
+// 2. Qolgan foydalanuvchilarni (specialIds ga kirmaganlarini) alfavit tartibida taxlaymiz
+        $remainingUsers = $allUsers->whereNotIn('id', $specialIds)->sortBy('name');
+
+// 3. Yakuniy ro'yxatni birlashtiramiz
         $users = $firstUsers->concat($remainingUsers);
 
         $now = now();
