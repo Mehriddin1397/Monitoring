@@ -4,49 +4,44 @@ use App\Http\Controllers\TaskFileController;
 use App\Services\EskizSmsService;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/tes/boss', function () {
-    return view('admin.auth.login');
-});
 
 Route::get('/', function () {
     return view('admin.auth.login');
-})->name('login.page')->middleware('ip.restrict');;
-Route::post('/',[\App\Http\Controllers\PageController::class,'login'])->name('login');
-Route::post('/logout',[\App\Http\Controllers\PageController::class,'logout'])->name('logout');
+})->name('login.page')->middleware('ip.restrict');
+
+Route::post('/', [\App\Http\Controllers\PageController::class, 'login'])->name('login')->middleware('ip.restrict');
+Route::post('/logout', [\App\Http\Controllers\PageController::class, 'logout'])->name('logout')->middleware('ip.restrict');
+Route::get('/brith', [\App\Http\Controllers\PageController::class, 'brith'])->name('brith')->middleware('ip.restrict');
 
 
+//Route::get('/test-sms', function (EskizSmsService $smsService) {
+//    // 1. Aloqa va balansni tekshiramiz
+//    $status = $smsService->getAccountStatus();
+//
+//    if ($status['status'] === 'error') {
+//        return "Xatolik: " . $status['message'];
+//    }
+//
+//    // 2. Agar balans bo'lsa, o'z raqamingizga test xabar yuboring
+//    if ($status['balance'] > 0) {
+//        $testPhone = "998942551397"; // O'z raqamingizni yozing
+//        $testSms = $smsService->sendSms($testPhone, "Sizda 2s ta topshiriq muddati tugamoqda. Topshirishga 1s vaqt qoldi.");
+//
+//        return [
+//            'account' => $status,
+//            'sms_response' => $testSms
+//        ];
+//    }
+//
+//    return "Balans yetarli emas: " . $status['balance'];
+//});
 
 
-
-Route::get('/test-sms', function (EskizSmsService $smsService) {
-    // 1. Aloqa va balansni tekshiramiz
-    $status = $smsService->getAccountStatus();
-
-    if ($status['status'] === 'error') {
-        return "Xatolik: " . $status['message'];
-    }
-
-    // 2. Agar balans bo'lsa, o'z raqamingizga test xabar yuboring
-    if ($status['balance'] > 0) {
-        $testPhone = "998942551397"; // O'z raqamingizni yozing
-        $testSms = $smsService->sendSms($testPhone, "Sizda 2s ta topshiriq muddati tugamoqda. Topshirishga 1s vaqt qoldi.");
-
-        return [
-            'account' => $status,
-            'sms_response' => $testSms
-        ];
-    }
-
-    return "Balans yetarli emas: " . $status['balance'];
-});
-
-
-
-Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () {
-    Route::get('/dashboard',[\App\Http\Controllers\PageController::class,'dashboard'])->name('dashboard');
+Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\PageController::class, 'dashboard'])->name('dashboard');
     Route::resource('tasks', \App\Http\Controllers\TaskController::class)->except(['show']);
 
-    Route::resource('users',\App\Http\Controllers\UserController::class);
+    Route::resource('users', \App\Http\Controllers\UserController::class);
     Route::get('/admin/project/search', [\App\Http\Controllers\TaskController::class, 'search'])->name('search');
 
     Route::resource('documents', \App\Http\Controllers\DocumentController::class);
@@ -84,7 +79,7 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::get('/monitoring/umumiy', [\App\Http\Controllers\TaskController::class, 'umumiyStatistika'])->name('monitoring.umumiy');
     Route::get('/monitoring/hisobot', [\App\Http\Controllers\PageController::class, 'hisobot'])->name('monitoring.hisobot');
 
-    Route::resource('projects',\App\Http\Controllers\ProjectController::class);
+    Route::resource('projects', \App\Http\Controllers\ProjectController::class);
     Route::get('/admin/projects/search', [\App\Http\Controllers\ProjectController::class, 'search'])->name('projects.search');
 
 
@@ -99,6 +94,9 @@ Route::middleware(['auth','last.activity'])->prefix('admin')->group(function () 
     Route::post('/tasks/upload-file',
         [TaskFileController::class, 'store']
     )->name('tasks.files.upload');
+
+    Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
+    Route::resource('group-photos', \App\Http\Controllers\GroupPhotoController::class)->except(['show', 'edit', 'update']); // Guruh rasmlari uchun faqat ko'rish, qo'shish va o'chirish yetarli
 
 
 });

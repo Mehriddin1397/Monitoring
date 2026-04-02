@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Employee;
+use App\Models\GroupPhoto;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -266,6 +268,26 @@ class PageController extends Controller
 
 
         return view('admin.projectt.pdf', compact('project', 'filePath'));
+    }
+
+    public function brith()
+    {
+        $today = Carbon::now();
+
+        // Bugun tug'ilgan kuni bo'lgan xodimlarni qidirish (oy va kunga ko'ra)
+        $birthdayEmployees = Employee::whereMonth('birth_date', $today->month)
+            ->whereDay('birth_date', $today->day)
+            ->get();
+
+        // Agar bugun kimningdir tug'ilgan kuni bo'lsa, tabriknoma sahifasiga yuboramiz
+        if ($birthdayEmployees->isNotEmpty()) {
+            return view('pages.birthday', compact('birthdayEmployees'));
+        }
+
+        // Aks holda, guruh rasmlari bor sahifaga yuboramiz
+        $groupPhotos = GroupPhoto::latest()->get();
+        return view('pages.day', compact('groupPhotos'));
+
     }
 
 
