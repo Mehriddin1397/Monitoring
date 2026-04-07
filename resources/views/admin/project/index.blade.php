@@ -191,31 +191,46 @@
                                     }
                                 </style>
 
-
                                 <table class="table table-hover " id="proposalList">
                                     <thead class="sticky-top " style="background-color: #c7c7f0; ">
                                     <tr>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ мазмуни
+                                        <th>№</th>
+                                        <th>Топшириқ мазмуни</th>
+
+                                        <th>
+                                            Ижрочилар <br>
+                                            <select id="filterIjrochi" class="form-control">
+                                                <option value="">Барчаси</option>
+                                                @foreach($users as $user)
+                                                    <option value="{{ $user->name }}">{{ $user->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                            Ижрочилар
+
+                                        <th>
+                                            Топшириқни берган <br>
+                                            <select id="filterBergan" class="form-control">
+                                                <option value="">Барчаси</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{ $category->name }}">{{ $category->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                            Топшириқни берган
+
+                                        <th>
+                                            Берилган санаси <br>
+                                            <input type="date" id="filterStart" class="form-control">
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                            Берилган санаси
+
+                                        <th>
+                                            Бажариш санаси <br>
+                                            <input type="date" id="filterEnd" class="form-control">
                                         </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Бажариш санаси
-                                        </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ муддати
-                                        </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ ҳолати
-                                        </th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Топшириқ ижроси
-                                        </th>
-                                        <th class="text-end">Таҳрирлаш</th>
+
+                                        <th>Топшириқ муддати</th>
+                                        <th>Топшириқ ҳолати</th>
+                                        <th>Топшириқ ижроси</th>
+                                        <th></th>
                                     </tr>
                                     </thead>
                                     <tbody style="
@@ -304,10 +319,11 @@
                                                 @endforeach
                                             </td>
 
-                                            <td>
+                                            <td data-date="{{ $task->start_date }}">
                                                 {{ \Carbon\Carbon::parse($task->start_date)->format('d-m-Y') }}
                                             </td>
-                                            <td>
+
+                                            <td data-date="{{ $task->end_date }}">
                                                 {{ \Carbon\Carbon::parse($task->end_date)->format('d-m-Y') }}
                                             </td>
 
@@ -544,6 +560,39 @@
         </div>
 
     </div>
+    <script>
+        document.querySelectorAll('#filterIjrochi, #filterBergan, #filterStart, #filterEnd')
+            .forEach(el => el.addEventListener('change', filterTable));
+
+        function filterTable() {
+
+            let ijrochi = document.getElementById('filterIjrochi').value.toLowerCase();
+            let bergan = document.getElementById('filterBergan').value.toLowerCase();
+            let start = document.getElementById('filterStart').value;
+            let end = document.getElementById('filterEnd').value;
+
+            document.querySelectorAll('#proposalList tbody tr').forEach(row => {
+
+                let cols = row.querySelectorAll('td');
+
+                let ijrochiText = cols[2].innerText.toLowerCase();
+                let berganText = cols[3].innerText.toLowerCase();
+
+                let startDate = cols[4].getAttribute('data-date');
+                let endDate = cols[5].getAttribute('data-date');
+
+                let show = true;
+
+                if (ijrochi && !ijrochiText.includes(ijrochi)) show = false;
+                if (bergan && !berganText.includes(bergan)) show = false;
+
+                if (start && startDate < start) show = false;
+                if (end && endDate > end) show = false;
+
+                row.style.display = show ? '' : 'none';
+            });
+        }
+    </script>
     <script>
         function printTable() {
             // Jadvalni clone qilib olamiz.

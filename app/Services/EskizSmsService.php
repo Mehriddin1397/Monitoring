@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log; // Log fasadini qo'shish
 use RuntimeException;
 
 final class EskizSmsService
@@ -23,6 +24,7 @@ final class EskizSmsService
                 );
 
                 if (!$response->successful()) {
+                    Log::error('Eskiz Token Error: ' . $response->body());
                     throw new RuntimeException('Eskiz token olishda xatolik');
                 }
 
@@ -35,12 +37,25 @@ final class EskizSmsService
     {
         $token = $this->getToken();
 
-        Http::withToken($token)
+        // 1. Telefon raqamini tozalash (faqat raqamlarni qoldirish)
+        // Masalan: "+998 90 123 45 67" -> "998901234567"
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+
+        $response = Http::withToken($token)
             ->asForm()
             ->post('https://notify.eskiz.uz/api/message/sms/send', [
-                'mobile_phone' => $phone,
+                'mobile_phone' => $cleanPhone,
                 'message'      => $message,
-                'from'         => config('services.eskiz.from'),
+                'from'         => config('services.eskiz.from', '4546'), // Agar env da bo'lmasa standart 4546
             ]);
+
+        // 2. Eskizdan kelgan javobni tekshirish
+        if (!$response->successful() || $response->json('status') === 'error') {
+            // Xatolikni logga yozish
+            Log::error("Eskiz SMS Xatoligi ($cleanPhone): " . $response->body());
+        } else {
+            // Muvaffaqiyatli yuborilsa ham logga yozish (ixtiyoriy)
+            Log::info("Eskiz SMS Yuborildi ($cleanPhone): " . $response->body());
+        }
     }
 }
