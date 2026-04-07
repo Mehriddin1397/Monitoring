@@ -211,7 +211,7 @@
                                             Топшириқни берган <br>
                                             <select id="filterBergan" class="form-control">
                                                 <option value="">Барчаси</option>
-                                                @foreach($categories as $category)
+                                                @foreach($categories ?? [] as $category)
                                                     <option value="{{ $category->name }}">{{ $category->name }}</option>
                                                 @endforeach
                                             </select>
