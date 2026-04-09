@@ -199,4 +199,7 @@ class ProjectController extends Controller
 
         return view('admin.projectt.search', compact('projects','query'));
     }
+
+    //filtr sahifasi uchun
+
 }

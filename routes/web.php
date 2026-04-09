@@ -99,6 +99,13 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
     Route::resource('group-photos', \App\Http\Controllers\GroupPhotoController::class)->except(['show', 'edit', 'update']); // Guruh rasmlari uchun faqat ko'rish, qo'shish va o'chirish yetarli
 
 
+    // Qidiruv sahifasini ochish uchun
+    Route::get('/tasks/filter', [\App\Http\Controllers\TaskController::class, 'filterPage'])->name('tasks.filter');
+
+// AJAX orqali real vaqtda qidirish uchun
+    Route::get('/tasks/search', [\App\Http\Controllers\TaskController::class, 'searchPage'])->name('tasks.search');
+
+
 });
 
 

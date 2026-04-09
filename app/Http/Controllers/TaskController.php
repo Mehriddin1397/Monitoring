@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\News;
+use App\Services\EskizSmsService;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
@@ -14,69 +15,84 @@ use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
-    public function completed(){
+    public function completed()
+    {
         $user = auth()->user();
-        $users = User::all();
-        $now = now();
 
-        $tasks = Task::all();
-
-
-        return view('admin.project.index', compact('tasks', 'users'));
-    }
-
-    public function index() {
-
-        $user = auth()->user();
-        $categories = Category::forObjectType('tasks');
-        $allUsers = User::where('role', 'xodim')->get();
-
-// Boshiga chiqarilishi kerak bo'lgan ID lar ro'yxati
         $specialIds = [4, 83, 6, 70];
+        $users = User::where('role', 'xodim')
+            ->orderByRaw("FIELD(id, " . implode(',', $specialIds) . ") DESC")
+            ->orderBy('name')
+            ->get();
 
-// 1. Faqat shu ID ga ega userlarni ajratib olamiz va ularni array ketma-ketligida taxlaymiz
-        $firstUsers = $allUsers->whereIn('id', $specialIds)->sortBy(function($user) use ($specialIds) {
-            return array_search($user->id, $specialIds);
-        });
-
-// 2. Qolgan foydalanuvchilarni (specialIds ga kirmaganlarini) alfavit tartibida taxlaymiz
-        $remainingUsers = $allUsers->whereNotIn('id', $specialIds)->sortBy('name');
-
-// 3. Yakuniy ro'yxatni birlashtiramiz
-        $users = $firstUsers->concat($remainingUsers);
-
+        $categories = Category::forObjectType('tasks'); // View uchun qo'shildi
         $now = now();
-        $status = 'bajarilmoqda';
-
-        $statuses = ['yangi', 'bajarilmoqda'];
 
         if ($user->role === 'xodim') {
             $tasks = $user->assignedTasks()
-                ->with('creator')
-                ->whereIn('status', $statuses)
-                ->whereDate('end_date', '>=', $now)
-                ->orderBy('end_date', 'asc')
-                ->get();
+                ->with(['assignedUsers', 'creator', 'categories', 'files'])
+                ->where('status', 'bajarildi')
+                ->orderBy('end_date', 'desc')
+                ->paginate(10); // XATO TUG'IRLANDI
         } else {
-            $tasks = Task::with(['assignedUsers', 'creator'])
-                ->whereIn('status', $statuses)
-                ->whereDate('end_date', '>=', $now)
-                ->orderBy('end_date', 'asc')
-                ->get();
+            $tasks = Task::with(['assignedUsers', 'creator', 'categories', 'files'])
+                ->where('status', 'bajarildi')
+                ->orderBy('end_date', 'desc')
+                ->paginate(30); // XATO TUG'IRLANDI
         }
 
+        $status = 'bajarildi';
 
+        return view('admin.project.index', compact('tasks', 'users', 'categories', 'now', 'status'));
+    }
 
+    public function index(Request $request)
+    {
+        $user = auth()->user();
+        $now = now();
+        $statuses = ['yangi', 'bajarilmoqda'];
 
-        return view('admin.project.index', compact('tasks', 'users','status','categories'));
+        // TASKS (oddiy paginate bilan)
+        if ($user->role === 'xodim') {
+            $tasks = $user->assignedTasks()
+                ->with(['assignedUsers', 'creator', 'categories', 'files'])
+                ->whereIn('status', $statuses)
+                ->whereDate('end_date', '>=', $now)
+                ->orderBy('end_date', 'asc')
+                ->paginate(30); // 10 tadan sahifalash
+        } else {
+            $tasks = \App\Models\Task::with(['assignedUsers', 'creator', 'categories', 'files'])
+                ->whereIn('status', $statuses)
+                ->whereDate('end_date', '>=', $now)
+                ->orderBy('end_date', 'asc')
+                ->paginate(30);
+        }
+
+        // USERS (optimizatsiya)
+        $specialIds = [4, 83, 6, 70];
+        $users = \App\Models\User::where('role', 'xodim')
+            ->orderByRaw("FIELD(id, " . implode(',', $specialIds) . ") DESC")
+            ->orderBy('name')
+            ->get();
+
+        $categories = \App\Models\Category::forObjectType('tasks');
+
+        return view('admin.project.index', compact('tasks', 'users', 'categories', 'now'));
     }
 
     public function statusFilter($status)
     {
         $user = auth()->user();
-        $users = User::all();
-        $now = now();
+
+        // Optimizatsiya qilingan userlar
+        $specialIds = [4, 83, 6, 70];
+        $users = User::where('role', 'xodim')
+            ->orderByRaw("FIELD(id, " . implode(',', $specialIds) . ") DESC")
+            ->orderBy('name')
+            ->get();
+
         $categories = Category::forObjectType('tasks');
+        $now = now();
 
         if ($status === 'bajarilmoqda') {
             $statuses = ['yangi', 'bajarilmoqda'];
@@ -86,58 +102,66 @@ class TaskController extends Controller
 
         if ($user->role === 'xodim') {
             $query = $user->assignedTasks()
-                ->with('creator')
+                ->with(['assignedUsers', 'creator', 'categories', 'files']) // Barcha bog'lanishlar qo'shildi
                 ->whereIn('status', $statuses);
 
             if ($status !== 'bajarildi') {
                 $query->whereDate('end_date', '>=', $now);
             }
 
-            $tasks = $query->orderBy('end_date', 'asc')->get();
+            // XATO TUG'IRLANDI: get() o'rniga paginate(10)
+            $tasks = $query->orderBy('end_date', 'asc')->paginate(30);
         } else {
-            $query = Task::with(['assignedUsers', 'creator'])
-                ->whereIn('status', $statuses);
+            $query = Task::with(['assignedUsers', 'creator', 'categories', 'files']) // Barcha bog'lanishlar qo'shildi
+            ->whereIn('status', $statuses);
 
             if ($status !== 'bajarildi') {
                 $query->whereDate('end_date', '>=', $now);
             }
 
-            $tasks = $query->orderBy('end_date', 'asc')->get();
+            // XATO TUG'IRLANDI: get() o'rniga paginate(10)
+            $tasks = $query->orderBy('end_date', 'asc')->paginate(30);
         }
 
-        return view('admin.project.index', compact('tasks', 'users', 'status','categories'));
+        return view('admin.project.index', compact('tasks', 'users', 'status', 'categories', 'now'));
     }
 
 
     public function failedTasks()
     {
         $user = auth()->user();
-        $users = User::all();
 
+        $specialIds = [4, 83, 6, 70];
+        $users = User::where('role', 'xodim')
+            ->orderByRaw("FIELD(id, " . implode(',', $specialIds) . ") DESC")
+            ->orderBy('name')
+            ->get();
+
+        $categories = Category::forObjectType('tasks'); // View uchun qo'shildi
         $now = now();
-
         $whereStatus = ['bajarilmadi'];
 
         if ($user->role === 'xodim') {
             $tasks = $user->assignedTasks()
-                ->with('creator')
+                ->with(['assignedUsers', 'creator', 'categories', 'files'])
                 ->whereIn('status', $whereStatus)
                 ->orderBy('end_date', 'asc')
-                ->get();
+                ->paginate(30); // XATO TUG'IRLANDI: get() o'rniga paginate(10)
         } else {
-            $tasks = Task::with(['assignedUsers', 'creator'])
+            $tasks = Task::with(['assignedUsers', 'creator', 'categories', 'files'])
                 ->whereIn('status', $whereStatus)
                 ->orderBy('end_date', 'asc')
-                ->get();
+                ->paginate(30); // XATO TUG'IRLANDI: get() o'rniga paginate(10)
         }
 
+        $status = 'bajarilmagan';
 
-        return view('admin.project.index', compact('tasks', 'users'))->with('status', 'bajarilmagan');
+        return view('admin.project.index', compact('tasks', 'users', 'categories', 'now', 'status'));
     }
 
 
 
-    public function store(Request $request)
+    public function store(Request $request,EskizSmsService $smsService)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:10000',
@@ -192,6 +216,32 @@ class TaskController extends Controller
             $task->categories()->attach($request->categories);
         }
 
+        // ========================================================
+        // 3. YANGI QO'SHILGAN QISM: SMS YUBORISH MANTIQI
+        // ========================================================
+
+        // Topshirish sanasini DD.MM.YYYY formatiga o'tkazish
+        $formattedDate = Carbon::parse($task->end_date)->format('d.m.Y');
+
+        // SMS matni
+        $message = "Sizga Smart-Ijro Nazorat tizimidan yangi topshiriq berildi. Topshirish sanasi: {$formattedDate}";
+
+        // Biriktirilgan barcha xodimlarni bazadan topib kelish
+        $assignedUsers = User::whereIn('id', $validated['assigned_users'])->get();
+
+        foreach ($assignedUsers as $user) {
+            // Agar xodimning telefon raqami kiritilgan bo'lsa, SMS jo'natish
+            if (!empty($user->tel_number)) {
+                try {
+                    $smsService->send($user->tel_number, $message);
+                } catch (\Exception $e) {
+                    // Agar SMS ketmay qolsa, tizim qotib qolmasligi uchun xatoni logga yozamiz
+                    \Log::error("Yangi topshiriq SMS yuborishda xatolik: " . $e->getMessage());
+                }
+            }
+        }
+        // ========================================================
+
         return redirect()->route('tasks.index');
     }
 
@@ -224,6 +274,8 @@ class TaskController extends Controller
 
         // Statuslar tarixini saqlash
         $task->statuses()->create(['status' => $newStatus]);
+
+
 
         // 2. YILLIK TOPSHIRIQ MANTIQI
         // Agar topshiriq yillik bo'lsa va u yakunlansa (bajarildi yoki bajarilmadi)
@@ -420,7 +472,69 @@ class TaskController extends Controller
     }
 
 
+    //filtr sahifasi uchun
+    public function filterPage()
+    {
+        // Filtrlar uchun kerakli ma'lumotlar
+        $specialIds = [4, 83, 6, 70];
+        $users = User::where('role', 'xodim')
+            ->orderByRaw("FIELD(id, " . implode(',', $specialIds) . ") DESC")
+            ->orderBy('name')
+            ->get();
 
+        $categories = Category::forObjectType('tasks');
+
+        return view('admin.project.partials.search', compact('users', 'categories'));
+    }
+
+    public function searchPage(Request $request)
+    {
+        $user = auth()->user();
+        $now = now();
+
+        // Asosiy so'rov
+        if ($user->role === 'xodim') {
+            $query = $user->assignedTasks()->with(['assignedUsers', 'creator', 'categories', 'files']);
+        } else {
+            $query = \App\Models\Task::with(['assignedUsers', 'creator', 'categories', 'files']);
+        }
+
+        // 1. Ижрочи бўйича филтр
+        if ($request->filled('ijrochi')) {
+            $ijrochi = $request->ijrochi;
+            $query->whereHas('assignedUsers', function($q) use ($ijrochi) {
+                $q->where('name', $ijrochi);
+            });
+        }
+
+        // 2. Топшириқни берган бўйича филтр
+        if ($request->filled('bergan')) {
+            $bergan = $request->bergan;
+            $query->whereHas('categories', function($q) use ($bergan) {
+                $q->where('name', $bergan);
+            });
+        }
+
+        // 3. Саналар бўйича филтр
+        if ($request->filled('start_date')) {
+            $query->whereDate('start_date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('end_date', '<=', $request->end_date);
+        }
+        // 4. Status (Holat) bo'yicha filtr
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Natijalarni olish (Masalan, eng so'nggi 50 ta)
+        $tasks = $query->orderBy('end_date', 'desc')->take(50)->get();
+
+        // Partial orqali HTML qaytarish
+        $html = view('admin.project.partials.search_results', compact('tasks', 'now'))->render();
+
+        return response()->json(['html' => $html]);
+    }
 
 
 

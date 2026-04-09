@@ -199,32 +199,22 @@
 
                                         <th>
                                             Ижрочилар <br>
-                                            <select id="filterIjrochi" class="form-control">
-                                                <option value="">Барчаси</option>
-                                                @foreach($users as $user)
-                                                    <option value="{{ $user->name }}">{{ $user->name }}</option>
-                                                @endforeach
-                                            </select>
+
                                         </th>
 
                                         <th>
                                             Топшириқни берган <br>
-                                            <select id="filterBergan" class="form-control">
-                                                <option value="">Барчаси</option>
-                                                @foreach($categories ?? [] as $category)
-                                                    <option value="{{ $category->name }}">{{ $category->name }}</option>
-                                                @endforeach
-                                            </select>
+
                                         </th>
 
                                         <th>
                                             Берилган санаси <br>
-                                            <input type="date" id="filterStart" class="form-control">
+
                                         </th>
 
                                         <th>
                                             Бажариш санаси <br>
-                                            <input type="date" id="filterEnd" class="form-control">
+
                                         </th>
 
                                         <th>Топшириқ муддати</th>
@@ -237,7 +227,7 @@
 
                                     background-color: #e7e7f3
 
-                                    ">
+                                    " id="task-table-body">
                                     @foreach($tasks as $task)
                                         @php
                                             $deadline = \Carbon\Carbon::parse($task->end_date);
@@ -551,6 +541,9 @@
                                         }
                                     </style>
                                 </table>
+                                <div class="d-flex justify-content-center mt-4">
+                                    {{ $tasks->links('pagination::bootstrap-5') }}
+                                </div>
 
                             </div>
                         </div>
@@ -560,39 +553,7 @@
         </div>
 
     </div>
-    <script>
-        document.querySelectorAll('#filterIjrochi, #filterBergan, #filterStart, #filterEnd')
-            .forEach(el => el.addEventListener('change', filterTable));
 
-        function filterTable() {
-
-            let ijrochi = document.getElementById('filterIjrochi').value.toLowerCase();
-            let bergan = document.getElementById('filterBergan').value.toLowerCase();
-            let start = document.getElementById('filterStart').value;
-            let end = document.getElementById('filterEnd').value;
-
-            document.querySelectorAll('#proposalList tbody tr').forEach(row => {
-
-                let cols = row.querySelectorAll('td');
-
-                let ijrochiText = cols[2].innerText.toLowerCase();
-                let berganText = cols[3].innerText.toLowerCase();
-
-                let startDate = cols[4].getAttribute('data-date');
-                let endDate = cols[5].getAttribute('data-date');
-
-                let show = true;
-
-                if (ijrochi && !ijrochiText.includes(ijrochi)) show = false;
-                if (bergan && !berganText.includes(bergan)) show = false;
-
-                if (start && startDate < start) show = false;
-                if (end && endDate > end) show = false;
-
-                row.style.display = show ? '' : 'none';
-            });
-        }
-    </script>
     <script>
         function printTable() {
             // Jadvalni clone qilib olamiz.
