@@ -95,6 +95,14 @@
                                 <span class="nxl-mtext">Ҳисобот</span><span class="nxl-arrow"></span>
                             </a>
                         </li>
+
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="{{route('tasks.filter')}}" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-layout"></i></span>
+                                <span class="nxl-mtext"> <strong>Topshiriqlarni saralash</strong></span><span
+                                    class="nxl-arrow"></span>
+                            </a>
+                        </li>
                     @endif
 
                 @endauth
