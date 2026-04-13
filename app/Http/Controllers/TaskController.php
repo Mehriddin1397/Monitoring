@@ -528,7 +528,7 @@ class TaskController extends Controller
         }
 
         // Natijalarni olish (Masalan, eng so'nggi 50 ta)
-        $tasks = $query->orderBy('end_date', 'desc')->take(50)->get();
+        $tasks = $query->orderBy('end_date', 'desc')->get();
 
         // Partial orqali HTML qaytarish
         $html = view('admin.project.partials.search_results', compact('tasks', 'now'))->render();
