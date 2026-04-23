@@ -11,6 +11,9 @@ class TaskFile extends Model
         'user_id',
         'file_path',
         'original_name',
+        'status',
+        'reject_reason',
+        'checked_by'
     ];
 
     public function task()

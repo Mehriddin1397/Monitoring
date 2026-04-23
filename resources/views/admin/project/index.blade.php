@@ -408,94 +408,112 @@
                                             </td>
                                             <td>
                                                 @php
-                                                    $currentUser = \Illuminate\Support\Facades\Auth::user();
-                                                    $isAssigned = $task->assignedUsers->contains(function ($user) use ($currentUser) {
-                                                        return $user->id === $currentUser->id;
-                                                    });
+                                                    $currentUser = auth()->user();
+
+                                                    $isAssigned = $task->assignedUsers->contains('id', $currentUser->id);
+
+                                                    // 🔥 faqat shu userning fayli
+                                                    $myFile = $task->files->where('user_id', $currentUser->id)->first();
                                                 @endphp
 
+                                                @if($isAssigned)
 
-                                                @if($task->assignedUsers->contains(Auth::user()->id))
-                                                    @if($task->files)
-                                                        <form action="{{ route('tasks.files.upload') }}" method="POST"
-                                                              enctype="multipart/form-data">
+                                                    {{-- ✅ AGAR FAYL YO‘Q BO‘LSA --}}
+                                                    @if(!$myFile)
+                                                        <form action="{{ route('tasks.files.upload') }}" method="POST" enctype="multipart/form-data">
                                                             @csrf
                                                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                            <input type="file" name="file"
-                                                                   onchange="this.form.submit()">
+                                                            <input type="file" name="file" onchange="this.form.submit()">
                                                         </form>
-                                                        @foreach($task->files as $file)
-                                                            {{ $file->user->name }}
-                                                            <button class="btn btn-primary btn-sm"
-                                                                    onclick="openModal('{{ asset('storage/' . $file->file_path) }}')">
-                                                                Кўриш
-                                                            </button>
-                                                            <br>
-                                                        @endforeach
-
-                                                        @if($task->document)
-
-                                                            <button class="btn btn-primary btn-sm"
-                                                                    onclick="openModal('{{ asset('storage/' . $task->document) }}')">
-                                                                Кўриш
-                                                            </button>
-                                                            <br>
-
-
-                                                        @else
-                                                            <p>Файл йуқ</p>
-                                                        @endif
                                                     @else
-                                                        <form action="{{ route('tasks.files.upload') }}" method="POST"
-                                                              enctype="multipart/form-data">
-                                                            @csrf
-                                                            <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                            <input type="file" name="file"
-                                                                   onchange="this.form.submit()">
-                                                        </form>
-
-                                                        @if($task->document)
-
-                                                            <button class="btn btn-primary btn-sm"
-                                                                    onclick="openModal('{{ asset('storage/' . $task->document) }}')">
-                                                                Кўриш
-                                                            </button>
-                                                            <br>
 
 
-                                                        @else
-                                                            <p>Файл йуқ</p>
+                                                        <button class="btn btn-primary btn-sm"
+                                                                onclick="openModal('{{ asset('storage/' . $myFile->file_path) }}')">
+                                                            Ko‘rish
+                                                        </button>
+
+                                                        @if($myFile->status == 'pending')
+                                                            <span class="badge bg-warning">Kutilmoqda</span>
+
+                                                        @elseif($myFile->status == 'approved')
+                                                            <span class="badge bg-success">Tasdiqlangan</span>
+
+                                                        @elseif($myFile->status == 'rejected')
+                                                            <span class="badge bg-danger">Rad qilingan</span>
+
+                                                            <p style="color:red;">
+                                                                Sabab: {{ $myFile->reject_reason }}
+                                                            </p>
+
+                                                            {{-- 🔥 qayta yuklash --}}
+                                                            <form action="{{ route('tasks.files.upload') }}" method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <input type="hidden" name="task_id" value="{{ $task->id }}">
+                                                                <input type="file" name="file" onchange="this.form.submit()">
+                                                            </form>
                                                         @endif
+
                                                     @endif
+
                                                 @else
-                                                    @if($task->files)
+
+                                                    {{-- 👨‍💼 Boshliq qismi --}}
+                                                    @if($task->files->count())
+
                                                         @foreach($task->files as $file)
-                                                            {{ $file->user->name }}
+
+                                                            <p><b>{{ $file->user->name }}</b></p>
+
                                                             <button class="btn btn-primary btn-sm"
                                                                     onclick="openModal('{{ asset('storage/' . $file->file_path) }}')">
-                                                                Кўриш
+                                                                Ko‘rish
                                                             </button>
-                                                            <br>
+
+                                                            {{-- 🔥 STATUSLAR --}}
+                                                            @if($file->status == 'pending')
+                                                                <span class="badge bg-warning">Kutilmoqda</span>
+
+                                                                {{-- approve --}}
+                                                                <form action="{{ route('files.approve', $file->id) }}" method="POST">
+                                                                    @csrf
+                                                                    <button class="btn btn-success btn-sm">Tasdiqlash</button>
+                                                                </form>
+
+                                                                {{-- reject --}}
+                                                                <form action="{{ route('files.reject', $file->id) }}" method="POST">
+                                                                    @csrf
+                                                                    <input type="text" name="reason" placeholder="Rad sababi" required>
+                                                                    <button class="btn btn-danger btn-sm">Rad qilish</button>
+                                                                </form>
+
+                                                            @elseif($file->status == 'approved')
+                                                                <span class="badge bg-success">Tasdiqlangan</span>
+
+                                                            @elseif($file->status == 'rejected')
+                                                                <span class="badge bg-danger">Rad qilingan</span>
+
+                                                                {{-- 🔥 SABABNI BOSHLIQ HAM KO‘RADI --}}
+                                                                <p style="color:red;">
+                                                                    Sabab: {{ $file->reject_reason }}
+                                                                </p>
+
+                                                                {{-- 🔁 xohlasa qayta tekshirishi mumkin --}}
+                                                                <form action="{{ route('files.approve', $file->id) }}" method="POST">
+                                                                    @csrf
+                                                                    <button class="btn btn-success btn-sm">Qayta tasdiqlash</button>
+                                                                </form>
+                                                            @endif
+
+                                                            <hr>
 
                                                         @endforeach
-                                                    @else
-                                                        <p>Файл йуқ</p>
-                                                    @endif
-                                                    @if($task->document)
-
-                                                            <button class="btn btn-primary btn-sm"
-                                                                    onclick="openModal('{{ asset('storage/' . $task->document) }}')">
-                                                                Кўриш
-                                                            </button>
-                                                            <br>
-
 
                                                     @else
                                                         <p>Файл йуқ</p>
                                                     @endif
+
                                                 @endif
-
-
                                             </td>
                                             <!-- Modal oynasi -->
                                             <div id="pdfModal" class="custom-modal">

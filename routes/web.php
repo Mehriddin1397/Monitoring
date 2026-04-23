@@ -105,6 +105,12 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
 // AJAX orqali real vaqtda qidirish uchun
     Route::get('/tasks/search', [\App\Http\Controllers\TaskController::class, 'searchPage'])->name('tasks.search');
 
+    Route::post('/files/{id}/approve', [TaskFileController::class, 'approve'])
+        ->name('files.approve');
+
+    Route::post('/files/{id}/reject', [TaskFileController::class, 'reject'])
+        ->name('files.reject');
+
 
 });
 
