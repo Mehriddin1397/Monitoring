@@ -406,7 +406,7 @@
 
 
                                             </td>
-                                            <td>
+                                            <td style="max-width: 300px; white-space: normal;">
                                                 @php
                                                     $currentUser = auth()->user();
 
@@ -442,10 +442,9 @@
                                                         @elseif($myFile->status == 'rejected')
                                                             <span class="badge bg-danger">Rad qilingan</span>
 
-                                                            <p style="color:red;">
+                                                            <p style="color:red; word-break: break-word;">
                                                                 Sabab: {{ $myFile->reject_reason }}
                                                             </p>
-
                                                             {{-- 🔥 qayta yuklash --}}
                                                             <form action="{{ route('tasks.files.upload') }}" method="POST" enctype="multipart/form-data">
                                                                 @csrf
