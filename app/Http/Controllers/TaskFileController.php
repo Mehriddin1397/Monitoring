@@ -14,7 +14,7 @@ class TaskFileController extends Controller
     {
 
         $request->validate([
-            'file' => 'required|file|mimes:pdf|max:10240',
+            'file' => 'required|file|mimes:pdf|max:30240',
             'task_id' => 'required|exists:tasks,id',
         ]);
         $task = Task::find($request->task_id);
