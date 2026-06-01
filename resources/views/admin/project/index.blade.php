@@ -423,7 +423,26 @@
                                                         <form action="{{ route('tasks.files.upload') }}" method="POST" enctype="multipart/form-data">
                                                             @csrf
                                                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                            <input type="file" name="file" onchange="this.form.submit()">
+                                                            <input type="file"
+                                                                   name="file"
+                                                                   accept=".pdf,application/pdf"
+                                                                   onchange="checkPdf(this)">
+
+                                                            <script>
+                                                                function checkPdf(input) {
+                                                                    const file = input.files[0];
+
+                                                                    if (!file) return;
+
+                                                                    if (file.type !== 'application/pdf') {
+                                                                        alert('Iltimos, faqat PDF fayl yuklang!');
+                                                                        input.value = '';
+                                                                        return;
+                                                                    }
+
+                                                                    input.form.submit();
+                                                                }
+                                                            </script>
                                                         </form>
                                                     @else
 
@@ -449,7 +468,26 @@
                                                             <form action="{{ route('tasks.files.upload') }}" method="POST" enctype="multipart/form-data">
                                                                 @csrf
                                                                 <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                                                <input type="file" name="file" onchange="this.form.submit()">
+                                                                <input type="file"
+                                                                       name="file"
+                                                                       accept=".pdf,application/pdf"
+                                                                       onchange="checkPdf(this)">
+
+                                                                <script>
+                                                                    function checkPdf(input) {
+                                                                        const file = input.files[0];
+
+                                                                        if (!file) return;
+
+                                                                        if (file.type !== 'application/pdf') {
+                                                                            alert('Iltimos, faqat PDF fayl yuklang!');
+                                                                            input.value = '';
+                                                                            return;
+                                                                        }
+
+                                                                        input.form.submit();
+                                                                    }
+                                                                </script>
                                                             </form>
                                                         @endif
 
