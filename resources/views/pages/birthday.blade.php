@@ -423,7 +423,7 @@
         </div>
         <div class="header-text text-white">
             <p class="font-serif text-xs md:text-base lg:text-lg leading-tight tracking-wide">Ўзбекистон Республикаси</p>
-            <p class="font-serif text-xs md:text-base lg:text-lg leading-tight tracking-wide gold-text">Антигравити гуруҳи</p>
+            <p class="font-serif text-xs md:text-base lg:text-lg leading-tight tracking-wide gold-text">Криминология тадқиқот институти</p>
         </div>
     </div>
 </header>
@@ -465,9 +465,7 @@
                         <h2 id="featured-name" class="font-display font-bold text-fluid-name leading-tight name-shadow truncate-name">
                             <span class="gold-text">{{ $firstEmployee->full_name }}</span>
                         </h2>
-                        <p id="featured-role" class="font-serif italic text-fluid-role text-white/70 tracking-wide truncate-name">
-                            {{ $firstEmployee->position }}
-                        </p>
+
                         <div class="flex items-center justify-center lg:justify-start gap-3 py-2 md:py-3">
                             <span class="h-px w-12 md:w-20 bg-gradient-to-r from-transparent to-gold/60"></span>
                             <span class="material-symbols-outlined text-gold text-xl md:text-2xl" style="font-variation-settings: 'FILL' 1;">stars</span>
@@ -497,7 +495,6 @@
                             <svg class="w-8 h-8 md:w-10 md:h-10 animate-twinkle shrink-0" viewBox="0 0 100 100">
                                 <polygon points="50,5 61,38 95,38 67,57 78,90 50,70 22,90 33,57 5,38 39,38" fill="url(#goldStar)"/>
                             </svg>
-                            <span class="font-serif italic text-gold/80 tracking-[0.3em] uppercase text-[10px] md:text-xs">Чин таклифимиз</span>
                         </div>
 
                         <h2 class="font-display font-bold text-fluid-wish leading-[1.15] silver-text wish-shadow">
@@ -510,7 +507,7 @@
 
                         <div class="flex items-center justify-center lg:justify-start gap-3 pt-3 md:pt-6">
                             <span class="h-px w-10 md:w-20 bg-gradient-to-r from-transparent to-gold/60"></span>
-                            <span class="font-serif italic text-gold/80 text-[10px] md:text-sm tracking-[0.2em] uppercase">— Антигравити жамоаси</span>
+                            <span class="font-serif italic text-gold/80 text-[10px] md:text-sm tracking-[0.2em] uppercase">Криминология жамоаси</span>
                             <span class="h-px w-10 md:w-20 bg-gradient-to-l from-transparent to-gold/60"></span>
                         </div>
                     </div>

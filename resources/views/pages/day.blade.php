@@ -378,7 +378,7 @@
             </div>
             <div class="text-white">
                 <p class="font-serif text-sm md:text-base lg:text-lg leading-tight tracking-wide">Ўзбекистон Республикаси</p>
-                <p class="font-serif text-sm md:text-base lg:text-lg leading-tight tracking-wide gold-text">Антигравити гуруҳи</p>
+                <p class="font-serif text-sm md:text-base lg:text-lg leading-tight tracking-wide gold-text">Криминология тадқиқот институти</p>
             </div>
         </div>
 
@@ -386,7 +386,7 @@
         <div class="luxe-glass rounded-3xl p-6 md:p-10 space-y-4">
             <div class="flex items-center justify-center lg:justify-start gap-3">
                 <span class="material-symbols-outlined text-gold text-2xl md:text-3xl animate-float-slow" style="font-variation-settings: 'FILL' 1;">{{ $greetingIcon }}</span>
-                <span class="font-serif italic text-gold/70 text-xs md:text-sm uppercase tracking-[0.3em]">Чин юракдан табрик</span>
+
             </div>
 
             <h1 class="font-display font-bold text-fluid-greeting text-white name-shadow">
@@ -449,7 +449,7 @@
                                     <span class="material-symbols-outlined text-gold text-sm md:text-base" style="font-variation-settings: 'FILL' 1;">groups</span>
                                     <span class="font-serif italic text-gold/90 text-xs md:text-sm uppercase tracking-wider">Биз биргамиз</span>
                                 </div>
-                                <p class="font-display font-bold text-lg md:text-2xl lg:text-3xl text-ivory">Антигравити жамоаси</p>
+                                <p class="font-display font-bold text-lg md:text-2xl lg:text-3xl text-ivory">Криминология жамоаси</p>
                             </div>
                         </div>
                     </div>
@@ -464,7 +464,7 @@
                                 <span class="material-symbols-outlined text-gold text-sm md:text-base" style="font-variation-settings: 'FILL' 1;">groups</span>
                                 <span class="font-serif italic text-gold/90 text-xs md:text-sm uppercase tracking-wider">Биз биргамиз</span>
                             </div>
-                            <p class="font-display font-bold text-lg md:text-2xl lg:text-3xl text-ivory">Антигравити жамоаси</p>
+                            <p class="font-display font-bold text-lg md:text-2xl lg:text-3xl text-ivory">Криминология жамоаси</p>
                         </div>
                     </div>
                 </div>
