@@ -29,12 +29,13 @@ class TaskController extends Controller
             });
         }
 
-        if ($request->filled('start_date')) {
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereDate('end_date', '>=', $request->start_date)
+                  ->whereDate('end_date', '<=', $request->end_date);
+        } elseif ($request->filled('end_date')) {
+            $query->whereDate('end_date', '=', $request->end_date);
+        } elseif ($request->filled('start_date')) {
             $query->whereDate('start_date', '>=', $request->start_date);
-        }
-
-        if ($request->filled('end_date')) {
-            $query->whereDate('end_date', '<=', $request->end_date);
         }
 
         return $query;
@@ -79,12 +80,14 @@ class TaskController extends Controller
         if ($user->role === 'xodim') {
             $query = $user->assignedTasks()
                 ->with(['assignedUsers', 'creator', 'categories', 'files'])
-                ->whereIn('status', $statuses)
-                ->whereDate('end_date', '>=', $now);
+                ->whereIn('status', $statuses);
         } else {
             $query = \App\Models\Task::with(['assignedUsers', 'creator', 'categories', 'files'])
-                ->whereIn('status', $statuses)
-                ->whereDate('end_date', '>=', $now);
+                ->whereIn('status', $statuses);
+        }
+
+        if (!$request->filled('end_date') && !$request->filled('start_date')) {
+            $query->whereDate('end_date', '>=', $now);
         }
 
         $query = $this->applyTaskFilters($query, $request);
@@ -131,7 +134,7 @@ class TaskController extends Controller
                 ->whereIn('status', $statuses);
         }
 
-        if ($status !== 'bajarildi') {
+        if ($status !== 'bajarildi' && !$request->filled('end_date') && !$request->filled('start_date')) {
             $query->whereDate('end_date', '>=', $now);
         }
 
@@ -531,11 +534,13 @@ class TaskController extends Controller
         }
 
         // 3. Саналар бўйича филтр
-        if ($request->filled('start_date')) {
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereDate('end_date', '>=', $request->start_date)
+                  ->whereDate('end_date', '<=', $request->end_date);
+        } elseif ($request->filled('end_date')) {
+            $query->whereDate('end_date', '=', $request->end_date);
+        } elseif ($request->filled('start_date')) {
             $query->whereDate('start_date', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('end_date', '<=', $request->end_date);
         }
         // 4. Status (Holat) bo'yicha filtr
         if ($request->filled('status')) {
