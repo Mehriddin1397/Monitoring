@@ -48,9 +48,51 @@
                         <input type="file" name="photo" class="form-control" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary d-inline-block mt-4">Qo'shish</button>
-
-            </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        <label class="form-label">Jinsi:</label>
+                        <select name="gender" id="create_employee_gender" class="form-select">
+                            <option value="male" selected>👨 Erkak</option>
+                            <option value="female">👩 Ayol</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        <label class="form-label">Tabriknoma shabloni:</label>
+                        <select name="theme" id="create_employee_theme" class="form-select">
+                            <option value="random" selected>🎲 Jinsiga mos avtomatik (Tavsiya etiladi)</option>
+                            <optgroup label="👨 Erkaklar uchun salobatli shablonlar:">
+                                <option value="men_classic">🎖️ Salobatli Medalyon (Oltin geometrik)</option>
+                                <option value="men_diplomat">🏛️ Diplomatik / Sharaf lavhasi (Mahobatli to'g'ri to'rtburchak)</option>
+                                <option value="men_zafar">⭐ Zafarnoma (Yulduzli orden va shon-sharaf)</option>
+                            </optgroup>
+                            <optgroup label="👩 Ayollar uchun nafis shablonlar:">
+                                <option value="women_rose">🌹 Nafis Bahor va Atirgullar (Gulli hoshiya)</option>
+                                <option value="women_emerald">🌿 Zumrad Nafislik (Zarhal gulchambar)</option>
+                                <option value="women_pearl">💎 Marvarid va Ipak (Nafis marvaridli ramka)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group mb-3">
+                        <label class="form-label d-flex justify-content-between">
+                            <span>Maxsus tabrik so'zi (ixtiyoriy):</span>
+                            <small class="text-muted">Bo'sh qoldirilsa, standart tilak chiqadi</small>
+                        </label>
+                        <textarea name="custom_wish" id="create_custom_wish" rows="3" class="form-control" placeholder="Сизга узоқ умр, мустаҳкам соғлик, оилавий бахт ва масъuliyatли касбий фаолиятингизда улкан зафарлар тилаймиз!"></textarea>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <small class="text-muted w-100">Tayyor tabriklardan tanlash:</small>
+                        <button type="button" class="btn btn-xs btn-outline-secondary" onclick="document.getElementById('create_custom_wish').value = 'Сизга узоқ умр, сиҳат-саломатлик, оилавий хотиржамлик ва илмий-ижодий фаолиятингизда улкан ютуқлар тилаймиз!'">1-variant</button>
+                        <button type="button" class="btn btn-xs btn-outline-secondary" onclick="document.getElementById('create_custom_wish').value = 'Институтимиз ривожига қўшаётган беқиёс ҳиссангиз учун миннатдорлик билдирамиз. Бахт ва муваффақият ҳамиша ҳамроҳингиз бўлсин!'">2-variant</button>
+                        <button type="button" class="btn btn-xs btn-outline-secondary" onclick="document.getElementById('create_custom_wish').value = 'Келажакдаги барча эзгу мақсад ва режаларингиз рўёбга чиқсин, юзингиздан табассум аримасин!'">3-variant</button>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary d-inline-block mt-2">Qo'shish</button>
+                </div>
         </form>
     </div>
 

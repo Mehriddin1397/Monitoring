@@ -39,9 +39,11 @@
                                     class="nxl-arrow"></span>
                             </a>
                         </li>
+                    @endif
+                    @if (in_array(auth()->user()->role, ['admin', 'boshliq']))
                         <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('tasks.filter')}}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-layout"></i></span>
+                                <span class="nxl-micon"><i class="feather-filter"></i></span>
                                 <span class="nxl-mtext"> <strong>Topshiriqlarni saralash</strong></span><span
                                     class="nxl-arrow"></span>
                             </a>
@@ -50,13 +52,20 @@
                     @if (auth()->user()->role === 'admin' || auth()->user()->id == 63)
                         <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('employees.index')}}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-airplay"></i></span>
+                                <span class="nxl-micon"><i class="feather-gift"></i></span>
                                 <span class="nxl-mtext">Xodimlar Tug'ilgan kun</span><span class="nxl-arrow"></span>
                             </a>
                         </li>
                         <li class="nxl-item nxl-hasmenu">
+                            <a href="{{route('employee-works.index')}}" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-book-open"></i></span>
+                                <span class="nxl-mtext"> <strong>Xodimlar ijodi</strong></span><span
+                                    class="nxl-arrow"></span>
+                            </a>
+                        </li>
+                        <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('group-photos.index')}}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-layout"></i></span>
+                                <span class="nxl-micon"><i class="feather-image"></i></span>
                                 <span class="nxl-mtext"> <strong>Guruh rasmlari</strong></span><span
                                     class="nxl-arrow"></span>
                             </a>

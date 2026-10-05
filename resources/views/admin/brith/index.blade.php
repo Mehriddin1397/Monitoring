@@ -25,7 +25,19 @@
                         </a>
                     </div>
                     <div class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
-                        <a href="javascript:void(0);" class="btn btn-primary " data-bs-toggle="offcanvas"
+                        <a href="{{ route('brith') }}" target="_blank" class="btn btn-outline-warning">
+                            <i class="feather-external-link me-2"></i>
+                            <span>Ekranni ko'rish (/brith)</span>
+                        </a>
+                        <a href="{{ route('employee-works.index') }}" class="btn btn-info text-white">
+                            <i class="feather-book-open me-2"></i>
+                            <span>Xodimlar ijodi</span>
+                        </a>
+                        <a href="{{ route('group-photos.index') }}" class="btn btn-secondary">
+                            <i class="feather-image me-2"></i>
+                            <span>Guruh rasmlari</span>
+                        </a>
+                        <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="offcanvas"
                            data-bs-target="#tasksDetailsOffcanvas">
                             <i class="feather-plus me-2"></i>
                             <span>Yaratish</span>
@@ -56,6 +68,7 @@
                                         <th>Lavozimi</th>
                                         <th>Tug'ilgan kuni</th>
                                         <th>Telefon raqami</th>
+                                        <th>Dizayn</th>
                                         <th class="text-end">Tahrirlash</th>
                                     </tr>
                                     </thead>
@@ -65,10 +78,13 @@
                                             <th>{{$index +1 }}</th>
                                             <td>
                                                 <img src="{{ asset('storage/' . $employee->photo) }}" alt=""
-                                                     width="20px">
+                                                     width="36" height="36" class="rounded-circle object-fit-cover shadow-sm">
                                             </td>
                                             <td>
-                                                {{ $employee->full_name }}
+                                                <strong>{{ $employee->full_name }}</strong>
+                                                @if($employee->custom_wish)
+                                                    <span class="badge bg-soft-primary text-primary ms-1" title="Maxsus tabrik bor"><i class="feather-message-square"></i></span>
+                                                @endif
                                             </td>
                                             <td>
                                                 {{ $employee->position }}
@@ -78,6 +94,26 @@
                                             </td>
                                             <td>
                                                 {{$employee->phone}}
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $th = $employee->theme ?? 'random';
+                                                @endphp
+                                                @if($th === 'men_classic')
+                                                    <span class="badge bg-warning text-dark">🎖️ Medalyon</span>
+                                                @elseif($th === 'men_diplomat')
+                                                    <span class="badge bg-primary">🏛️ Diplomatik</span>
+                                                @elseif($th === 'men_zafar')
+                                                    <span class="badge bg-info text-dark">⭐ Zafarnoma</span>
+                                                @elseif($th === 'women_rose')
+                                                    <span class="badge bg-danger">🌹 Atirgullar</span>
+                                                @elseif($th === 'women_emerald')
+                                                    <span class="badge bg-success">🌿 Zumrad</span>
+                                                @elseif($th === 'women_pearl')
+                                                    <span class="badge text-dark" style="background:#fbcfe8;">💎 Marvarid</span>
+                                                @else
+                                                    <span class="badge bg-secondary">🎲 Random ({{ $employee->gender == 'female' ? 'Ayol' : 'Erkak' }})</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">

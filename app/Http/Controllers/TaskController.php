@@ -15,7 +15,32 @@ use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
-    public function completed()
+    private function applyTaskFilters($query, Request $request)
+    {
+        if ($request->filled('user_id')) {
+            $userId = $request->user_id;
+            $query->whereHas('assignedUsers', function ($q) use ($userId) {
+                $q->where('users.id', $userId);
+            });
+        } elseif ($request->filled('ijrochi')) {
+            $ijrochi = $request->ijrochi;
+            $query->whereHas('assignedUsers', function ($q) use ($ijrochi) {
+                $q->where('name', $ijrochi)->orWhere('users.id', $ijrochi);
+            });
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('start_date', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('end_date', '<=', $request->end_date);
+        }
+
+        return $query;
+    }
+
+    public function completed(Request $request)
     {
         $user = auth()->user();
 
@@ -29,17 +54,16 @@ class TaskController extends Controller
         $now = now();
 
         if ($user->role === 'xodim') {
-            $tasks = $user->assignedTasks()
+            $query = $user->assignedTasks()
                 ->with(['assignedUsers', 'creator', 'categories', 'files'])
-                ->where('status', 'bajarildi')
-                ->orderBy('end_date', 'desc')
-                ->paginate(10); // XATO TUG'IRLANDI
+                ->where('status', 'bajarildi');
         } else {
-            $tasks = Task::with(['assignedUsers', 'creator', 'categories', 'files'])
-                ->where('status', 'bajarildi')
-                ->orderBy('end_date', 'desc')
-                ->paginate(30); // XATO TUG'IRLANDI
+            $query = Task::with(['assignedUsers', 'creator', 'categories', 'files'])
+                ->where('status', 'bajarildi');
         }
+
+        $query = $this->applyTaskFilters($query, $request);
+        $tasks = $query->orderBy('end_date', 'desc')->paginate(30)->withQueryString();
 
         $status = 'bajarildi';
 
@@ -52,21 +76,19 @@ class TaskController extends Controller
         $now = now();
         $statuses = ['yangi', 'bajarilmoqda'];
 
-        // TASKS (oddiy paginate bilan)
         if ($user->role === 'xodim') {
-            $tasks = $user->assignedTasks()
+            $query = $user->assignedTasks()
                 ->with(['assignedUsers', 'creator', 'categories', 'files'])
                 ->whereIn('status', $statuses)
-                ->whereDate('end_date', '>=', $now)
-                ->orderBy('end_date', 'asc')
-                ->paginate(30); // 10 tadan sahifalash
+                ->whereDate('end_date', '>=', $now);
         } else {
-            $tasks = \App\Models\Task::with(['assignedUsers', 'creator', 'categories', 'files'])
+            $query = \App\Models\Task::with(['assignedUsers', 'creator', 'categories', 'files'])
                 ->whereIn('status', $statuses)
-                ->whereDate('end_date', '>=', $now)
-                ->orderBy('end_date', 'asc')
-                ->paginate(30);
+                ->whereDate('end_date', '>=', $now);
         }
+
+        $query = $this->applyTaskFilters($query, $request);
+        $tasks = $query->orderBy('end_date', 'asc')->paginate(30)->withQueryString();
 
         // USERS (optimizatsiya)
         $specialIds = [4, 83, 6, 70];
@@ -80,7 +102,7 @@ class TaskController extends Controller
         return view('admin.project.index', compact('tasks', 'users', 'categories', 'now'));
     }
 
-    public function statusFilter($status)
+    public function statusFilter(Request $request, $status)
     {
         $user = auth()->user();
 
@@ -102,32 +124,25 @@ class TaskController extends Controller
 
         if ($user->role === 'xodim') {
             $query = $user->assignedTasks()
-                ->with(['assignedUsers', 'creator', 'categories', 'files']) // Barcha bog'lanishlar qo'shildi
+                ->with(['assignedUsers', 'creator', 'categories', 'files'])
                 ->whereIn('status', $statuses);
-
-            if ($status !== 'bajarildi') {
-                $query->whereDate('end_date', '>=', $now);
-            }
-
-            // XATO TUG'IRLANDI: get() o'rniga paginate(10)
-            $tasks = $query->orderBy('end_date', 'asc')->paginate(30);
         } else {
-            $query = Task::with(['assignedUsers', 'creator', 'categories', 'files']) // Barcha bog'lanishlar qo'shildi
-            ->whereIn('status', $statuses);
-
-            if ($status !== 'bajarildi') {
-                $query->whereDate('end_date', '>=', $now);
-            }
-
-            // XATO TUG'IRLANDI: get() o'rniga paginate(10)
-            $tasks = $query->orderBy('end_date', 'asc')->paginate(30);
+            $query = Task::with(['assignedUsers', 'creator', 'categories', 'files'])
+                ->whereIn('status', $statuses);
         }
+
+        if ($status !== 'bajarildi') {
+            $query->whereDate('end_date', '>=', $now);
+        }
+
+        $query = $this->applyTaskFilters($query, $request);
+        $tasks = $query->orderBy('end_date', 'asc')->paginate(30)->withQueryString();
 
         return view('admin.project.index', compact('tasks', 'users', 'status', 'categories', 'now'));
     }
 
 
-    public function failedTasks()
+    public function failedTasks(Request $request)
     {
         $user = auth()->user();
 
@@ -142,17 +157,16 @@ class TaskController extends Controller
         $whereStatus = ['bajarilmadi'];
 
         if ($user->role === 'xodim') {
-            $tasks = $user->assignedTasks()
+            $query = $user->assignedTasks()
                 ->with(['assignedUsers', 'creator', 'categories', 'files'])
-                ->whereIn('status', $whereStatus)
-                ->orderBy('end_date', 'asc')
-                ->paginate(30); // XATO TUG'IRLANDI: get() o'rniga paginate(10)
+                ->whereIn('status', $whereStatus);
         } else {
-            $tasks = Task::with(['assignedUsers', 'creator', 'categories', 'files'])
-                ->whereIn('status', $whereStatus)
-                ->orderBy('end_date', 'asc')
-                ->paginate(30); // XATO TUG'IRLANDI: get() o'rniga paginate(10)
+            $query = Task::with(['assignedUsers', 'creator', 'categories', 'files'])
+                ->whereIn('status', $whereStatus);
         }
+
+        $query = $this->applyTaskFilters($query, $request);
+        $tasks = $query->orderBy('end_date', 'asc')->paginate(30)->withQueryString();
 
         $status = 'bajarilmagan';
 
@@ -254,7 +268,7 @@ class TaskController extends Controller
             'end_date' => 'nullable|date',
         ]);
 
-        if (auth()->id() !== $task->created_by) {
+        if (!in_array(auth()->user()->role, ['admin', 'boshliq']) && auth()->id() !== $task->created_by) {
             abort(403);
         }
 
@@ -318,8 +332,8 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
-        // Faqat o‘zining yaratgan topshirig‘ini tahrirlash huquqi
-        if (auth()->id() !== $task->created_by ?? auth()->role === 'admin') {
+        // Faqat o‘zining yaratgan topshirig‘ini yoki admin / boshliq tahrirlash huquqi
+        if (!in_array(auth()->user()->role, ['admin', 'boshliq']) && auth()->id() !== $task->created_by) {
             abort(403);
         }
         // Validatsiya
@@ -368,14 +382,15 @@ class TaskController extends Controller
         return redirect()->back()->with('success', 'Статус янгиланди');
     }
 
-    public function destroy(Task $task){
-        if (auth()->check() && auth()->user()->role === 'admin') {
-        $task->delete();
+    public function destroy(Task $task)
+    {
+        if (auth()->check() && in_array(auth()->user()->role, ['admin', 'boshliq'])) {
+            $task->delete();
 
-        return back();
-        }
-        else
+            return back()->with('success', 'Topshiriq muvaffaqiyatli o\'chirildi');
+        } else {
             abort(403, 'Sizga bu sahifaga kirish taqiqlangan.');
+        }
     }
 
 
@@ -530,10 +545,22 @@ class TaskController extends Controller
         // Natijalarni olish (Masalan, eng so'nggi 50 ta)
         $tasks = $query->orderBy('end_date', 'desc')->get();
 
+        $specialIds = [4, 83, 6, 70];
+        $users = User::where('role', 'xodim')
+            ->orderByRaw("FIELD(id, " . implode(',', $specialIds) . ") DESC")
+            ->orderBy('name')
+            ->get();
+
+        $categories = Category::forObjectType('tasks');
+
         // Partial orqali HTML qaytarish
         $html = view('admin.project.partials.search_results', compact('tasks', 'now'))->render();
+        $modals = view('components.admin.project.project-modal-edit', compact('tasks', 'users', 'categories'))->render();
 
-        return response()->json(['html' => $html]);
+        return response()->json([
+            'html' => $html,
+            'modals' => $modals
+        ]);
     }
 
 

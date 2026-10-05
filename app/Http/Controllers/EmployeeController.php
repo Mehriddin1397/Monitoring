@@ -25,6 +25,9 @@ class EmployeeController extends Controller
             'position' => 'required|string|max:255',
             'birth_date' => 'required|date',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:10120',
+            'theme' => 'nullable|string|max:50',
+            'custom_wish' => 'nullable|string',
+            'gender' => 'nullable|string|in:male,female',
         ]);
 
         if ($request->hasFile('photo')) {
@@ -48,6 +51,9 @@ class EmployeeController extends Controller
             'position' => 'required|string|max:255',
             'birth_date' => 'required|date',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:10120',
+            'theme' => 'nullable|string|max:50',
+            'custom_wish' => 'nullable|string',
+            'gender' => 'nullable|string|in:male,female',
         ]);
 
         // Agar yangi rasm yuklansa

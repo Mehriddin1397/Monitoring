@@ -45,13 +45,33 @@
             @if($task->status == 'yangi') Янги
             @elseif($task->status == 'bajarilmoqda') Бажарилмоқда
             @elseif($task->status == 'bajarildi') Бажарилди
+            @elseif($task->status == 'bajarilmadi') Бажарилмади
             @else Узайтирилди
             @endif
         </td>
+        @if(in_array(auth()->user()->role, ['admin', 'boshliq']))
+            <td>
+                <div class="hstack gap-2 justify-content-end">
+                    <a href="javascript:void(0)" data-bs-toggle="offcanvas"
+                       data-bs-target="#tasksDetailsOffcanvasEdit{{ $task->id }}"
+                       class="avatar-text avatar-md" title="Ўзгартириш">
+                        <i class="feather feather-edit-3"></i>
+                    </a>
+                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST"
+                          onsubmit="return confirm('Ҳақиқатан ҳам ушбу топшириқни ўчирмоқчимисиз?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="avatar-text avatar-md" title="Ўчириш">
+                            <i class="feather feather-trash-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </td>
+        @endif
     </tr>
 @empty
     <tr>
-        <td colspan="8" class="text-center text-muted py-4">
+        <td colspan="{{ in_array(auth()->user()->role, ['admin', 'boshliq']) ? '9' : '8' }}" class="text-center text-muted py-4">
             Hech qanday ma'lumot topilmadi...
         </td>
     </tr>

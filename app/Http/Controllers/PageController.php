@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Employee;
+use App\Models\EmployeeWork;
 use App\Models\GroupPhoto;
 use App\Models\Project;
 use App\Models\Task;
@@ -279,15 +280,34 @@ class PageController extends Controller
             ->whereDay('birth_date', $today->day)
             ->get();
 
+        $menThemes = ['men_classic', 'men_diplomat', 'men_zafar'];
+        $womenThemes = ['women_rose', 'women_emerald', 'women_pearl'];
+
         // Agar bugun kimningdir tug'ilgan kuni bo'lsa, tabriknoma sahifasiga yuboramiz
         if ($birthdayEmployees->isNotEmpty()) {
+            foreach ($birthdayEmployees as $idx => $emp) {
+                $isFemale = ($emp->gender === 'female');
+                $defaultList = $isFemale ? $womenThemes : $menThemes;
+
+                if (empty($emp->theme) || $emp->theme === 'random' || in_array($emp->theme, ['gold', 'sapphire', 'emerald', 'ruby'])) {
+                    // Agar tanlanmagan yoki eski rang bo'lsa, jinsiga mos shablonlardan birini beramiz
+                    $emp->resolved_theme = $defaultList[$idx % count($defaultList)];
+                } else {
+                    $emp->resolved_theme = $emp->theme;
+                }
+            }
             return view('pages.birthday', compact('birthdayEmployees'));
         }
 
-        // Aks holda, guruh rasmlari bor sahifaga yuboramiz
+        // Aks holda, ijodiy ishlar va guruh rasmlari bor sahifaga yuboramiz
         $groupPhotos = GroupPhoto::latest()->get();
-        return view('pages.day', compact('groupPhotos'));
+        $employeeWorks = EmployeeWork::with('employee')
+            ->where('is_active', true)
+            ->orderBy('order')
+            ->latest()
+            ->get();
 
+        return view('pages.day', compact('groupPhotos', 'employeeWorks'));
     }
 
 

@@ -6,5 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
-    protected $fillable = ['full_name', 'photo', 'phone', 'position', 'birth_date'];
+    protected $fillable = [
+        'full_name',
+        'photo',
+        'phone',
+        'position',
+        'birth_date',
+        'theme',
+        'custom_wish',
+        'gender'
+    ];
+
+    public function works()
+    {
+        return $this->hasMany(EmployeeWork::class);
+    }
 }

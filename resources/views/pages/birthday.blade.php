@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Туғилган Кунлар</title>
+    <title>Туғилган кунлар — Ўзбекистон Республикаси Криминология тадқиқот институти</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Cinzel:wght@600;700;800;900&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
     <script id="tailwind-config">
@@ -17,14 +17,13 @@
                 extend: {
                     colors: {
                         "void": "#000000",
-                        "obsidian": "#0a0a0f",
                         "gold": "#d4af37",
                         "gold-light": "#f5d76e",
                         "gold-dark": "#8b7500",
-                        "gold-bright": "#ffd700",
                     },
                     fontFamily: {
                         "display": ["Playfair Display", "serif"],
+                        "cinzel": ["Cinzel", "serif"],
                         "serif": ["PT Serif", "serif"],
                         "sans": ["Inter", "sans-serif"],
                     },
@@ -43,108 +42,136 @@
             min-height: 100vh;
             min-height: 100dvh;
             overflow-x: hidden;
+            transition: background 1.2s ease;
         }
 
-        body {
-            background: radial-gradient(ellipse at center, #0a0a0f 0%, #000000 100%);
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300; }
+
+        /* ======================================================== */
+        /* ================= GENDER THEME BACKGROUNDS ============= */
+        /* ======================================================== */
+
+        /* MEN BACKGROUND: MILITARY / SECURITY / TACTICAL GOLD */
+        body.theme-male {
+            background: radial-gradient(ellipse at center, #0e1e17 0%, #06110d 45%, #020705 80%, #000000 100%);
         }
 
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300;
+        /* WOMEN BACKGROUND: LUXURY ROSES & SPRING FLORAL */
+        body.theme-female {
+            background: radial-gradient(ellipse at center, #360a19 0%, #1c040d 45%, #0d0106 80%, #000000 100%);
         }
 
-        /* === GOLD GRADIENT TEXT === */
-        .gold-text {
-            background: linear-gradient(135deg, #f5d76e 0%, #d4af37 30%, #ffd700 50%, #d4af37 70%, #f5d76e 100%);
+        /* ======================================================== */
+        /* ================= EXECUTIVE ROYAL PORTRAIT FRAME ======= */
+        /* ======================================================== */
+        .portrait-frame-container {
+            width: clamp(260px, 25vw, 360px);
+            aspect-ratio: 3 / 4;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        /* 1. MALE EXECUTIVE FRAME: Handcrafted Gold & Steel Baguette */
+        .portrait-frame-male {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            padding: 10px;
+            background: linear-gradient(145deg, #ffd700 0%, #8b7500 25%, #1a2920 50%, #d4af37 75%, #ffd700 100%);
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.9),
+                0 0 55px rgba(212, 175, 55, 0.45),
+                0 0 35px rgba(16, 185, 129, 0.25);
+            position: relative;
+        }
+        .portrait-frame-male-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid #ffd700;
+            background: #000;
+            position: relative;
+        }
+
+        /* 2. FEMALE EXECUTIVE FRAME: Gold & Rose-Pearl Royal Baguette */
+        .portrait-frame-female {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            padding: 10px;
+            background: linear-gradient(145deg, #ffd700 0%, #fda4af 30%, #fb7185 55%, #ffd700 80%, #f43f5e 100%);
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.9),
+                0 0 60px rgba(251, 113, 133, 0.5),
+                0 0 35px rgba(212, 175, 55, 0.35);
+            position: relative;
+        }
+        .portrait-frame-female-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid #fda4af;
+            background: #000;
+            position: relative;
+        }
+
+        /* Decorative Gold Corner Pieces */
+        .frame-corner {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .frame-corner-tl { top: 5px; left: 5px; border-top: 3px solid #ffd700; border-left: 3px solid #ffd700; border-top-left-radius: 8px; }
+        .frame-corner-tr { top: 5px; right: 5px; border-top: 3px solid #ffd700; border-right: 3px solid #ffd700; border-top-right-radius: 8px; }
+        .frame-corner-bl { bottom: 5px; left: 5px; border-bottom: 3px solid #ffd700; border-left: 3px solid #ffd700; border-bottom-left-radius: 8px; }
+        .frame-corner-br { bottom: 5px; right: 5px; border-bottom: 3px solid #ffd700; border-right: 3px solid #ffd700; border-bottom-right-radius: 8px; }
+
+        /* ======================================================== */
+        /* ================= STATIC LOGO (NO SPIN!) =============== */
+        /* ======================================================== */
+        .static-logo-box {
+            padding: 3px;
+            background: linear-gradient(135deg, #ffd700, #d4af37, #8b7500);
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        /* ======================================================== */
+        /* ================= SHIMMER TEXTS ======================== */
+        /* ======================================================== */
+        .gold-shimmer {
+            background: linear-gradient(135deg, #f5d76e 0%, #ffd700 25%, #d4af37 50%, #ffd700 75%, #f5d76e 100%);
             background-size: 200% 200%;
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: shimmer-gold 5s ease-in-out infinite;
+            animation: text-glow 6s ease-in-out infinite;
             display: inline-block;
         }
 
-        .silver-text {
-            background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 30%, #ffffff 50%, #d4d4d4 70%, #ffffff 100%);
+        .rose-shimmer {
+            background: linear-gradient(135deg, #fff1f2 0%, #fda4af 25%, #fb7185 50%, #ffd700 75%, #fff1f2 100%);
             background-size: 200% 200%;
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: shimmer-gold 6s ease-in-out infinite;
+            animation: text-glow 6s ease-in-out infinite;
+            display: inline-block;
         }
 
-        @keyframes shimmer-gold {
+        @keyframes text-glow {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
 
-        /* === ANIMATED GOLD RING === */
-        .gold-ring {
-            position: relative;
-            background: conic-gradient(from 0deg, #8b7500, #f5d76e, #ffd700, #d4af37, #f5d76e, #8b7500, #d4af37, #f5d76e);
-            padding: 5px;
-            border-radius: 50%;
-            animation: spin-slow 8s linear infinite;
-            aspect-ratio: 1 / 1;
-            width: 100%;
-        }
-
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .gold-ring-inner {
-            border-radius: 50%;
-            overflow: hidden;
-            background: #000;
-            padding: 2px;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* === FALLING CONFETTI === */
-        .confetti-piece {
-            position: fixed;
-            top: -50px;
-            pointer-events: none;
-            will-change: transform;
-        }
-
-        @keyframes confetti-fall {
-            0% { transform: translateY(-100vh) rotate(0deg) rotateX(0deg); opacity: 0; }
-            8% { opacity: 1; }
-            92% { opacity: 1; }
-            100% { transform: translateY(110vh) rotate(720deg) rotateX(360deg); opacity: 0; }
-        }
-
-        @keyframes confetti-sway {
-            0%, 100% { margin-left: 0; }
-            25% { margin-left: 40px; }
-            50% { margin-left: -30px; }
-            75% { margin-left: 25px; }
-        }
-
-        /* === RIBBONS === */
-        .ribbon-svg {
-            position: fixed;
-            pointer-events: none;
-            z-index: 5;
-            filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.7));
-            /* Responsive size */
-            width: clamp(160px, 28vw, 380px);
-            height: clamp(160px, 28vw, 380px);
-        }
-
-        /* === SCENES === */
-        .scene-wrapper {
-            position: relative;
-            width: 100%;
-            min-height: 100vh;
-            min-height: 100dvh;
-        }
-
-        .scene {
+        /* ======================================================== */
+        /* ================= SCENE MANAGEMENT ===================== */
+        /* ======================================================== */
+        .scene-stage {
             position: absolute;
             inset: 0;
             display: flex;
@@ -154,463 +181,353 @@
             transform: scale(1);
             transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
             will-change: opacity, transform;
+            padding: clamp(1rem, 3vw, 2.5rem);
+            z-index: 10;
         }
 
-        .scene-hidden {
+        .scene-stage-hidden {
             opacity: 0;
             pointer-events: none;
-            transform: scale(0.98);
+            transform: scale(0.97);
         }
 
-        @keyframes glow-pulse {
-            0%, 100% { filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.4)); }
-            50% { filter: drop-shadow(0 0 80px rgba(212, 175, 55, 0.6)); }
-        }
-
-        @keyframes balloon-float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
-        }
-
-        @keyframes balloon-float-delayed {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-25px) rotate(-3deg); }
-        }
-
-        @keyframes star-twinkle {
-            0%, 100% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.3); }
-        }
-
-        @keyframes star-burst {
-            0% { opacity: 0; transform: scale(0) rotate(0deg); }
-            50% { opacity: 1; transform: scale(1.4) rotate(180deg); }
-            100% { opacity: 0.8; transform: scale(1) rotate(360deg); }
-        }
-
-        .animate-glow { animation: glow-pulse 4s ease-in-out infinite; }
-        .animate-balloon-1 { animation: balloon-float 5s ease-in-out infinite; }
-        .animate-balloon-2 { animation: balloon-float-delayed 6s ease-in-out infinite 0.5s; }
-        .animate-twinkle { animation: star-twinkle 2.5s ease-in-out infinite; }
-        .animate-burst { animation: star-burst 3s ease-in-out infinite; }
-
-        .name-shadow {
-            text-shadow:
-                0 0 30px rgba(212, 175, 55, 0.4),
-                0 4px 20px rgba(0, 0, 0, 0.8);
-        }
-
-        .wish-shadow {
-            text-shadow:
-                0 0 40px rgba(255, 255, 255, 0.15),
-                0 4px 20px rgba(0, 0, 0, 0.9);
-        }
-
-        /* === NAV DOTS === */
-        .nav-dot {
-            transition: all 0.4s ease;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .nav-dot.active {
-            background: linear-gradient(135deg, #f5d76e, #d4af37);
-            width: 28px;
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
-        }
-
-        /* === NAV DOTS WRAPPER (scrollable when many) === */
-        .nav-dots-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            max-width: min(60vw, 400px);
-            overflow-x: auto;
-            scrollbar-width: none;
-            padding: 4px 2px;
-            scroll-behavior: smooth;
-        }
-        .nav-dots-wrapper::-webkit-scrollbar { display: none; }
-
-        /* === FLUID PORTRAIT SIZE === */
-        .portrait-frame {
-            width: clamp(180px, 26vw, 360px);
-            max-width: 100%;
-        }
-
-        /* === FLUID TYPE SCALE (kichraytirilgan, balanced) === */
-        .text-fluid-greeting { font-size: clamp(1.25rem, 1.5vw + 0.75rem, 2.25rem); line-height: 1.1; }
-        .text-fluid-name { font-size: clamp(1.5rem, 2vw + 0.75rem, 2.75rem); line-height: 1.15; }
-        .text-fluid-role { font-size: clamp(0.85rem, 0.6vw + 0.6rem, 1.15rem); line-height: 1.3; letter-spacing: 0.02em; }
-        .text-fluid-title { font-size: clamp(1.5rem, 2.5vw + 0.5rem, 3.25rem); line-height: 1.1; }
-        .text-fluid-wish { font-size: clamp(1.25rem, 1.8vw + 0.5rem, 2.5rem); line-height: 1.2; }
-
-        /* Wider portrait area on very large screens — keep balance */
-        @media (min-width: 1280px) {
-            .text-fluid-greeting { font-size: clamp(1.75rem, 1.2vw + 1rem, 2.5rem); }
-            .text-fluid-name { font-size: clamp(2rem, 1.5vw + 1rem, 3rem); }
-            .text-fluid-title { font-size: clamp(2rem, 2vw + 1rem, 3.75rem); }
-            .text-fluid-wish { font-size: clamp(1.5rem, 1.5vw + 0.75rem, 2.75rem); }
-        }
-
-        /* === BALLOON SIZES === */
-        .balloon-big {
-            width: clamp(130px, 16vw, 240px);
-            height: clamp(130px, 16vw, 240px);
-        }
-        .balloon-small {
-            width: clamp(95px, 11vw, 170px);
-            height: clamp(95px, 11vw, 170px);
-        }
-
-        /* === LAYOUT BREAKPOINTS === */
-        @media (max-width: 1023px) {
-            .scene-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-            .portrait-area, .text-area {
-                grid-column: 1;
-            }
-        }
-
-        /* Long name handling */
-        .truncate-name {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            word-break: break-word;
-            hyphens: auto;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* === HEADER LAYOUT === */
-        .site-header {
+        /* Particles */
+        .falling-item {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 30;
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: flex-end;
+            top: -40px;
+            pointer-events: none;
+            will-change: transform;
+            z-index: 5;
+        }
+        @keyframes float-down {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.9; }
+            90% { opacity: 0.9; }
+            100% { transform: translateY(110vh) rotate(540deg); opacity: 0; }
         }
 
-        @media (max-width: 640px) {
-            .site-header {
-                padding: 0.75rem 1rem;
-                justify-content: center;
-            }
-            .header-text { display: none; }
-            .header-logo { width: 48px; height: 48px; }
-        }
-
-        /* === BOTTOM NAV === */
+        /* Bottom Nav */
         .bottom-nav {
             position: fixed;
-            bottom: 1rem;
+            bottom: 1.25rem;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 30;
+            z-index: 50;
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.5rem 0.75rem;
+            padding: 0.5rem 0.85rem;
             border-radius: 9999px;
-            backdrop-filter: blur(12px);
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            max-width: calc(100vw - 2rem);
+            backdrop-filter: blur(14px);
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
         }
-
-        @media (max-width: 640px) {
-            .bottom-nav { bottom: 0.5rem; padding: 0.4rem 0.6rem; }
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.4s ease;
+            cursor: pointer;
         }
-
-        /* Hide scene B balloons positioning on tiny screens */
-        @media (max-width: 640px) {
-            .balloons-area {
-                position: relative;
-                height: clamp(200px, 35vh, 320px);
-            }
+        .nav-dot.active {
+            width: 28px;
+            background: #ffd700;
+            box-shadow: 0 0 12px #ffd700;
         }
     </style>
 </head>
 
-<body class="font-sans text-white selection:bg-gold/40">
-
 @php
     $firstEmployee = $birthdayEmployees->first();
+    $firstGender = $firstEmployee->gender ?? 'male';
     $monthsCy = ['Январ','Феврал','Март','Апрел','Май','Июн','Июл','Август','Сентябр','Октябр','Ноябр','Декабр'];
     $todayDateCy = now()->day.'-'.$monthsCy[now()->month - 1].' '.now()->year.'-йил';
     $employeeCount = $birthdayEmployees->count();
-    $showDotsAsList = $employeeCount <= 12; // After 12, switch to compact arrow nav
 @endphp
 
-{{-- ===== SVG DEFINITIONS ===== --}}
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-        <linearGradient id="gold1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#f5d76e"/>
-            <stop offset="30%" stop-color="#ffd700"/>
-            <stop offset="60%" stop-color="#d4af37"/>
-            <stop offset="100%" stop-color="#8b7500"/>
-        </linearGradient>
-        <linearGradient id="gold2" x1="100%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#ffd700"/>
-            <stop offset="50%" stop-color="#d4af37"/>
-            <stop offset="100%" stop-color="#8b7500"/>
-        </linearGradient>
-        <radialGradient id="goldStar" cx="35%" cy="30%">
-            <stop offset="0%" stop-color="#fff8dc"/>
-            <stop offset="30%" stop-color="#f5d76e"/>
-            <stop offset="70%" stop-color="#d4af37"/>
-            <stop offset="100%" stop-color="#8b7500"/>
-        </radialGradient>
-        <radialGradient id="goldStarShine" cx="40%" cy="35%">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
-            <stop offset="30%" stop-color="#ffd700" stop-opacity="0.4"/>
-            <stop offset="100%" stop-color="transparent"/>
-        </radialGradient>
-    </defs>
-</svg>
+<body class="font-sans text-white theme-{{ $firstGender }}" id="app-body">
 
-{{-- ===== GOLD RIBBONS IN 4 CORNERS ===== --}}
-<svg class="ribbon-svg" style="top: 0; left: 0;" viewBox="0 0 320 320">
-    <path d="M -20 -10 Q 80 60, 60 160 T 100 290" stroke="url(#gold1)" stroke-width="16" fill="none" stroke-linecap="round" opacity="0.9"/>
-    <path d="M -10 -20 Q 120 40, 140 130 T 180 250" stroke="url(#gold2)" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.75"/>
-    <path d="M 0 -20 Q 50 100, 180 80 T 290 130" stroke="url(#gold1)" stroke-width="13" fill="none" stroke-linecap="round" opacity="0.8"/>
-    <path d="M 20 -20 Q 90 20, 160 50 T 280 60" stroke="url(#gold2)" stroke-width="9" fill="none" stroke-linecap="round" opacity="0.65"/>
-</svg>
+{{-- ======================================================== --}}
+{{-- ================= BACKGROUND GRAPHICS LAYER ============ --}}
+{{-- ======================================================== --}}
 
-<svg class="ribbon-svg" style="top: 0; right: 0; transform: scaleX(-1);" viewBox="0 0 320 320">
-    <path d="M -20 -10 Q 80 60, 60 160 T 100 290" stroke="url(#gold1)" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.8"/>
-    <path d="M -10 -20 Q 120 40, 140 130 T 180 250" stroke="url(#gold2)" stroke-width="10" fill="none" stroke-linecap="round" opacity="0.65"/>
-    <path d="M 0 -20 Q 50 100, 180 80 T 290 130" stroke="url(#gold1)" stroke-width="11" fill="none" stroke-linecap="round" opacity="0.7"/>
-</svg>
+{{-- 1. MALE BACKGROUND: MILITARY VEHICLE / TACTICAL SHIELDS / RADAR --}}
+<div id="bg-graphics-male" class="{{ $firstGender === 'male' ? '' : 'hidden' }} fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    {{-- Military Radar Web --}}
+    <svg class="absolute -top-20 -left-20 w-[550px] h-[550px] opacity-20 text-emerald-400" viewBox="0 0 200 200" fill="none" stroke="currentColor">
+        <circle cx="100" cy="100" r="90" stroke-width="0.5" stroke-dasharray="3 3"/>
+        <circle cx="100" cy="100" r="70" stroke-width="0.8"/>
+        <circle cx="100" cy="100" r="45" stroke-width="0.5"/>
+        <circle cx="100" cy="100" r="20" stroke-width="1"/>
+        <line x1="100" y1="0" x2="100" y2="200" stroke-width="0.5"/>
+        <line x1="0" y1="100" x2="200" y2="100" stroke-width="0.5"/>
+        <polygon points="100,10 103,25 97,25" fill="currentColor"/>
+    </svg>
 
-<svg class="ribbon-svg" style="bottom: 0; left: 0; transform: scaleY(-1);" viewBox="0 0 320 320">
-    <path d="M -20 -10 Q 80 60, 60 160 T 100 290" stroke="url(#gold1)" stroke-width="17" fill="none" stroke-linecap="round" opacity="0.9"/>
-    <path d="M -10 -20 Q 120 40, 140 130 T 180 250" stroke="url(#gold2)" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.75"/>
-    <path d="M 0 -20 Q 50 100, 180 80 T 290 130" stroke="url(#gold1)" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.8"/>
-</svg>
+    {{-- Military Armored Vehicle / Tank / Drone Silhouette --}}
+    <div class="absolute bottom-6 right-6 opacity-25 text-emerald-300">
+        <svg class="w-[320px] sm:w-[480px] lg:w-[600px] h-auto" viewBox="0 0 600 240" fill="currentColor">
+            {{-- Modern Armored Vehicle Silhouette --}}
+            <path d="M 50 180 L 110 180 L 130 140 L 260 140 L 300 110 L 420 110 L 470 140 L 550 150 L 560 180 L 580 190 L 580 210 L 40 210 L 40 190 Z" opacity="0.7"/>
+            {{-- Gun Cannon Barrel --}}
+            <rect x="250" y="85" width="280" height="12" rx="4" opacity="0.9"/>
+            {{-- Turret --}}
+            <path d="M 280 110 L 310 75 L 430 75 L 460 110 Z" opacity="0.95"/>
+            {{-- Radar Antenna / Optics --}}
+            <rect x="360" y="55" width="25" height="20" rx="3"/>
+            <line x1="372" y1="55" x2="372" y2="35" stroke="currentColor" stroke-width="3"/>
+            {{-- Tracks / Wheels --}}
+            <circle cx="90" cy="195" r="20" fill="#000" stroke="currentColor" stroke-width="4"/>
+            <circle cx="150" cy="195" r="20" fill="#000" stroke="currentColor" stroke-width="4"/>
+            <circle cx="210" cy="195" r="20" fill="#000" stroke="currentColor" stroke-width="4"/>
+            <circle cx="270" cy="195" r="20" fill="#000" stroke="currentColor" stroke-width="4"/>
+            <circle cx="330" cy="195" r="20" fill="#000" stroke="currentColor" stroke-width="4"/>
+            <circle cx="390" cy="195" r="20" fill="#000" stroke="currentColor" stroke-width="4"/>
+            <circle cx="450" cy="195" r="20" fill="#000" stroke="currentColor" stroke-width="4"/>
+            <circle cx="510" cy="195" r="20" fill="#000" stroke="currentColor" stroke-width="4"/>
+        </svg>
+    </div>
 
-<svg class="ribbon-svg" style="bottom: 0; right: 0; transform: scale(-1, -1);" viewBox="0 0 320 320">
-    <path d="M -20 -10 Q 80 60, 60 160 T 100 290" stroke="url(#gold1)" stroke-width="15" fill="none" stroke-linecap="round" opacity="0.85"/>
-    <path d="M -10 -20 Q 120 40, 140 130 T 180 250" stroke="url(#gold2)" stroke-width="11" fill="none" stroke-linecap="round" opacity="0.7"/>
-    <path d="M 0 -20 Q 50 100, 180 80 T 290 130" stroke="url(#gold1)" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.75"/>
-</svg>
+    {{-- Defense Shield & Sword Crest watermark --}}
+    <div class="absolute top-1/4 right-1/4 opacity-10 text-gold pointer-events-none">
+        <span class="material-symbols-outlined text-[320px]">shield</span>
+    </div>
+</div>
 
-{{-- ===== FALLING CONFETTI ===== --}}
-<div class="fixed inset-0 pointer-events-none z-[3] overflow-hidden" id="confetti-container"></div>
+{{-- 2. FEMALE BACKGROUND: LUXURY ROSES & SPRING FLORAL --}}
+<div id="bg-graphics-female" class="{{ $firstGender === 'female' ? '' : 'hidden' }} fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    {{-- Top-Left Blooming Roses Garland --}}
+    <svg class="absolute -top-10 -left-10 w-[280px] sm:w-[400px] h-auto opacity-40 text-rose-400" viewBox="0 0 300 300" fill="currentColor">
+        {{-- Rose 1 --}}
+        <circle cx="90" cy="90" r="50" fill="url(#roseGrad)" opacity="0.8"/>
+        <path d="M 60 70 Q 90 40 120 70 Q 140 100 110 120 Q 70 130 60 90 Z" fill="#fda4af" opacity="0.6"/>
+        <path d="M 75 80 Q 90 60 105 80 Q 115 100 95 105 Z" fill="#f43f5e"/>
+        {{-- Golden Leaves --}}
+        <path d="M 140 90 Q 200 60 210 110 Q 170 140 140 90 Z" fill="#d4af37" opacity="0.5"/>
+        <path d="M 90 140 Q 60 200 110 210 Q 140 170 90 140 Z" fill="#d4af37" opacity="0.5"/>
+        {{-- Rose 2 --}}
+        <circle cx="190" cy="140" r="35" fill="url(#roseGrad)" opacity="0.75"/>
+    </svg>
 
-{{-- ===== HEADER ===== --}}
-<header class="site-header">
-    <div class="flex items-center gap-3 md:gap-4">
-        <div class="p-[2px] rounded-full bg-gradient-to-br from-gold-light via-gold to-gold-dark shadow-2xl">
-            <div class="p-[2px] rounded-full bg-black">
-                <img src="{{ asset('assets/images/1111222.png') }}"
-                     alt="Logo"
-                     class="header-logo w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full object-cover"/>
-            </div>
+    {{-- Bottom-Right Luxury Floral Bouquet --}}
+    <svg class="absolute -bottom-10 -right-10 w-[300px] sm:w-[450px] h-auto opacity-40 text-rose-400" viewBox="0 0 300 300" fill="currentColor">
+        <circle cx="210" cy="210" r="60" fill="url(#roseGrad)" opacity="0.85"/>
+        <path d="M 180 190 Q 210 160 240 190 Q 260 220 230 240 Q 190 250 180 210 Z" fill="#fda4af" opacity="0.6"/>
+        {{-- Golden vines --}}
+        <path d="M 150 210 Q 90 180 80 230 Q 120 260 150 210 Z" fill="#d4af37" opacity="0.5"/>
+        <path d="M 210 150 Q 180 90 230 80 Q 260 120 210 150 Z" fill="#d4af37" opacity="0.5"/>
+    </svg>
+
+    {{-- Floral Heart Silhouette watermark --}}
+    <div class="absolute top-1/3 right-1/4 opacity-10 text-rose-300 pointer-events-none">
+        <span class="material-symbols-outlined text-[300px]">local_florist</span>
+    </div>
+
+    {{-- SVG Gradients for Roses --}}
+    <svg width="0" height="0" class="absolute">
+        <defs>
+            <radialGradient id="roseGrad" cx="40%" cy="40%">
+                <stop offset="0%" stop-color="#fff1f2"/>
+                <stop offset="40%" stop-color="#fb7185"/>
+                <stop offset="85%" stop-color="#e11d48"/>
+                <stop offset="100%" stop-color="#881337"/>
+            </radialGradient>
+        </defs>
+    </svg>
+</div>
+
+{{-- ===== FIXED STATIC INSTITUT HEADER (NO SPIN!) ===== --}}
+<header class="fixed top-0 left-0 right-0 z-30 p-4 sm:p-6 flex justify-end">
+    <div class="flex items-center gap-3 sm:gap-4 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-2xl">
+        <div class="static-logo-box shrink-0">
+            <img src="{{ asset('assets/images/1111222.png') }}"
+                 alt="Logo"
+                 class="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover"/>
         </div>
-        <div class="header-text text-white">
-            <p class="font-serif text-xs md:text-base lg:text-lg leading-tight tracking-wide">Ўзбекистон Республикаси</p>
-            <p class="font-serif text-xs md:text-base lg:text-lg leading-tight tracking-wide gold-text">Криминология тадқиқот институти</p>
+        <div class="text-left hidden sm:block">
+            <p class="font-serif text-xs text-white/80 leading-tight">Ўзбекистон Республикаси</p>
+            <p class="font-serif text-sm font-bold gold-shimmer leading-tight">Криминология тадқиқот институти</p>
         </div>
     </div>
 </header>
 
+{{-- ===== PARTICLES CONTAINER ===== --}}
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-[5]" id="particles-container"></div>
+
 {{-- ===== MAIN STAGE ===== --}}
-<main class="scene-wrapper">
-
+<main class="relative w-full min-h-screen">
     @if($firstEmployee)
-        {{-- ============ SCENE A: PORTRAIT + NAME ============ --}}
-        <section id="scene-a" class="scene">
-            <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16 pt-24 pb-24 lg:py-8">
-                <div class="scene-grid grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 sm:gap-10 lg:gap-16 items-center">
 
-                    {{-- LEFT: PORTRAIT --}}
-                    <div class="portrait-area flex justify-center lg:justify-start">
-                        <div class="relative portrait-frame">
-                            {{-- Halo glow --}}
-                            <div class="absolute inset-0 bg-gold/30 rounded-full blur-[60px] scale-110"></div>
+        {{-- ======================================================== --}}
+        {{-- ================= SCENE A: CELEBRATION HERO ============ --}}
+        {{-- ======================================================== --}}
+        <section id="scene-a" class="scene-stage">
+            <div class="w-full max-w-6xl mx-auto pt-16 pb-20">
+                <div class="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8 sm:gap-12 lg:gap-16 items-center">
 
-                            {{-- Gold ring --}}
-                            <div class="relative gold-ring animate-glow">
-                                <div class="gold-ring-inner">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-obsidian">
-                                        <img id="featured-image"
-                                             src="{{ $firstEmployee->photo ? asset('storage/' . $firstEmployee->photo) : 'https://ui-avatars.com/api/?name='.urlencode($firstEmployee->full_name).'&size=512&background=0a0a0f&color=d4af37&bold=true&format=png' }}"
-                                             alt="{{ $firstEmployee->full_name }}"
-                                             class="w-full h-full object-cover"/>
-                                    </div>
+                    {{-- EXECUTIVE PORTRAIT BAGUETTE (3:4 PROPORTION, STATIC, NO SPIN!) --}}
+                    <div class="flex justify-center lg:justify-start">
+                        <div class="portrait-frame-container">
+                            <div id="portrait-frame-outer" class="{{ $firstGender === 'female' ? 'portrait-frame-female' : 'portrait-frame-male' }}">
+                                <div id="portrait-frame-inner" class="{{ $firstGender === 'female' ? 'portrait-frame-female-inner' : 'portrait-frame-male-inner' }}">
+                                    {{-- Gold Corner Accents --}}
+                                    <div class="frame-corner frame-corner-tl"></div>
+                                    <div class="frame-corner-tr"></div>
+                                    <div class="frame-corner-bl"></div>
+                                    <div class="frame-corner-br"></div>
+
+                                    <img id="featured-image"
+                                         src="{{ $firstEmployee->photo ? asset('storage/' . $firstEmployee->photo) : 'https://ui-avatars.com/api/?name='.urlencode($firstEmployee->full_name).'&size=512&background=0a0a0f&color=d4af37&bold=true&format=png' }}"
+                                         alt="{{ $firstEmployee->full_name }}"
+                                         class="w-full h-full object-cover"/>
                                 </div>
+                            </div>
+
+                            {{-- Emblem Badge on Frame --}}
+                            <div id="frame-badge-top" class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-black border border-gold text-gold text-[11px] font-serif uppercase tracking-widest flex items-center gap-1.5 shadow-xl z-20">
+                                <span class="material-symbols-outlined text-xs" id="badge-icon-el">military_tech</span>
+                                <span id="badge-title-el">Шараф</span>
                             </div>
                         </div>
                     </div>
 
-                    {{-- RIGHT: TEXT --}}
-                    <div class="text-area text-center lg:text-left space-y-3 md:space-y-4 lg:space-y-5 min-w-0">
-                        <p class="font-display font-normal text-fluid-greeting text-white/95 tracking-wide name-shadow">
-                            Ҳурматли
+                    {{-- TEXT & COMPOSITION AREA --}}
+                    <div class="text-center lg:text-left space-y-4 md:space-y-6">
+
+                        {{-- Gender-specific category tag --}}
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/60 border border-white/20 shadow-lg">
+                            <span class="material-symbols-outlined text-gold text-lg" id="tag-icon">military_tech</span>
+                            <span class="text-xs uppercase tracking-[0.25em] text-white/90 font-serif" id="tag-text">
+                                {{ $firstGender === 'female' ? 'Гўзаллик ва латофат' : 'Мардлик ва садоқат' }}
+                            </span>
+                        </div>
+
+                        {{-- Salutation --}}
+                        <p class="font-serif italic text-xl sm:text-2xl text-white/85" id="salutation-text">
+                            {{ $firstGender === 'female' ? 'Муҳтарама ва мунис ҳамкасбимиз,' : 'Ҳурматли ва муҳтарам ҳамкасбимиз,' }}
                         </p>
-                        <h2 id="featured-name" class="font-display font-bold text-fluid-name leading-tight name-shadow truncate-name">
-                            <span class="gold-text">{{ $firstEmployee->full_name }}</span>
-                        </h2>
 
-                        <div class="flex items-center justify-center lg:justify-start gap-3 py-2 md:py-3">
-                            <span class="h-px w-12 md:w-20 bg-gradient-to-r from-transparent to-gold/60"></span>
-                            <span class="material-symbols-outlined text-gold text-xl md:text-2xl" style="font-variation-settings: 'FILL' 1;">stars</span>
-                            <span class="h-px w-12 md:w-20 bg-gradient-to-l from-transparent to-gold/60"></span>
-                        </div>
-                        <h1 class="font-display font-bold text-fluid-title leading-[1.1] text-white name-shadow">
-                            Туғилган кунингиз<br/>
-                            <span class="gold-text">муборак бўлсин!</span>
+                        {{-- Full Name --}}
+                        <h1 class="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
+                            <span id="featured-name" class="{{ $firstGender === 'female' ? 'rose-shimmer' : 'gold-shimmer' }}">{{ $firstEmployee->full_name }}</span>
                         </h1>
-                        <div class="pt-2 md:pt-4 flex items-center justify-center lg:justify-start gap-2 text-gold/80">
-                            <span class="material-symbols-outlined text-sm md:text-base" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
-                            <span class="font-serif italic text-xs md:text-sm lg:text-base tracking-wider">{{ $todayDateCy }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        {{-- ============ SCENE B: WISH + BALLOONS ============ --}}
-        <section id="scene-b" class="scene scene-hidden">
-            <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16 pt-24 pb-24 lg:py-8">
-                <div class="scene-grid grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-16 items-center">
+                        {{-- Position --}}
+                        <p class="font-serif text-sm sm:text-base md:text-lg text-white/75 italic" id="featured-role">
+                            {{ $firstEmployee->position }}
+                        </p>
 
-                    {{-- LEFT: WISH TEXT --}}
-                    <div class="text-center lg:text-left order-2 lg:order-1 space-y-4 md:space-y-6 min-w-0">
-                        <div class="flex items-center justify-center lg:justify-start gap-3 mb-2">
-                            <svg class="w-8 h-8 md:w-10 md:h-10 animate-twinkle shrink-0" viewBox="0 0 100 100">
-                                <polygon points="50,5 61,38 95,38 67,57 78,90 50,70 22,90 33,57 5,38 39,38" fill="url(#goldStar)"/>
-                            </svg>
+                        {{-- Divider --}}
+                        <div class="flex items-center justify-center lg:justify-start gap-4 py-2">
+                            <span class="h-px w-16 bg-gradient-to-r from-transparent to-white/40"></span>
+                            <span class="material-symbols-outlined text-gold text-2xl" id="divider-icon">stars</span>
+                            <span class="h-px w-16 bg-gradient-to-l from-transparent to-white/40"></span>
                         </div>
 
-                        <h2 class="font-display font-bold text-fluid-wish leading-[1.15] silver-text wish-shadow">
-                            Сизга узоқ умр,<br/>
-                            соғлиқ ва иш<br/>
-                            фаолиятингизда<br/>
-                            <span class="gold-text">улкан муваффақиятлар</span><br/>
-                            тилаймиз!
+                        {{-- Congratulations Heading --}}
+                        <h2 class="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-white">
+                            Туғилган кунингиз <span id="congrat-highlight" class="{{ $firstGender === 'female' ? 'rose-shimmer' : 'gold-shimmer' }}">муборак бўлсин!</span>
                         </h2>
 
-                        <div class="flex items-center justify-center lg:justify-start gap-3 pt-3 md:pt-6">
-                            <span class="h-px w-10 md:w-20 bg-gradient-to-r from-transparent to-gold/60"></span>
-                            <span class="font-serif italic text-gold/80 text-[10px] md:text-sm tracking-[0.2em] uppercase">Криминология жамоаси</span>
-                            <span class="h-px w-10 md:w-20 bg-gradient-to-l from-transparent to-gold/60"></span>
-                        </div>
-                    </div>
-
-                    {{-- RIGHT: GOLD STAR BALLOONS --}}
-                    <div class="balloons-area flex justify-center lg:justify-end order-1 lg:order-2 relative h-[260px] sm:h-[320px] md:h-[400px] lg:h-[500px] xl:h-[600px]">
-
-                        {{-- Top sparkles --}}
-                        <div class="absolute top-0 left-1/4 animate-burst" style="filter: drop-shadow(0 0 12px rgba(255,215,0,0.8));">
-                            <svg class="w-10 h-10 md:w-14 md:h-14" viewBox="0 0 100 100">
-                                <polygon points="50,5 55,40 95,50 55,60 50,95 45,60 5,50 45,40" fill="url(#goldStarShine)"/>
-                            </svg>
-                        </div>
-                        <div class="absolute top-6 right-4 md:top-12 md:right-12 animate-burst" style="animation-delay: 1s; filter: drop-shadow(0 0 8px rgba(255,215,0,0.6));">
-                            <svg class="w-7 h-7 md:w-10 md:h-10" viewBox="0 0 100 100">
-                                <polygon points="50,5 55,40 95,50 55,60 50,95 45,60 5,50 45,40" fill="url(#goldStarShine)"/>
-                            </svg>
-                        </div>
-
-                        {{-- Main star balloon 1 --}}
-                        <div class="absolute top-4 right-4 md:top-2 md:right-2 animate-balloon-1" style="filter: drop-shadow(0 20px 40px rgba(212, 175, 55, 0.5));">
-                            <svg class="balloon-big" viewBox="0 0 200 200">
-                                <polygon points="100,10 130,75 200,75 145,115 165,180 100,140 35,180 55,115 0,75 70,75" fill="url(#goldStar)"/>
-                                <polygon points="100,10 130,75 200,75 145,115 165,180 100,140 35,180 55,115 0,75 70,75" fill="url(#goldStarShine)" opacity="0.6"/>
-                            </svg>
-                            <div class="absolute left-1/2 bottom-0 w-px h-16 md:h-24 lg:h-32 bg-gradient-to-b from-gold-dark via-gold/60 to-transparent -translate-x-1/2"></div>
-                        </div>
-
-                        {{-- Star balloon 2 --}}
-                        <div class="absolute top-16 right-20 sm:top-24 sm:right-28 md:top-32 md:right-36 lg:top-40 lg:right-44 animate-balloon-2" style="filter: drop-shadow(0 20px 40px rgba(212, 175, 55, 0.4));">
-                            <svg class="balloon-small" viewBox="0 0 200 200">
-                                <polygon points="100,10 130,75 200,75 145,115 165,180 100,140 35,180 55,115 0,75 70,75" fill="url(#goldStar)"/>
-                                <polygon points="100,10 130,75 200,75 145,115 165,180 100,140 35,180 55,115 0,75 70,75" fill="url(#goldStarShine)" opacity="0.5"/>
-                            </svg>
-                            <div class="absolute left-1/2 bottom-0 w-px h-14 md:h-20 lg:h-28 bg-gradient-to-b from-gold-dark via-gold/60 to-transparent -translate-x-1/2"></div>
-                        </div>
-
-                        {{-- Bottom sparkle --}}
-                        <div class="absolute bottom-8 left-8 md:bottom-12 md:left-12 animate-burst" style="animation-delay: 2s; filter: drop-shadow(0 0 8px rgba(255,215,0,0.7));">
-                            <svg class="w-6 h-6 md:w-9 md:h-9" viewBox="0 0 100 100">
-                                <polygon points="50,5 55,40 95,50 55,60 50,95 45,60 5,50 45,40" fill="url(#goldStarShine)"/>
-                            </svg>
+                        {{-- Date Badge --}}
+                        <div class="pt-2 flex items-center justify-center lg:justify-start gap-2 text-white/60">
+                            <span class="material-symbols-outlined text-sm">calendar_month</span>
+                            <span class="font-serif italic text-xs sm:text-sm tracking-wider">{{ $todayDateCy }}</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        {{-- ======================================================== --}}
+        {{-- ================= SCENE B: WISH & BLESSINGS ============ --}}
+        {{-- ======================================================== --}}
+        <section id="scene-b" class="scene-stage scene-stage-hidden">
+            <div class="w-full max-w-4xl mx-auto pt-16 pb-20 text-center space-y-8">
+
+                {{-- Emblem / Symbol --}}
+                <div class="inline-flex p-4 rounded-full bg-white/5 border border-white/10 shadow-2xl" id="wish-symbol-box">
+                    <span class="material-symbols-outlined text-5xl text-gold" id="wish-symbol-icon">auto_awesome</span>
+                </div>
+
+                {{-- Sub-heading --}}
+                <p class="text-xs uppercase tracking-[0.35em] text-white/75 font-serif" id="wish-subheading">
+                    Институт жамоаси номидан эзгу тилаклар
+                </p>
+
+                {{-- The Wish Card --}}
+                <div class="p-8 sm:p-12 rounded-3xl bg-black/70 border border-white/15 backdrop-blur-xl shadow-2xl">
+                    <h2 class="font-display font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white leading-relaxed" id="featured-wish">
+                        @if(!empty($firstEmployee->custom_wish))
+                            {!! nl2br(e($firstEmployee->custom_wish)) !!}
+                        @else
+                            {{ $firstGender === 'female'
+                                ? 'Сизга баҳорий кайфият, мустаҳкам соғлик, оилавий хотиржамлик ва беқиёс гўзаллик ҳамиша ҳамроҳ бўлишини тилаймиз!'
+                                : 'Сизга мустаҳкам соғлик, узоқ ва мазмунли умр, оилавий хотиржамлик ҳамда масъулиятли фаолиятингизда улкан зафарлар тилаймиз!' }}
+                        @endif
+                    </h2>
+                </div>
+
+                {{-- Sign-off --}}
+                <div class="flex items-center justify-center gap-4 pt-4">
+                    <span class="h-px w-16 bg-gradient-to-r from-transparent to-white/40"></span>
+                    <span class="font-serif italic text-white/80 text-xs sm:text-sm tracking-[0.2em] uppercase">
+                        Криминология тадқиқот институти жамоаси
+                    </span>
+                    <span class="h-px w-16 bg-gradient-to-l from-transparent to-white/40"></span>
+                </div>
+            </div>
+        </section>
+
     @else
-        {{-- Empty state --}}
-        <section class="scene">
-            <div class="text-center max-w-2xl px-6">
-                <span class="material-symbols-outlined text-gold text-7xl md:text-9xl mb-6 animate-glow inline-block" style="font-variation-settings: 'FILL' 1;">celebration</span>
-                <h2 class="font-display text-3xl md:text-5xl lg:text-6xl font-bold gold-text mb-4">Бугун байрам йўқ</h2>
-                <p class="font-serif italic text-white/60 text-base md:text-lg lg:text-xl">Бугун туғилган куни билан табрикланадиган ҳамкасблар мавжуд эмас.</p>
+        <section class="scene-stage">
+            <div class="text-center max-w-xl px-6 space-y-4">
+                <span class="material-symbols-outlined text-white/50 text-7xl">celebration</span>
+                <h2 class="font-display text-3xl font-bold gold-shimmer">Бугун байрам йўқ</h2>
+                <p class="font-serif italic text-white/60">Бугун туғилган куни нишонланадиган ходимлар мавжуд эмас.</p>
             </div>
         </section>
     @endif
 </main>
 
-{{-- ===== BOTTOM NAVIGATION ===== --}}
+{{-- ===== BOTTOM NAVIGATION (WHEN MULTIPLE EMPLOYEES) ===== --}}
 @if($employeeCount > 1)
     <nav class="bottom-nav">
-        {{-- Previous arrow (always shown when > 1) --}}
-        <button onclick="goToPrev()"
-                aria-label="Олдинги"
-                class="shrink-0 w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-gold/10 hover:bg-gold/25 transition-colors text-gold">
-            <span class="material-symbols-outlined text-base md:text-lg">chevron_left</span>
+        <button onclick="goToPrev()" aria-label="Олдинги" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors">
+            <span class="material-symbols-outlined text-base">chevron_left</span>
         </button>
 
-        @if($showDotsAsList)
-            {{-- Dots (only when ≤ 12 employees) --}}
-            <div class="nav-dots-wrapper" id="nav-dots">
-                @foreach($birthdayEmployees as $index => $employee)
-                    <button onclick="updateFeatured({{ $index }})"
-                            class="nav-dot w-2 h-2 rounded-full bg-white/30 hover:bg-white/60 {{ $index === 0 ? 'active' : '' }}"
-                            data-index="{{ $index }}"
-                            aria-label="{{ $employee->full_name }}"></button>
-                @endforeach
-            </div>
-        @endif
+        <div class="flex items-center gap-2" id="nav-dots">
+            @foreach($birthdayEmployees as $index => $employee)
+                <button onclick="updateFeatured({{ $index }})"
+                        class="nav-dot {{ $index === 0 ? 'active' : '' }}"
+                        data-index="{{ $index }}"
+                        aria-label="{{ $employee->full_name }}"></button>
+            @endforeach
+        </div>
 
-        {{-- Counter --}}
-        <span class="shrink-0 text-gold/80 text-[11px] md:text-xs font-sans tracking-wider font-semibold whitespace-nowrap">
-            <span id="current-num">1</span><span class="text-gold/40 mx-1">/</span>{{ $employeeCount }}
+        <span class="text-white/80 text-xs font-mono font-semibold">
+            <span id="current-num">1</span> / {{ $employeeCount }}
         </span>
 
-        {{-- Next arrow --}}
-        <button onclick="goToNext()"
-                aria-label="Кейинги"
-                class="shrink-0 w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-gold/10 hover:bg-gold/25 transition-colors text-gold">
-            <span class="material-symbols-outlined text-base md:text-lg">chevron_right</span>
+        <button onclick="goToNext()" aria-label="Кейинги" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors">
+            <span class="material-symbols-outlined text-base">chevron_right</span>
         </button>
     </nav>
 @endif
 
 <script>
-    // ===== EMPLOYEE DATA =====
+    // ===== EMPLOYEES DATA =====
     const employees = [
-            @foreach($birthdayEmployees as $employee)
+        @foreach($birthdayEmployees as $employee)
         {
             name: "{{ addslashes($employee->full_name) }}",
             role: "{{ addslashes($employee->position) }}",
-            img: "{{ $employee->photo ? asset('storage/' . $employee->photo) : 'https://ui-avatars.com/api/?name='.urlencode($employee->full_name).'&size=512&background=0a0a0f&color=d4af37&bold=true&format=png' }}"
+            img: "{{ $employee->photo ? asset('storage/' . $employee->photo) : 'https://ui-avatars.com/api/?name='.urlencode($employee->full_name).'&size=512&background=0a0a0f&color=d4af37&bold=true&format=png' }}",
+            gender: "{{ $employee->gender ?? 'male' }}",
+            wish: "{{ addslashes($employee->custom_wish ?? '') }}"
         }@if(!$loop->last),@endif
         @endforeach
     ];
@@ -618,17 +535,32 @@
     let currentIndex = 0;
     let cycleTimeouts = [];
 
+    const bodyEl = document.getElementById('app-body');
     const sceneA = document.getElementById('scene-a');
     const sceneB = document.getElementById('scene-b');
     const imgEl = document.getElementById('featured-image');
     const nameEl = document.getElementById('featured-name');
     const roleEl = document.getElementById('featured-role');
+    const wishEl = document.getElementById('featured-wish');
     const currentNumEl = document.getElementById('current-num');
     const navDots = document.querySelectorAll('.nav-dot');
 
-    // Scene durations
-    const SCENE_A_DURATION = employees.length > 1 ? 5000 : 8000;
-    const SCENE_B_DURATION = 4000;
+    const portraitOuter = document.getElementById('portrait-frame-outer');
+    const portraitInner = document.getElementById('portrait-frame-inner');
+    const bgMale = document.getElementById('bg-graphics-male');
+    const bgFemale = document.getElementById('bg-graphics-female');
+    const badgeIconEl = document.getElementById('badge-icon-el');
+    const badgeTitleEl = document.getElementById('badge-title-el');
+    const tagIcon = document.getElementById('tag-icon');
+    const tagText = document.getElementById('tag-text');
+    const salutationText = document.getElementById('salutation-text');
+    const congratHighlight = document.getElementById('congrat-highlight');
+    const dividerIcon = document.getElementById('divider-icon');
+    const wishSymbolIcon = document.getElementById('wish-symbol-icon');
+    const wishSubheading = document.getElementById('wish-subheading');
+
+    const SCENE_A_DURATION = 7500;
+    const SCENE_B_DURATION = 5000;
 
     function clearCycle() {
         cycleTimeouts.forEach(t => clearTimeout(t));
@@ -638,75 +570,103 @@
     function showScene(scene) {
         if (!sceneA || !sceneB) return;
         if (scene === 'a') {
-            sceneA.classList.remove('scene-hidden');
-            sceneB.classList.add('scene-hidden');
+            sceneA.classList.remove('scene-stage-hidden');
+            sceneB.classList.add('scene-stage-hidden');
         } else {
-            sceneA.classList.add('scene-hidden');
-            sceneB.classList.remove('scene-hidden');
+            sceneA.classList.add('scene-stage-hidden');
+            sceneB.classList.remove('scene-stage-hidden');
+        }
+    }
+
+    function applyGenderTheme(gender) {
+        const isFemale = (gender === 'female');
+
+        // Body class
+        bodyEl.classList.remove('theme-male', 'theme-female');
+        bodyEl.classList.add(isFemale ? 'theme-female' : 'theme-male');
+
+        // Background layers
+        if (bgMale) bgMale.classList.toggle('hidden', isFemale);
+        if (bgFemale) bgFemale.classList.toggle('hidden', !isFemale);
+
+        // Executive Royal Baguette Ramka sinflari (STATIC!)
+        if (portraitOuter && portraitInner) {
+            portraitOuter.className = isFemale ? 'portrait-frame-female' : 'portrait-frame-male';
+            portraitInner.className = isFemale ? 'portrait-frame-female-inner' : 'portrait-frame-male-inner';
+        }
+
+        // Icons and titles
+        if (isFemale) {
+            if (badgeIconEl) badgeIconEl.textContent = 'local_florist';
+            if (badgeTitleEl) badgeTitleEl.textContent = 'Латофат';
+            if (tagIcon) tagIcon.textContent = 'spa';
+            if (tagText) tagText.textContent = 'Гўзаллик ва латофат тимсоли';
+            if (salutationText) salutationText.textContent = 'Муҳтарама ва мунис ҳамкасбимиз,';
+            if (dividerIcon) dividerIcon.textContent = 'local_florist';
+            if (wishSymbolIcon) wishSymbolIcon.textContent = 'favorite';
+            if (wishSubheading) wishSubheading.textContent = 'Ҳаётингиз баҳор гулларидек гўзал ва нурафшон бўлсин';
+            if (nameEl) nameEl.className = 'rose-shimmer';
+            if (congratHighlight) congratHighlight.className = 'rose-shimmer';
+        } else {
+            if (badgeIconEl) badgeIconEl.textContent = 'military_tech';
+            if (badgeTitleEl) badgeTitleEl.textContent = 'Жасорат';
+            if (tagIcon) tagIcon.textContent = 'military_tech';
+            if (tagText) tagText.textContent = 'Мардлик, шараф ва садоқат';
+            if (salutationText) salutationText.textContent = 'Ҳурматли ва муҳтарам ҳамкасбимиз,';
+            if (dividerIcon) dividerIcon.textContent = 'stars';
+            if (wishSymbolIcon) wishSymbolIcon.textContent = 'workspace_premium';
+            if (wishSubheading) wishSubheading.textContent = 'Институт ривожи ва Ватан равнақи йўлида фидокорона меҳнатингиз бардавом бўлсин';
+            if (nameEl) nameEl.className = 'gold-shimmer';
+            if (congratHighlight) congratHighlight.className = 'gold-shimmer';
         }
     }
 
     function updateFeatured(index) {
         if (employees.length === 0) return;
-        if (index === currentIndex && !sceneA.classList.contains('scene-hidden')) {
-            // Same employee, but maybe restart scene
-            clearCycle();
-            startCycle();
-            return;
-        }
-
         currentIndex = ((index % employees.length) + employees.length) % employees.length;
         const emp = employees[currentIndex];
 
-        // Pre-fade scene A
-        if (sceneA) {
-            sceneA.classList.add('scene-hidden');
-        }
+        if (sceneA) sceneA.classList.add('scene-stage-hidden');
 
         setTimeout(() => {
+            applyGenderTheme(emp.gender);
+
             if (imgEl) imgEl.src = emp.img;
-            if (nameEl) nameEl.innerHTML = `<span class="gold-text">${escapeHtml(emp.name)}</span>`;
+            if (nameEl) nameEl.textContent = emp.name;
             if (roleEl) roleEl.textContent = emp.role;
+
+            const isFemale = (emp.gender === 'female');
+            if (wishEl) {
+                if (emp.wish && emp.wish.trim().length > 0) {
+                    wishEl.innerHTML = emp.wish.replace(/\n/g, '<br/>');
+                } else {
+                    const defWish = isFemale
+                        ? 'Сизга баҳорий кайфият, мустаҳкам соғлик, оилавий хотиржамлик ва беқиёс гўзаллик ҳамиша ҳамроҳ бўлишини тилаймиз!'
+                        : 'Сизга мустаҳкам соғлик, узоқ ва мазмунли умр, оилавий хотиржамлик ҳамда масъулиятли фаолиятингизда улкан зафарлар тилаймиз!';
+                    wishEl.innerHTML = defWish;
+                }
+            }
+
             navDots.forEach((dot, i) => dot.classList.toggle('active', i === currentIndex));
             if (currentNumEl) currentNumEl.textContent = (currentIndex + 1);
 
-            // Scroll active dot into view (if exists)
-            const activeDot = document.querySelector('.nav-dot.active');
-            if (activeDot) {
-                activeDot.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-
             showScene('a');
-            burstConfetti(20);
+            burstFallingItems(emp.gender, 20);
         }, 400);
 
         clearCycle();
         cycleTimeouts.push(setTimeout(startCycle, 500));
     }
 
-    function goToNext() {
-        updateFeatured((currentIndex + 1) % employees.length);
-    }
-
-    function goToPrev() {
-        updateFeatured((currentIndex - 1 + employees.length) % employees.length);
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    function goToNext() { updateFeatured(currentIndex + 1); }
+    function goToPrev() { updateFeatured(currentIndex - 1); }
 
     function startCycle() {
         if (employees.length === 0) return;
         clearCycle();
 
-        // After A duration → switch to B
         cycleTimeouts.push(setTimeout(() => {
             showScene('b');
-
-            // After B duration → next employee OR loop back to A
             cycleTimeouts.push(setTimeout(() => {
                 if (employees.length > 1) {
                     goToNext();
@@ -718,90 +678,86 @@
         }, SCENE_A_DURATION));
     }
 
-    // ===== FALLING CONFETTI =====
-    const MAX_CONFETTI = 100;
-    let activeConfetti = 0;
+    // ===== GENTLE FALLING PARTICLES (ROSE PETALS FOR WOMEN, GOLD STARS FOR MEN) =====
+    let activeParticles = 0;
+    const MAX_PARTICLES = 50;
 
-    function spawnConfetti() {
-        if (activeConfetti >= MAX_CONFETTI) return;
-        const container = document.getElementById('confetti-container');
+    function spawnParticle(gender = 'male') {
+        if (activeParticles >= MAX_PARTICLES) return;
+        const container = document.getElementById('particles-container');
         if (!container) return;
 
-        const piece = document.createElement('div');
-        piece.className = 'confetti-piece';
+        const p = document.createElement('div');
+        p.className = 'falling-item';
 
-        const types = ['rect', 'rect', 'rect', 'circle', 'ribbon'];
-        const type = types[Math.floor(Math.random() * types.length)];
-        const colors = ['#ffd700', '#d4af37', '#f5d76e', '#8b7500', '#ffeb3b'];
-        const color = colors[Math.floor(Math.random() * colors.length)];
-
-        const size = Math.random() * 8 + 6;
+        const size = Math.random() * 10 + 8;
         const left = Math.random() * 100;
         const duration = Math.random() * 6 + 6;
-        const swayDuration = Math.random() * 3 + 2;
 
-        if (type === 'rect') {
-            piece.style.width = `${size}px`;
-            piece.style.height = `${size * 1.6}px`;
-            piece.style.background = color;
-        } else if (type === 'circle') {
-            piece.style.width = `${size * 0.8}px`;
-            piece.style.height = `${size * 0.8}px`;
-            piece.style.background = color;
-            piece.style.borderRadius = '50%';
+        if (gender === 'female') {
+            // Rose Petal Shape & Colors
+            const colors = ['#fb7185', '#fda4af', '#f43f5e', '#ffe4e6', '#ffd700'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            p.style.width = `${size * 1.3}px`;
+            p.style.height = `${size * 1.8}px`;
+            p.style.background = color;
+            p.style.borderRadius = '50% 0 50% 50%';
+            p.style.opacity = (Math.random() * 0.4 + 0.6).toString();
+            p.style.boxShadow = `0 0 10px ${color}80`;
         } else {
-            piece.style.width = `${size * 0.6}px`;
-            piece.style.height = `${size * 3}px`;
-            piece.style.background = `linear-gradient(180deg, ${color}, ${colors[(colors.indexOf(color) + 1) % colors.length]})`;
-            piece.style.borderRadius = '2px';
+            // Military Gold Star / Shield particle
+            const colors = ['#ffd700', '#f5d76e', '#d4af37', '#8b7500'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            p.style.background = color;
+            p.style.borderRadius = Math.random() > 0.4 ? '50%' : '2px';
+            p.style.opacity = (Math.random() * 0.4 + 0.5).toString();
+            p.style.boxShadow = `0 0 8px ${color}90`;
         }
 
-        piece.style.left = `${left}%`;
-        piece.style.animation = `confetti-fall ${duration}s linear forwards, confetti-sway ${swayDuration}s ease-in-out infinite`;
-        piece.style.boxShadow = `0 0 8px ${color}80`;
+        p.style.left = `${left}%`;
+        p.style.animation = `float-down ${duration}s linear forwards`;
 
-        container.appendChild(piece);
-        activeConfetti++;
+        container.appendChild(p);
+        activeParticles++;
+
         setTimeout(() => {
-            piece.remove();
-            activeConfetti--;
+            p.remove();
+            activeParticles--;
         }, duration * 1000 + 500);
     }
 
-    function burstConfetti(count = 25) {
+    function burstFallingItems(gender, count = 20) {
         for (let i = 0; i < count; i++) {
-            setTimeout(spawnConfetti, i * 60);
+            setTimeout(() => spawnParticle(gender), i * 70);
         }
     }
 
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
-        showScene('a');
-        startCycle();
+        if (employees.length > 0) {
+            const first = employees[0];
+            applyGenderTheme(first.gender);
+            showScene('a');
+            startCycle();
+            burstFallingItems(first.gender, 25);
 
-        // Continuous confetti (less frequent)
-        setInterval(spawnConfetti, 350);
-        burstConfetti(40);
+            setInterval(() => {
+                const current = employees[currentIndex] || employees[0];
+                spawnParticle(current.gender);
+            }, 450);
+        }
 
-        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') goToNext();
             if (e.key === 'ArrowLeft') goToPrev();
             if (e.key === ' ' || e.key === 'Spacebar') {
                 e.preventDefault();
-                const isOnA = !sceneA.classList.contains('scene-hidden');
+                const isOnA = !sceneA.classList.contains('scene-stage-hidden');
                 showScene(isOnA ? 'b' : 'a');
                 clearCycle();
-                cycleTimeouts.push(setTimeout(startCycle, 1500));
-            }
-        });
-
-        // Pause cycle on tab hidden
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                clearCycle();
-            } else {
-                startCycle();
+                cycleTimeouts.push(setTimeout(startCycle, 2000));
             }
         });
     });

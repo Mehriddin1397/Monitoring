@@ -71,17 +71,22 @@
                     <th>Бажариш санаси</th>
                     <th>Топшириқ муддати</th>
                     <th>Топшириқ ҳолати</th>
+                    @if(in_array(auth()->user()->role, ['admin', 'boshliq']))
+                        <th class="text-end">Амаллар</th>
+                    @endif
                 </tr>
                 </thead>
                 <tbody id="resultsContainer" style="background-color: #e7e7f3;">
                 </tbody>
             </table>
         </div>
+        <div id="modalsContainer"></div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const inputs = document.querySelectorAll('.filter-input');
             const resultsContainer = document.getElementById('resultsContainer');
+            const modalsContainer = document.getElementById('modalsContainer');
 
             // Har qanday select yoki date o'zgarganda to'g'ridan-to'g'ri so'rov ketadi
             inputs.forEach(input => {
@@ -92,7 +97,7 @@
 
             function fetchResults() {
                 // Yuklanmoqda animasiyasi
-                resultsContainer.innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div> Юкланмоқда...</td></tr>';
+                resultsContainer.innerHTML = '<tr><td colspan="9" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div> Юкланмоқда...</td></tr>';
 
                 const formData = new FormData(document.getElementById('filterForm'));
                 const params = new URLSearchParams(formData).toString();
@@ -106,10 +111,23 @@
                     .then(response => response.json())
                     .then(data => {
                         resultsContainer.innerHTML = data.html;
+                        if (modalsContainer && data.modals) {
+                            modalsContainer.innerHTML = data.modals;
+                            if (typeof CKEDITOR !== 'undefined') {
+                                modalsContainer.querySelectorAll('.ckeditor').forEach(function (el) {
+                                    if (!el.id) {
+                                        el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
+                                    }
+                                    if (!CKEDITOR.instances[el.id]) {
+                                        CKEDITOR.replace(el.id);
+                                    }
+                                });
+                            }
+                        }
                     })
                     .catch(error => {
                         console.error('Xato yuz berdi:', error);
-                        resultsContainer.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Хаттолик юз берди. Саҳифани янгиланг.</td></tr>';
+                        resultsContainer.innerHTML = '<tr><td colspan="9" class="text-center text-danger py-4">Хаттолик юз берди. Саҳифани янгиланг.</td></tr>';
                     });
             }
 

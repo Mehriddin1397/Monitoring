@@ -25,10 +25,22 @@
                         </a>
                     </div>
                     <div class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
-                        <a href="javascript:void(0);" class="btn btn-primary " data-bs-toggle="offcanvas"
+                        <a href="{{ route('brith') }}" target="_blank" class="btn btn-outline-warning">
+                            <i class="feather-external-link me-2"></i>
+                            <span>Ekranni ko'rish (/brith)</span>
+                        </a>
+                        <a href="{{ route('employees.index') }}" class="btn btn-secondary">
+                            <i class="feather-users me-2"></i>
+                            <span>Xodimlar ro'yxati</span>
+                        </a>
+                        <a href="{{ route('employee-works.index') }}" class="btn btn-info text-white">
+                            <i class="feather-book-open me-2"></i>
+                            <span>Xodimlar ijodi</span>
+                        </a>
+                        <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="offcanvas"
                            data-bs-target="#tasksDetailsOffcanvas">
                             <i class="feather-plus me-2"></i>
-                            <span>Yaratish</span>
+                            <span>Rasm qo'shish</span>
                         </a>
                     </div>
                 </div>

@@ -174,6 +174,49 @@
 
                                 </div>
 
+                                @if(in_array(auth()->user()->role, ['admin', 'boshliq']))
+                                    <div class="card mx-3 mb-3 border bg-light shadow-sm" style="border-radius: 10px;">
+                                        <div class="card-body py-3">
+                                            <form method="GET" action="{{ url()->current() }}" class="row g-2 align-items-end">
+                                                <div class="col-md-4 col-sm-6">
+                                                    <label class="form-label fw-bold text-dark mb-1" style="font-size: 13px;">
+                                                        <i class="feather-user me-1 text-primary"></i> Ижрочи (Ходим исми):
+                                                    </label>
+                                                    <select name="user_id" class="form-select form-select-sm">
+                                                        <option value="">Барча ходимлар</option>
+                                                        @foreach($users as $u)
+                                                            <option value="{{ $u->id }}" {{ request('user_id') == $u->id ? 'selected' : '' }}>
+                                                                {{ $u->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3 col-sm-6">
+                                                    <label class="form-label fw-bold text-dark mb-1" style="font-size: 13px;">
+                                                        <i class="feather-calendar me-1 text-primary"></i> Бошланғич сана:
+                                                    </label>
+                                                    <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control form-control-sm">
+                                                </div>
+                                                <div class="col-md-3 col-sm-6">
+                                                    <label class="form-label fw-bold text-dark mb-1" style="font-size: 13px;">
+                                                        <i class="feather-calendar me-1 text-primary"></i> Тугаш санаси:
+                                                    </label>
+                                                    <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control form-control-sm">
+                                                </div>
+                                                <div class="col-md-2 col-sm-6 d-flex gap-2">
+                                                    <button type="submit" class="btn btn-sm btn-primary flex-fill">
+                                                        <i class="feather-filter me-1"></i> Филтрлаш
+                                                    </button>
+                                                    @if(request()->hasAny(['user_id', 'start_date', 'end_date']))
+                                                        <a href="{{ url()->current() }}" class="btn btn-sm btn-outline-secondary" title="Филтрни тозалаш">
+                                                            <i class="feather-rotate-ccw"></i>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <style>
                                     .custom-btn {
@@ -562,22 +605,19 @@
                                             </div>
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">
-                                                    @if(auth()->user()->role == 'xodim'  )
-
-                                                    @elseif(auth()->user()->id == $task->created_by ?? auth()->user()->role == 'admin')
+                                                    @if(in_array(auth()->user()->role, ['admin', 'boshliq']) || auth()->user()->id == $task->created_by)
                                                         <a href="javascript:void(0)" data-bs-toggle="offcanvas"
                                                            data-bs-target="#tasksDetailsOffcanvasEdit{{ $task->id }}"
-                                                           class="avatar-text avatar-md">
+                                                           class="avatar-text avatar-md" title="Ўзгартириш">
                                                             <i class="feather feather-edit-3"></i>
                                                         </a>
                                                     @endif
-                                                    @if(auth()->user()->role == 'admin')
+                                                    @if(in_array(auth()->user()->role, ['admin', 'boshliq']))
                                                         <form action="{{ route('tasks.destroy', $task->id) }}"
-                                                              method="POST">
+                                                              method="POST" onsubmit="return confirm('Ҳақиқатан ҳам ушбу топшириқни ўчирмоқчимисиз?')">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="avatar-text avatar-md"
-                                                                    onclick="return confirm('Are you sure?')">
+                                                            <button type="submit" class="avatar-text avatar-md" title="Ўчириш">
                                                                 <i class="feather feather-trash-2"></i>
                                                             </button>
                                                         </form>
