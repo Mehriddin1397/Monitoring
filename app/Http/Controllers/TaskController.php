@@ -547,8 +547,8 @@ class TaskController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Natijalarni olish (Masalan, eng so'nggi 50 ta)
-        $tasks = $query->orderBy('end_date', 'desc')->get();
+        // Natijalarni olish (xotira to'lib ketmasligi uchun eng so'nggi 50 ta)
+        $tasks = $query->orderBy('end_date', 'desc')->limit(50)->get();
 
         $specialIds = [4, 83, 6, 70];
         $users = User::where('role', 'xodim')

@@ -152,25 +152,7 @@
 <!--! Footer Script !-->
 <!--! ================================================================ !-->
 <!--! BEGIN: Vendors JS !-->
-<script src="/admin/assets/vendors/js/vendors.min.js"></script>
-<!-- vendors.min.js {always must need to be top} -->
-{{--<script src="/admin/assets/vendors/js/daterangepicker.min.js"></script>--}}
-{{--<script src="/admin/assets/vendors/js/apexcharts.min.js"></script>--}}
-{{--<script src="/admin/assets/vendors/js/circle-progress.min.js"></script>--}}
-<!--! END: Vendors JS !-->
-<!--! BEGIN: Apps Init  !-->
-{{--<script src="/admin/assets/vendors/js/select2.min.js"></script>--}}
-{{--<script src="/admin/assets/vendors/js/select2-active.min.js"></script>--}}
-
-<script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
-
-
-<script src="/admin/assets/js/common-init.min.js"></script>
-<script src="/admin/assets/js/dashboard-init.min.js"></script>
-
-
 <script src="{{asset('assets/vendors/js/vendors.min.js')}}"></script>
-<!-- vendors.min.js {always must need to be top} -->
 <script src="{{asset('assets/vendors/js/apexcharts.min.js')}}"></script>
 <script src="{{asset('assets/vendors/js/circle-progress.min.js')}}"></script>
 <script src="{{asset('assets/vendors/js/jquery.calendar.min.js')}}"></script>
@@ -178,27 +160,44 @@
 <!--! BEGIN: Apps Init  !-->
 <script src="{{asset('assets/js/common-init.min.js')}}"></script>
 <script src="{{asset('assets/js/reports-project-init.min.js')}}"></script>
-<!--! END: Apps Init !-->
-<!--! BEGIN: Theme Customizer  !-->
 <script src="{{asset('assets/js/theme-customizer-init.min.js')}}"></script>
 
 <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 <script>
-    CKEDITOR.replace('editor1');
-    CKEDITOR.replace('editor2');
-    CKEDITOR.replace('editor3');
-    CKEDITOR.replace('editor4');
-    CKEDITOR.replace('editor5');
-    CKEDITOR.replace('editor6');
     document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll('.ckeditor').forEach(function (el) {
-            // CKEditor ishlashi uchun elementda id bo‘lishi kerak
+        // 1. Standart editorlar mavjud bo'lsa
+        ['editor1', 'editor2', 'editor3', 'editor4', 'editor5', 'editor6'].forEach(function (id) {
+            if (document.getElementById(id) && typeof CKEDITOR !== 'undefined' && !CKEDITOR.instances[id]) {
+                CKEDITOR.replace(id);
+            }
+        });
+
+        // 2. Sahifa qotib qolmasligi uchun faqat ochilgan modal/offcanvas ichidagi CKEditorlarni ulash (Lazy init)
+        function initEditorsInContainer(container) {
+            if (typeof CKEDITOR === 'undefined') return;
+            container.querySelectorAll('.ckeditor').forEach(function (el) {
+                if (!el.id) {
+                    el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
+                }
+                if (!CKEDITOR.instances[el.id]) {
+                    CKEDITOR.replace(el.id);
+                }
+            });
+        }
+
+        document.addEventListener('shown.bs.offcanvas', function (e) {
+            initEditorsInContainer(e.target);
+        });
+        document.addEventListener('shown.bs.modal', function (e) {
+            initEditorsInContainer(e.target);
+        });
+
+        // 3. Agar modallardan tashqarida ochiq .ckeditor bo'lsa
+        document.querySelectorAll('.ckeditor:not(.offcanvas .ckeditor):not(.modal .ckeditor)').forEach(function (el) {
             if (!el.id) {
                 el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
             }
-
-            // Agar allaqachon CKEditor ulangani bo‘lsa, qayta ulamaslik
-            if (!CKEDITOR.instances[el.id]) {
+            if (typeof CKEDITOR !== 'undefined' && !CKEDITOR.instances[el.id]) {
                 CKEDITOR.replace(el.id);
             }
         });

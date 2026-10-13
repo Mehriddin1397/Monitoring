@@ -113,16 +113,6 @@
                         resultsContainer.innerHTML = data.html;
                         if (modalsContainer && data.modals) {
                             modalsContainer.innerHTML = data.modals;
-                            if (typeof CKEDITOR !== 'undefined') {
-                                modalsContainer.querySelectorAll('.ckeditor').forEach(function (el) {
-                                    if (!el.id) {
-                                        el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
-                                    }
-                                    if (!CKEDITOR.instances[el.id]) {
-                                        CKEDITOR.replace(el.id);
-                                    }
-                                });
-                            }
                         }
                     })
                     .catch(error => {

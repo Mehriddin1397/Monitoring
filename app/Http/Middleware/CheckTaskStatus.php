@@ -17,31 +17,23 @@ class CheckTaskStatus
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $today = Carbon::today();
-        $threeDaysLater = $today->copy()->addDays(3);
+        // Har bir so'rovda butun jadvalni skaner qilmaslik uchun 15 daqiqada faqat 1 marta bajariladi
+        if (!\Illuminate\Support\Facades\Cache::has('task_status_checked_recently')) {
+            \Illuminate\Support\Facades\Cache::put('task_status_checked_recently', true, now()->addMinutes(15));
 
-        // 1. 3 kundan kam qolgan va hali "yangi" bo‘lgan topshiriqlar -> "bajarilmoqda"
-        $tasksToUpdate = Task::where('status', 'yangi')
-            ->whereDate('end_date', '<=', $threeDaysLater)
-            ->get();
+            $today = Carbon::today();
+            $threeDaysLater = $today->copy()->addDays(3);
 
-        if ($tasksToUpdate->isNotEmpty()) {
-            Task::whereIn('id', $tasksToUpdate->pluck('id'))
+            // 1. 3 kundan kam qolgan va hali "yangi" bo‘lgan topshiriqlar -> "bajarilmoqda"
+            Task::where('status', 'yangi')
+                ->where('end_date', '<=', $threeDaysLater)
                 ->update(['status' => 'bajarilmoqda']);
-        }
 
-        // 2. Muddatidan o'tib ketgan va hali bajarilmagan topshiriqlar -> "bajarilmadi"
-        $today = Carbon::today();
-
-        $expiredTasks = Task::whereNotIn('status', ['bajarildi', 'bajarilmadi'])
-            ->whereDate('end_date', '<', $today)
-            ->get();
-
-        if ($expiredTasks->isNotEmpty()) {
-            Task::whereIn('id', $expiredTasks->pluck('id'))
+            // 2. Muddatidan o'tib ketgan va hali bajarilmagan topshiriqlar -> "bajarilmadi"
+            Task::whereNotIn('status', ['bajarildi', 'bajarilmadi'])
+                ->where('end_date', '<', $today)
                 ->update(['status' => 'bajarilmadi']);
         }
-
 
         return $next($request);
     }
