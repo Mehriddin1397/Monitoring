@@ -168,15 +168,39 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center" style="min-width: 160px;">
                                             @if($article->status === 'checked')
-                                                <span class="badge badge-status badge-checked">
-                                                    <i class="feather-check-circle me-1 fs-14"></i> Текширилган
-                                                </span>
+                                                <div class="mb-1">
+                                                    <span class="badge badge-status badge-checked">
+                                                        <i class="feather-check-circle me-1 fs-14"></i> Текширилган
+                                                    </span>
+                                                </div>
+                                                @if(in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'boshliq']))
+                                                    <div>
+                                                        <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fs-12 fw-bold d-inline-flex align-items-center gap-1 mt-1 shadow-xs"
+                                                                onclick="openCheckModal({{ $article->id }})"
+                                                                title="Қайта текшириш / баҳони ўзгартириш">
+                                                            <i class="feather-edit-3 fs-12"></i>
+                                                            <span>Қайта баҳолаш</span>
+                                                        </button>
+                                                    </div>
+                                                @endif
                                             @else
-                                                <span class="badge badge-status badge-pending">
-                                                    <i class="feather-clock me-1 fs-14"></i> Кутилмоқда
-                                                </span>
+                                                <div class="mb-2">
+                                                    <span class="badge badge-status badge-pending">
+                                                        <i class="feather-clock me-1 fs-14"></i> Кутилмоқда
+                                                    </span>
+                                                </div>
+                                                @if(in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'boshliq']))
+                                                    <div>
+                                                        <button class="btn btn-success rounded-pill px-3 py-2 shadow-sm d-inline-flex align-items-center gap-1 check-trigger-btn"
+                                                                onclick="openCheckModal({{ $article->id }})"
+                                                                title="Илмий баҳолаш ва текшириш">
+                                                            <i class="feather-award fs-16"></i>
+                                                            <span>Текшириш</span>
+                                                        </button>
+                                                    </div>
+                                                @endif
                                             @endif
                                         </td>
                                         <td class="text-center">
@@ -212,7 +236,7 @@
                                         </td>
                                         <td class="text-end">
                                             <div class="d-flex align-items-center justify-content-end gap-2">
-                                                @if($article->status === 'pending' && (in_array($user->id, [59, 2]) || $user->role === 'admin'))
+                                                @if($article->status === 'pending' && (in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'boshliq'])))
                                                     <button class="btn btn-sm btn-success rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-1 check-trigger-btn"
                                                             onclick="openCheckModal({{ $article->id }})"
                                                             title="Илмий баҳолаш ва текшириш">
