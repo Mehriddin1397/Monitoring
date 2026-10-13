@@ -130,77 +130,53 @@
                         <table class="table align-middle table-hover mb-0 custom-article-table w-100" id="proposalList">
                             <thead>
                                 <tr>
-                                    <th style="width: 55px;" class="text-center">№</th>
-                                    <th style="min-width: 320px;">Мақола номи ва нашриёт</th>
-                                    <th style="min-width: 200px;">Муаллиф</th>
-                                    <th class="text-center" style="width: 140px;">Ҳолати</th>
-                                    <th class="text-center" style="width: 130px;">Умумий балл</th>
-                                    <th class="text-center" style="width: 120px;">Мақола PDF</th>
-                                    <th class="text-center" style="width: 120px;">Хулоса PDF</th>
-                                    <th class="text-end" style="min-width: 180px;">Амаллар</th>
+                                    <th style="width: 50px;" class="text-center">№</th>
+                                    <th style="max-width: 280px;">Мақола номи ва нашриёт</th>
+                                    <th style="width: 180px;">Муаллиф</th>
+                                    <th class="text-center" style="width: 130px;">Ҳолати</th>
+                                    <th class="text-center" style="width: 110px;">Умумий балл</th>
+                                    <th class="text-center" style="width: 95px;">Мақола PDF</th>
+                                    <th class="text-center" style="width: 95px;">Хулоса PDF</th>
+                                    <th class="text-end" style="width: 170px;">Амаллар</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($articles as $article)
                                     <tr>
-                                        <td class="text-center text-muted fw-bold fs-15">{{ $loop->iteration }}</td>
+                                        <td class="text-center text-muted fw-bold fs-14">{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="article-title-cell text-dark" title="{{ strip_tags($article->title) }}">
                                                 {!! $article->title !!}
                                             </div>
                                             @if($article->publish_place)
-                                                <div class="fs-13 text-muted mt-1 d-flex align-items-center">
-                                                    <i class="feather-map-pin me-1 text-primary fs-13"></i>
-                                                    <span class="fw-medium">{{ $article->publish_place }}</span>
+                                                <div class="fs-12 text-muted mt-1 d-flex align-items-center text-truncate" style="max-width: 280px;" title="{{ $article->publish_place }}">
+                                                    <i class="feather-map-pin me-1 text-primary fs-12 flex-shrink-0"></i>
+                                                    <span class="fw-medium text-truncate">{{ $article->publish_place }}</span>
                                                 </div>
                                             @endif
                                         </td>
                                         <td>
-                                            <div class="d-flex align-items-center gap-3">
+                                            <div class="d-flex align-items-center gap-2">
                                                 <div class="author-avatar">
                                                     {{ mb_substr($article->user?->name ?? 'U', 0, 1) }}
                                                 </div>
-                                                <div>
-                                                    <div class="fw-bold text-dark fs-15">{{ $article->user?->name ?? '—' }}</div>
-                                                    <div class="fs-12 text-muted mt-1">
+                                                <div class="text-truncate" style="max-width: 140px;">
+                                                    <div class="fw-bold text-dark fs-14 text-truncate" title="{{ $article->user?->name ?? '—' }}">{{ $article->user?->name ?? '—' }}</div>
+                                                    <div class="fs-12 text-muted mt-1 text-nowrap">
                                                         <i class="feather-calendar me-1"></i>{{ $article->created_at ? $article->created_at->format('d.m.Y H:i') : '' }}
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="text-center" style="min-width: 160px;">
+                                        <td class="text-center">
                                             @if($article->status === 'checked')
-                                                <div class="mb-1">
-                                                    <span class="badge badge-status badge-checked">
-                                                        <i class="feather-check-circle me-1 fs-14"></i> Текширилган
-                                                    </span>
-                                                </div>
-                                                @if(in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'boshliq']))
-                                                    <div>
-                                                        <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fs-12 fw-bold d-inline-flex align-items-center gap-1 mt-1 shadow-xs"
-                                                                onclick="openCheckModal({{ $article->id }})"
-                                                                title="Қайта текшириш / баҳони ўзгартириш">
-                                                            <i class="feather-edit-3 fs-12"></i>
-                                                            <span>Қайта баҳолаш</span>
-                                                        </button>
-                                                    </div>
-                                                @endif
+                                                <span class="badge badge-status badge-checked">
+                                                    <i class="feather-check-circle me-1 fs-13"></i> Текширилган
+                                                </span>
                                             @else
-                                                <div class="mb-2">
-                                                    <span class="badge badge-status badge-pending">
-                                                        <i class="feather-clock me-1 fs-14"></i> Кутилмоқда
-                                                    </span>
-                                                </div>
-                                                @if(in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'boshliq']))
-                                                    <div>
-                                                        <button class="btn btn-success rounded-pill px-3 py-2 shadow-sm d-inline-flex align-items-center gap-1 check-trigger-btn"
-                                                                onclick="openCheckModal({{ $article->id }})"
-                                                                title="Илмий баҳолаш ва текшириш">
-                                                            <i class="feather-award fs-16"></i>
-                                                            <span>Текшириш</span>
-                                                        </button>
-                                                    </div>
-                                                @endif
+                                                <span class="badge badge-status badge-pending">
+                                                    <i class="feather-clock me-1 fs-13"></i> Кутилмоқда
+                                                </span>
                                             @endif
                                         </td>
                                         <td class="text-center">
@@ -209,15 +185,15 @@
                                                     {{ $article->articleScore->total_score }} <small class="fs-11 fw-normal">балл</small>
                                                 </span>
                                             @else
-                                                <span class="text-muted fs-15 fw-bold">—</span>
+                                                <span class="text-muted fs-14 fw-bold">—</span>
                                             @endif
                                         </td>
                                         <td class="text-center">
                                             @if($article->article_pdf)
-                                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-2 action-pdf-btn"
+                                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fs-13 action-pdf-btn"
                                                         onclick="openModal('{{ asset('storage/' . $article->article_pdf) }}')"
                                                         title="Мақола файлини очиш">
-                                                    <i class="feather-file-text me-1 fs-14"></i> Кўриш
+                                                    <i class="feather-file-text me-1 fs-13"></i> Кўриш
                                                 </button>
                                             @else
                                                 <span class="text-muted fs-14">—</span>
@@ -225,24 +201,33 @@
                                         </td>
                                         <td class="text-center">
                                             @if($article->conclusion_pdf)
-                                                <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-2 action-pdf-btn"
+                                                <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fs-13 action-pdf-btn"
                                                         onclick="openModal('{{ asset('storage/' . $article->conclusion_pdf) }}')"
                                                         title="Расмий хулоса файлини очиш">
-                                                    <i class="feather-check-square me-1 fs-14"></i> Хулоса
+                                                    <i class="feather-check-square me-1 fs-13"></i> Хулоса
                                                 </button>
                                             @else
                                                 <span class="text-muted fs-14">—</span>
                                             @endif
                                         </td>
                                         <td class="text-end">
-                                            <div class="d-flex align-items-center justify-content-end gap-2">
-                                                @if($article->status === 'pending' && (in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'boshliq'])))
-                                                    <button class="btn btn-sm btn-success rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-1 check-trigger-btn"
-                                                            onclick="openCheckModal({{ $article->id }})"
-                                                            title="Илмий баҳолаш ва текшириш">
-                                                        <i class="feather-award fs-14"></i>
-                                                        <span>Текшириш</span>
-                                                    </button>
+                                            <div class="d-flex align-items-center justify-content-end gap-2 flex-nowrap">
+                                                @if(in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'boshliq']))
+                                                    @if($article->status === 'pending')
+                                                        <button class="btn btn-sm btn-success rounded-pill px-3 py-1 fs-13 shadow-sm d-inline-flex align-items-center gap-1 check-trigger-btn text-nowrap"
+                                                                onclick="openCheckModal({{ $article->id }})"
+                                                                title="Илмий баҳолаш ва текшириш">
+                                                            <i class="feather-award fs-14"></i>
+                                                            <span>Текшириш</span>
+                                                        </button>
+                                                    @else
+                                                        <button class="btn btn-sm btn-outline-success rounded-pill px-2 py-1 fs-12 d-inline-flex align-items-center gap-1 text-nowrap"
+                                                                onclick="openCheckModal({{ $article->id }})"
+                                                                title="Қайта баҳолаш">
+                                                            <i class="feather-edit-3 fs-12"></i>
+                                                            <span>Қайта баҳолаш</span>
+                                                        </button>
+                                                    @endif
                                                 @endif
 
                                                 @if(($article->user_id == auth()->user()->id) || (auth()->user()->role == 'admin') || auth()->user()->id == 59)
@@ -251,16 +236,16 @@
                                                        data-bs-target="#tasksDetailsOffcanvasEdit{{ $article->id }}"
                                                        class="btn btn-light text-primary rounded-circle action-icon-btn"
                                                        title="Таҳрирлаш">
-                                                        <i class="feather-edit-2 fs-15"></i>
+                                                        <i class="feather-edit-2 fs-14"></i>
                                                     </a>
-                                                    <form action="{{ route('articles.destroy', $article->id) }}" method="POST" class="d-inline">
+                                                    <form action="{{ route('articles.destroy', $article->id) }}" method="POST" class="d-inline m-0">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit"
                                                                 class="btn btn-light text-danger rounded-circle action-icon-btn"
                                                                 onclick="return confirm('Ҳақиқатан ҳам ушбу мақолани ўчирмоқчимисиз?')"
                                                                 title="Ўчириш">
-                                                            <i class="feather-trash-2 fs-15"></i>
+                                                            <i class="feather-trash-2 fs-14"></i>
                                                         </button>
                                                     </form>
                                                 @endif
@@ -402,15 +387,15 @@
         .custom-article-table thead th {
             background-color: #242c42;
             color: #ffffff;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
-            padding: 16px 18px;
+            padding: 13px 12px;
             border-bottom: none;
             letter-spacing: 0.3px;
             white-space: nowrap;
         }
         .custom-article-table tbody td {
-            padding: 16px 18px;
+            padding: 12px 12px;
             vertical-align: middle;
             border-bottom: 1px solid #eef2f6;
         }
@@ -418,14 +403,20 @@
             background-color: #f8fafc;
         }
         .article-title-cell {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
-            line-height: 1.55;
+            line-height: 1.45;
             word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 280px;
         }
         .author-avatar {
-            width: 42px;
-            height: 42px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: #fff;
@@ -433,15 +424,15 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 14px;
             flex-shrink: 0;
             text-transform: uppercase;
             box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25);
         }
         .badge-status {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 50rem;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             display: inline-flex;
             align-items: center;
@@ -460,23 +451,23 @@
         .badge-score {
             background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             color: #fff;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 50rem;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
             display: inline-block;
             white-space: nowrap;
         }
         .action-pdf-btn {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             transition: all 0.2s;
             white-space: nowrap;
         }
         .action-icon-btn {
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
             padding: 0;
             display: inline-flex;
             align-items: center;
