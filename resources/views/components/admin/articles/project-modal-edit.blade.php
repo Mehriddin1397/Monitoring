@@ -1,70 +1,64 @@
 <!--! ================================================================ !-->
-@foreach($articles as $article )
+@foreach($articles as $article)
     <div class="offcanvas offcanvas-end w-50" tabindex="-1" id="tasksDetailsOffcanvasEdit{{ $article->id }}">
-        <div class="offcanvas-header border-bottom" style="padding-top: 20px; padding-bottom: 20px">
+        <div class="offcanvas-header border-bottom py-3 px-4 bg-light">
             <div class="d-flex align-items-center">
-                <div class="avatar-text avatar-md items-details-close-trigger" data-bs-dismiss="offcanvas"
-                     data-bs-toggle="tooltip" data-bs-trigger="hover" title="Details Close">
+                <div class="avatar-text avatar-md items-details-close-trigger cursor-pointer" data-bs-dismiss="offcanvas"
+                     data-bs-toggle="tooltip" data-bs-trigger="hover" title="Ёпиш">
                     <i class="feather-arrow-left"></i>
                 </div>
-                <span class="vr text-muted mx-4"></span>
-                <a href="javascript:void(0);">
-                    <h2 class="fs-14 fw-bold text-truncate-1-line">Топшириқлар</h2>
-                    <span class="fs-12 fw-normal text-muted text-truncate-1-line">Ўзгартириш</span>
-                </a>
+                <span class="vr text-muted mx-3"></span>
+                <div>
+                    <h6 class="fs-14 fw-bold text-dark mb-0">Мақолани таҳрирлаш</h6>
+                    <span class="fs-12 text-muted">ID #{{ $article->id }} маълумотларини янгилаш</span>
+                </div>
             </div>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
-        <div class="offcanvas-body">
+        <div class="offcanvas-body p-4">
             <form action="{{ route('articles.update', $article->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
-                <div class="row">
-                    <div class="col-md-">
-                        <div class="form-group mb-4">
-                            <label class="form-label">Мақола номи:</label>
-                            <textarea name="title" class="form-control ckeditor" rows="10">{{old('title',$article->title)}}</textarea>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-4">
-                            <label class="form-label" for="categories">Нашр этилган жой:</label>
-                            <input type="text" name="publish_place" placeholder="Nashr etilgan joy" value="{{ old('publish_place', isset($article) ? $article->publish_place : '') }}">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-4">
-                            <label class="form-label" for="categories">Мақола пдфи:</label>
-                            <input type="file" name="article_pdf">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-semibold">Мақола номи: <span class="text-danger">*</span></label>
+                            <textarea name="title" class="form-control ckeditor" rows="6" required>{{ old('title', $article->title) }}</textarea>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary d-inline-block mt-4">Сақлаш</button>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-semibold" for="publish_place_{{ $article->id }}">Нашр этилган жой: <span class="text-danger">*</span></label>
+                            <input type="text" id="publish_place_{{ $article->id }}" name="publish_place" class="form-control"
+                                   placeholder="Nashr etilgan joy"
+                                   value="{{ old('publish_place', $article->publish_place) }}" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-semibold">Янги мақола PDF (ихтиёрий):</label>
+                            <input type="file" name="article_pdf" accept="application/pdf" class="form-control">
+                            @if($article->article_pdf)
+                                <small class="text-success fs-11 mt-1 d-block">
+                                    <i class="feather-check me-1"></i> Ҳозирги файл мавжуд
+                                </small>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="col-12 pt-3 border-top d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="offcanvas">Бекор қилиш</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                            <i class="feather-save me-1"></i> Сақлаш
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
-
     </div>
-
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll('.ckeditor').forEach(function (el) {
-                // CKEditor ishlashi uchun elementda id bo‘lishi kerak
-                if (!el.id) {
-                    el.id = 'ckeditor-' + Math.random().toString(36).substr(2, 9);
-                }
-
-                // Agar allaqachon CKEditor ulangani bo‘lsa, qayta ulamaslik
-                if (!CKEDITOR.instances[el.id]) {
-                    CKEDITOR.replace(el.id);
-                }
-            });
-        });
-    </script>
-
 @endforeach
-
 <!--! ================================================================ !-->
-<!--! [End] Tasks Details Offcanvas !-->
