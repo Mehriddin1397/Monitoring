@@ -155,14 +155,14 @@
                                                 {!!  $article->title !!}
                                             </td>
                                             <td>
-                                                {{$article->user->name }}
+                                                {{ $article->user?->name ?? '—' }}
                                             </td>
                                             <td>
                                                 @if($article->status == 'pending')
                                                     <p style="color: red">⏳ Текширилмаган</p>
                                                     @if (in_array($user->id, [59, 2]) || $user->role === 'admin')
                                                         <button class="btn btn-sm btn-success"
-                                                                onclick="openCheckModal({{ $article->id }}, '{{ $article->title }}')">
+                                                                onclick="openCheckModal({{ $article->id }})">
                                                             Текшириш
                                                         </button>
                                                     @endif
@@ -237,28 +237,36 @@
                                 </div>
 
                                 <!-- ================= MODAL ================= -->
-                                <div id="checkModal" class="modal">
-                                    <div class="modal-content">
-                                        <span class="close" onclick="closeCheckModal()">&times;</span>
-                                        <h4 id="modalTitle">Мақолани текшириш</h4>
+                                <div id="checkModal" class="custom-check-modal">
+                                    <div class="custom-check-modal-content">
+                                        <span class="close-check-btn" onclick="closeCheckModal()">&times;</span>
+                                        <h4 id="modalTitle" class="mb-3 text-dark">Мақолани текшириш</h4>
 
                                         <form id="checkForm" enctype="multipart/form-data">
                                             @csrf
                                             <input type="hidden" name="article_id" id="articleId">
 
-                                            <label for="definitions">Илмий таърифлар сони:</label>
-                                            <input type="number" id="definitions" name="definitions" min="0" required>
+                                            <div class="form-group mb-2">
+                                                <label for="definitions">Илмий таърифлар сони:</label>
+                                                <input type="number" id="definitions" name="definitions" min="0" value="0" class="form-control" required>
+                                            </div>
 
-                                            <label for="classifications">Илмий таснифлар сони:</label>
-                                            <input type="number" id="classifications" name="classifications" min="0" required>
+                                            <div class="form-group mb-2">
+                                                <label for="classifications">Илмий таснифлар сони:</label>
+                                                <input type="number" id="classifications" name="classifications" min="0" value="0" class="form-control" required>
+                                            </div>
 
-                                            <label for="suggestions">Илмий таклифлар сони:</label>
-                                            <input type="number" id="suggestions" name="suggestions" min="0" required>
+                                            <div class="form-group mb-2">
+                                                <label for="suggestions">Илмий таклифлар сони:</label>
+                                                <input type="number" id="suggestions" name="suggestions" min="0" value="0" class="form-control" required>
+                                            </div>
 
-                                            <label for="conclusion_pdf">Хулоса ПДФ файлини юклаш:</label>
-                                            <input type="file" id="conclusion_pdf" name="conclusion_pdf" accept="application/pdf" required>
+                                            <div class="form-group mb-3">
+                                                <label for="conclusion_pdf">Хулоса ПДФ файлини юклаш:</label>
+                                                <input type="file" id="conclusion_pdf" name="conclusion_pdf" accept="application/pdf" class="form-control" required>
+                                            </div>
 
-                                            <button type="submit" class="submit-btn">Сақлаш</button>
+                                            <button type="submit" class="submit-btn btn btn-success w-100">Сақлаш</button>
                                         </form>
                                     </div>
                                 </div>
@@ -274,7 +282,7 @@
     </div>
     <style>
         .table-container {
-            overflow-x: auto !important; /* Gorizontal skroll qo‘shadi */
+            overflow-x: auto !important;
             width: 100%;
         }
 
@@ -282,59 +290,120 @@
             width: 100%;
             border-collapse: collapse;
         }
-    </style>
 
-    <style>
-        .modal { display:none; position:fixed; z-index:999; left:0; top:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.6); }
-        .modal-content { background:#fff; margin:10% auto; padding:20px; border-radius:10px;
-            width:90%; max-width:450px; animation:fadeIn .3s; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(-10px);} to{opacity:1;transform:translateY(0);} }
-        .close { float:right; font-size:24px; cursor:pointer; color:#555; }
-        label { display:block; margin-top:10px; font-weight:600; }
-        input { width:100%; padding:7px; border:1px solid #ccc; border-radius:6px; }
-        .submit-btn { margin-top:15px; width:100%; background:#198754; color:#fff; border:none;
-            padding:10px; border-radius:6px; font-weight:600; cursor:pointer; }
+        .custom-check-modal {
+            display: none;
+            position: fixed;
+            z-index: 99999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.65);
+        }
+
+        .custom-check-modal-content {
+            background: #fff;
+            margin: 6% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: fadeIn .25s ease-out;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-check-btn {
+            position: absolute;
+            right: 18px;
+            top: 15px;
+            font-size: 26px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #888;
+            line-height: 1;
+        }
+
+        .close-check-btn:hover {
+            color: #dc3545;
+        }
+
+        .custom-check-modal label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 13px;
+        }
     </style>
 
     <script>
-        const modal = document.getElementById('checkModal');
-        const form = document.getElementById('checkForm');
+        const checkModal = document.getElementById('checkModal');
+        const checkForm = document.getElementById('checkForm');
         const articleIdInput = document.getElementById('articleId');
-        const modalTitle = document.getElementById('modalTitle');
 
-        function openCheckModal(id, title) {
+        function openCheckModal(id) {
+            if (!id) return;
+            checkForm.reset();
             articleIdInput.value = id;
-            modal.style.display = "block";
+            checkModal.style.display = "block";
         }
 
         function closeCheckModal() {
-            modal.style.display = "none";
+            checkModal.style.display = "none";
         }
 
-        window.onclick = function(event) {
-            if (event.target === modal) closeCheckModal();
-        }
-
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(form);
-
-            const response = await fetch("{{ route('articles.check') }}", {
-                method: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: formData
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                alert(result.message);
+        window.addEventListener('click', function(event) {
+            if (event.target === checkModal) {
                 closeCheckModal();
-                window.location.reload();
-            } else {
-                alert("Xatolik: Maqola saqlanmadi!");
+            }
+        });
+
+        checkForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = checkForm.querySelector('.submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Сақланмоқда...";
+            }
+
+            try {
+                const formData = new FormData(checkForm);
+
+                const response = await fetch("{{ route('articles.check') }}", {
+                    method: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    alert(result.message || 'Мақола муваффақиятли текширилди!');
+                    closeCheckModal();
+                    window.location.reload();
+                } else {
+                    let errMsg = result.message || "Хатолик: Мақола сақланмади!";
+                    if (result.errors) {
+                        errMsg += "\n" + Object.values(result.errors).flat().join("\n");
+                    }
+                    alert(errMsg);
+                }
+            } catch (err) {
+                alert("Хатолик юз берди: " + err.message);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Сақлаш";
+                }
             }
         });
     </script>
