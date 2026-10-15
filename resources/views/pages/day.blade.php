@@ -151,11 +151,35 @@
         /* === STORY / BADIA CREATIVE AUTO-SCROLL STYLES === */
         .story-scroll-box {
             position: relative;
-            background: linear-gradient(180deg, rgba(16, 11, 7, 0.8) 0%, rgba(7, 4, 2, 0.95) 100%);
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: linear-gradient(180deg, rgba(16, 11, 7, 0.88) 0%, rgba(7, 4, 2, 0.96) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.35);
             border-radius: 1.5rem;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), inset 0 0 40px rgba(212, 175, 55, 0.05);
             overflow: hidden;
+        }
+
+        .story-scroll-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 38px;
+            background: linear-gradient(to bottom, rgba(16, 11, 7, 0.98), transparent);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .story-scroll-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: linear-gradient(to top, rgba(7, 4, 2, 0.98), transparent);
+            z-index: 5;
+            pointer-events: none;
         }
 
         .story-scroll-inner {
@@ -164,8 +188,6 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
             padding: 1.75rem 2.25rem;
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%);
             scroll-behavior: auto;
         }
 
@@ -876,69 +898,81 @@
         }, dur);
     }
 
-    // ===== STORY / BADIA AUTO-SCROLL CONTROLLER =====
-    let storyScrollAnimId = null;
+    // ===== STORY / BADIA AUTO-SCROLL (MOUSE WHEEL SIMULATION) =====
+    let storyScrollInterval = null;
     let storyScrollTimer = null;
     let workSwitchTimer = null;
 
-    function startStoryAutoScroll(slideElement) {
-        stopStoryAutoScroll();
-        if (!slideElement) return;
-
-        const scrollContainer = slideElement.querySelector('.autoscroll-target');
-        if (!scrollContainer) return;
-
-        // Reset to top
-        scrollContainer.scrollTop = 0;
-
-        const maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-        if (maxScroll <= 5) {
-            // Text is short enough to fit without scrolling
-            return;
-        }
-
-        // Boshida 2.5 soniya kutib turadi, so'ng silliq va sekin pastga harakatlanadi
-        storyScrollTimer = setTimeout(() => {
-            let lastTimestamp = null;
-            const scrollSpeed = 24; // Sekundiga 24 piksel (qulay, o'qish uchun juda sekin va silliq tezlik)
-
-            function stepScroll(timestamp) {
-                if (!lastTimestamp) lastTimestamp = timestamp;
-                const delta = (timestamp - lastTimestamp) / 1000;
-                lastTimestamp = timestamp;
-
-                scrollContainer.scrollTop += scrollSpeed * delta;
-
-                // Eng pastiga yetganda
-                if (scrollContainer.scrollTop >= maxScroll - 2) {
-                    // Pastki qismda 4 soniya to'xtab turadi
-                    storyScrollTimer = setTimeout(() => {
-                        // Silliq qilib yana boshiga qaytaradi
-                        scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
-                        storyScrollTimer = setTimeout(() => {
-                            lastTimestamp = null;
-                            storyScrollAnimId = requestAnimationFrame(stepScroll);
-                        }, 2500);
-                    }, 4000);
-                    return;
-                }
-
-                storyScrollAnimId = requestAnimationFrame(stepScroll);
-            }
-
-            storyScrollAnimId = requestAnimationFrame(stepScroll);
-        }, 2200);
-    }
-
     function stopStoryAutoScroll() {
-        if (storyScrollAnimId) {
-            cancelAnimationFrame(storyScrollAnimId);
-            storyScrollAnimId = null;
+        if (storyScrollInterval) {
+            clearInterval(storyScrollInterval);
+            storyScrollInterval = null;
         }
         if (storyScrollTimer) {
             clearTimeout(storyScrollTimer);
             storyScrollTimer = null;
         }
+    }
+
+    function startStoryAutoScroll(slideElement) {
+        stopStoryAutoScroll();
+        if (!slideElement) return;
+
+        const container = slideElement.querySelector('.autoscroll-target');
+        if (!container) return;
+
+        // Reset to top
+        container.scrollTop = 0;
+
+        let isUserInteracting = false;
+        let resumeTimeout = null;
+
+        // Foydalanuvchi kursor yoki sichqoncha g'ildiragini sursa, 3 soniya kutib keyin davom etadi
+        if (!container._hasInteractionListeners) {
+            container._hasInteractionListeners = true;
+            const onUserTouch = () => {
+                isUserInteracting = true;
+                if (resumeTimeout) clearTimeout(resumeTimeout);
+                resumeTimeout = setTimeout(() => {
+                    isUserInteracting = false;
+                }, 3000);
+            };
+            container.addEventListener('wheel', onUserTouch, { passive: true });
+            container.addEventListener('touchstart', onUserTouch, { passive: true });
+            container.addEventListener('mousedown', onUserTouch, { passive: true });
+        }
+
+        // 1 soniya kutib, xuddi kursorni pastga sekin aylantirgandek harakatlanish boshlanadi
+        storyScrollTimer = setTimeout(() => {
+            let reachedBottom = false;
+
+            storyScrollInterval = setInterval(() => {
+                if (isUserInteracting) return;
+
+                const maxScroll = container.scrollHeight - container.clientHeight;
+                if (maxScroll <= 2) {
+                    return; // Agar matn to'liq sig'ib tursa, harakat shart emas
+                }
+
+                if (!reachedBottom) {
+                    // Har 35ms da aniq 1 piksel pastga siljiydi (soniyasiga ~28px - kursor g'ildiragi kabi)
+                    container.scrollTop += 1;
+
+                    // Eng pastiga yetganda
+                    if (container.scrollTop >= maxScroll - 2) {
+                        reachedBottom = true;
+                        // Pastki qismda 4 soniya to'xtab turadi
+                        storyScrollTimer = setTimeout(() => {
+                            // Silliq qilib boshiga qaytaradi
+                            container.scrollTo({ top: 0, behavior: 'smooth' });
+                            storyScrollTimer = setTimeout(() => {
+                                reachedBottom = false;
+                            }, 2000);
+                        }, 4000);
+                    }
+                }
+            }, 35);
+        }, 1000);
     }
 
     // ===== WORKS SUB-CAROUSEL =====
@@ -967,8 +1001,8 @@
             }
         }
 
-        // Agar bu slayd hikoya/badia bo'lsa, avtomatik sekin pastga harakatlanishni boshlaymiz
-        if (activeSlide && scenes[currentSceneIndex] === 'works') {
+        // Faol slayd hikoya/badia bo'lsa avtomatik harakatlantiramiz
+        if (activeSlide) {
             startStoryAutoScroll(activeSlide);
         }
 
@@ -982,8 +1016,8 @@
         const currentSlide = document.getElementById('work-slide-' + currentWorkIdx);
         const hasStoryScroll = currentSlide && currentSlide.querySelector('.autoscroll-target');
 
-        // Hikoya/badia matnlari uzun bo'lgani uchun 26 soniya, boshqa qisqa ishlar uchun 10 soniya
-        const delay = hasStoryScroll ? 26000 : 10000;
+        // Hikoya/badia matnlari uzun bo'lgani uchun 32 soniya, boshqa qisqa ishlar uchun 10 soniya
+        const delay = hasStoryScroll ? 32000 : 10000;
 
         workSwitchTimer = setTimeout(() => {
             if (scenes[currentSceneIndex] === 'works') {
