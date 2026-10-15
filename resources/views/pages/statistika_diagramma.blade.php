@@ -12,8 +12,8 @@
                     <i class="feather-pie-chart" style="color: #4834d4;"></i>
                 </div>
                 <div>
-                    <h4 class="text-white mb-1 fw-bold">Ходимлар статистикаси ва Креатив Диаграммалар</h4>
-                    <p class="text-white-50 mb-0 fs-13">Топшириқлар ижро интизоми, ходимлар самарадорлиги ва интерактив аналитика</p>
+                    <h4 class="text-white mb-1 fw-bold">Ходимлар статистикаси, И-индекс ва Лойиҳалар таҳлили</h4>
+                    <p class="text-white-50 mb-0 fs-13">Топшириқлар ижро интизоми, илмий мақолалар ҳамда лойиҳалар мониторинги</p>
                 </div>
             </div>
 
@@ -92,7 +92,15 @@
             </div>
         </div>
 
-        <!-- KPI Summary Cards -->
+        <!-- Section 1 Title: Topshiriqlar ko'rsatkichlari -->
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary text-white p-2 rounded-circle">
+                <i class="feather-check-square fs-14"></i>
+            </span>
+            <h5 class="fw-bold mb-0 text-dark">Топшириқлар ва Ходимлар Ижро Интизоми</h5>
+        </div>
+
+        <!-- KPI Summary Cards (Tasks) -->
         <div class="row g-3 mb-4">
             <!-- Total Tasks -->
             <div class="col-xl-2 col-md-4 col-sm-6">
@@ -201,7 +209,7 @@
             </div>
         </div>
 
-        <!-- Main Charts Section 1 -->
+        <!-- Main Charts Section 1: Topshiriqlar diagrammalari -->
         <div class="row g-4 mb-4">
             <!-- Big Employee Comparison Chart -->
             <div class="col-xl-8">
@@ -262,7 +270,7 @@
             </div>
         </div>
 
-        <!-- Main Charts Section 2 -->
+        <!-- Main Charts Section 2: Dinamika va Kategoriyalar -->
         <div class="row g-4 mb-4">
             <!-- Monthly Trends Spline Area -->
             <div class="col-xl-7">
@@ -282,7 +290,7 @@
                 </div>
             </div>
 
-            <!-- Categories Distribution or Polar Chart -->
+            <!-- Categories Distribution Donut Chart -->
             <div class="col-xl-5">
                 <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
                     <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
@@ -295,14 +303,7 @@
                         <p class="text-muted fs-13 mb-0">Топшириқлар йўналишлари ва соҳалари</p>
                     </div>
                     <div class="card-body p-4 d-flex flex-column justify-content-center">
-                        @if(count($categoryData) > 0)
-                            <div id="chartCategories" style="min-height: 300px;"></div>
-                        @else
-                            <div class="text-center py-5 text-muted">
-                                <i class="feather-inbox fs-36 mb-2 d-block opacity-50"></i>
-                                <span>Тоифалар бўйича маълумот мавжуд эмас</span>
-                            </div>
-                        @endif
+                        <div id="chartCategories" style="min-height: 300px;"></div>
                     </div>
                 </div>
             </div>
@@ -420,7 +421,204 @@
             </div>
         </div>
 
-        <!-- Full Breakdown Interactive Table Card -->
+        <!-- ================================================================ -->
+        <!-- SECTION 2: I-INDEKS VA LOYIHALAR BO'LIMI STATISTIKASI -->
+        <!-- ================================================================ -->
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 mt-4 pt-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge text-white p-2 rounded-circle" style="background: linear-gradient(135deg, #e17055 0%, #d63031 100%);">
+                    <i class="feather-book-open fs-14"></i>
+                </span>
+                <h5 class="fw-bold mb-0 text-dark">Илмий И-индекс ва Лойиҳалар Таҳлили</h5>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('articles.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                    <i class="feather-external-link me-1"></i> И-индекс саҳифаси
+                </a>
+                <a href="{{ route('projects.index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                    <i class="feather-briefcase me-1"></i> Лойиҳалар саҳифаси
+                </a>
+            </div>
+        </div>
+
+        <!-- I-Index & Projects KPI Cards -->
+        <div class="row g-3 mb-4">
+            <!-- Total Articles -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100 kpi-card" style="background: linear-gradient(135deg, #e84393 0%, #fd79a8 100%); border-radius: 16px; color: #fff;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fs-12 text-uppercase fw-bold text-white-50">Жами Мақолалар (И-индекс)</span>
+                            <div class="kpi-icon-wrap bg-white bg-opacity-25 rounded-circle p-2 d-flex align-items-center justify-content-center">
+                                <i class="feather-file-text fs-16 text-white"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold mb-1 text-white">{{ $articleStats['total'] }} та</h2>
+                        <div class="d-flex justify-content-between fs-12 text-white-50">
+                            <span><i class="feather-check me-1"></i> {{ $articleStats['checked'] }} та текширилган</span>
+                            <span><i class="feather-clock me-1"></i> {{ $articleStats['pending'] }} та кутилмоқда</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Score (I-Index) -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100 kpi-card" style="background: linear-gradient(135deg, #6c5ce7 0%, #8e44ad 100%); border-radius: 16px; color: #fff;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fs-12 text-uppercase fw-bold text-white-50">Жами Тўпланган Балл</span>
+                            <div class="kpi-icon-wrap bg-white bg-opacity-25 rounded-circle p-2 d-flex align-items-center justify-content-center">
+                                <i class="feather-star fs-16 text-white"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold mb-1 text-white">{{ $articleStats['total_score'] }}</h2>
+                        <div class="fs-12 text-white-50">
+                            Ўртача балл: <span class="fw-bold text-white">{{ $articleStats['avg_score'] }}</span> балл
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Projects -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100 kpi-card" style="background: linear-gradient(135deg, #2d3436 0%, #636e72 100%); border-radius: 16px; color: #fff;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fs-12 text-uppercase fw-bold text-white-50">Жами Лойиҳалар</span>
+                            <div class="kpi-icon-wrap bg-white bg-opacity-25 rounded-circle p-2 d-flex align-items-center justify-content-center">
+                                <i class="feather-briefcase fs-16 text-white"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold mb-1 text-white">{{ $projectStats['total'] }} та</h2>
+                        <div class="fs-12 text-white-50">
+                            Амалга оширилаётган лойиҳалар
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Participants & Docs -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100 kpi-card" style="background: linear-gradient(135deg, #0984e3 0%, #00cec9 100%); border-radius: 16px; color: #fff;">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fs-12 text-uppercase fw-bold text-white-50">Иштирокчилар ва Ҳужжатлар</span>
+                            <div class="kpi-icon-wrap bg-white bg-opacity-25 rounded-circle p-2 d-flex align-items-center justify-content-center">
+                                <i class="feather-users fs-16 text-white"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold mb-1 text-white">{{ $projectStats['participants_count'] }} нафар</h2>
+                        <div class="fs-12 text-white-50">
+                            {{ $projectStats['documents_count'] }} та бириктирилган ҳужжат
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- I-Index Authors and Projects Grid -->
+        <div class="row g-4 mb-4">
+            <!-- I-Index Top Authors & Status Donut -->
+            <div class="col-xl-7">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2 d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                                <span class="badge bg-primary bg-opacity-10 text-primary p-2 rounded-circle">
+                                    <i class="feather-book fs-14"></i>
+                                </span>
+                                📚 И-индекс: Энг фаол муаллифлар рейтинги
+                            </h5>
+                            <p class="text-muted fs-13 mb-0">Мақолалари текширилган ва юқори балл тўплаган олимлар</p>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-5 mb-3 mb-md-0">
+                                <div id="chartArticlesStatus" style="min-height: 220px;"></div>
+                            </div>
+                            <div class="col-md-7">
+                                @if(count($articleStats['top_authors']) > 0)
+                                    <div class="d-flex flex-column gap-2">
+                                        @foreach($articleStats['top_authors'] as $idx => $author)
+                                            <div class="p-2 px-3 rounded-3 d-flex align-items-center justify-content-between border bg-light">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="badge bg-dark rounded-circle" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 11px;">
+                                                        {{ $idx + 1 }}
+                                                    </span>
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold fs-13 text-dark">{{ $author['full_name'] }}</h6>
+                                                        <small class="text-muted fs-11">{{ $author['position'] }} • {{ $author['articles_count'] }} та мақола</small>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge bg-warning text-dark fw-bold px-2 py-1 rounded-pill shadow-sm" style="font-size: 12px;">
+                                                        ⭐ {{ $author['total_score'] }} балл
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-4 text-muted">Ҳозирча баҳоланган мақолалар мавжуд эмас</div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Overview Cards -->
+            <div class="col-xl-5">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2 d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                                <span class="badge bg-success bg-opacity-10 text-success p-2 rounded-circle">
+                                    <i class="feather-briefcase fs-14"></i>
+                                </span>
+                                🚀 Лойиҳалар таҳлили
+                            </h5>
+                            <p class="text-muted fs-13 mb-0">Амалга оширилаётган илмий лойиҳалар</p>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        @if(count($projectStats['list']) > 0)
+                            <div class="d-flex flex-column gap-3">
+                                @foreach($projectStats['list'] as $proj)
+                                    <div class="p-3 rounded-4 border bg-white shadow-sm hover-shadow transition-all">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold text-primary mb-0 text-truncate" style="max-width: 250px;" title="{{ $proj['name'] }}">
+                                                {{ $proj['name'] ?: 'Лойиҳа номи' }}
+                                            </h6>
+                                            <span class="badge bg-light text-muted border fs-11">
+                                                {{ $proj['created_at'] }}
+                                            </span>
+                                        </div>
+                                        <div class="fs-12 text-muted mb-2">
+                                            <i class="feather-user me-1 text-secondary"></i> Раҳбар: <span class="text-dark fw-semibold">{{ $proj['leader'] }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 pt-2 border-top">
+                                            <span class="badge bg-primary bg-opacity-10 text-primary fs-11">
+                                                <i class="feather-users me-1"></i> {{ $proj['participants_count'] }} иштирокчи
+                                            </span>
+                                            <span class="badge bg-info bg-opacity-10 text-info fs-11">
+                                                <i class="feather-paperclip me-1"></i> {{ $proj['docs_count'] }} ҳужжат
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-4 text-muted">Ҳозирча лойиҳалар киритилмаган</div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Breakdown Interactive Table Card (Tasks) -->
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
             <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2 d-flex flex-wrap align-items-center justify-content-between gap-3">
                 <div>
@@ -738,20 +936,38 @@ document.addEventListener("DOMContentLoaded", function () {
     trendsChart.render();
 
     // ----------------------------------------------------
-    // 4. Toifalar bo'yicha taqsimot (Categories Chart)
+    // 4. Toifalar bo'yicha taqsimot (Donut Chart - 100% Reliable)
     // ----------------------------------------------------
     if (categoriesCounts && categoriesCounts.length > 0) {
         let catOptions = {
             series: categoriesCounts,
             labels: categoriesLabels,
             chart: {
-                type: 'polarArea',
+                type: 'donut',
                 height: 300,
                 fontFamily: 'inherit'
             },
-            colors: ['#6c5ce7', '#0984e3', '#00b894', '#fdcb6e', '#e17055', '#a29bfe'],
-            fill: { opacity: 0.9 },
-            stroke: { width: 1, colors: ['#fff'] },
+            colors: ['#6c5ce7', '#0984e3', '#00b894', '#fdcb6e', '#e17055', '#00cec9', '#a29bfe'],
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '68%',
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Тоифалар',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0) + ' та';
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            dataLabels: { enabled: false },
             legend: { position: 'bottom', fontSize: '12px' },
             tooltip: {
                 y: {
@@ -767,7 +983,56 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ----------------------------------------------------
-    // 5. Jadval bo'yicha tezkor qidiruv (Live Search)
+    // 5. I-Indeks Maqolalar statusi (Donut Chart)
+    // ----------------------------------------------------
+    const articlesChecked = {{ $articleStats['checked'] }};
+    const articlesPending = {{ $articleStats['pending'] }};
+    if (document.querySelector("#chartArticlesStatus") && (articlesChecked > 0 || articlesPending > 0)) {
+        let articleChartOptions = {
+            series: [articlesChecked, articlesPending],
+            labels: ['Текширилган', 'Кутилмоқда'],
+            chart: {
+                type: 'donut',
+                height: 220,
+                fontFamily: 'inherit'
+            },
+            colors: ['#00b894', '#fdcb6e'],
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '72%',
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Мақолалар',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0) + ' та';
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            dataLabels: { enabled: false },
+            legend: { position: 'bottom', fontSize: '12px' },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val + " та мақола";
+                    }
+                }
+            }
+        };
+
+        let articleChart = new ApexCharts(document.querySelector("#chartArticlesStatus"), articleChartOptions);
+        articleChart.render();
+    }
+
+    // ----------------------------------------------------
+    // 6. Jadval bo'yicha tezkor qidiruv (Live Search)
     // ----------------------------------------------------
     const searchInput = document.getElementById('employeeSearchInput');
     if (searchInput) {

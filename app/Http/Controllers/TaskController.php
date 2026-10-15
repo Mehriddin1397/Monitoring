@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\News;
+use App\Models\Article;
+use App\Models\ArticleScore;
+use App\Models\Project;
+use App\Models\Participant;
+use App\Models\Pro_document;
 use App\Services\EskizSmsService;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
@@ -590,10 +595,15 @@ class TaskController extends Controller
             return $s['not_completed'] > 0;
         })->sortByDesc('not_completed')->values()->take(5);
 
-        // Kategoriyalar statistikasi
+        // Kategoriyalar statistikasi (barcha toifalar va toifasiz topshiriqlar)
+        $allCategoriesForTasks = Category::all();
         $categories = Category::forObjectType('tasks');
+        if ($categories->isEmpty()) {
+            $categories = $allCategoriesForTasks;
+        }
+
         $categoryData = [];
-        foreach ($categories as $cat) {
+        foreach ($allCategoriesForTasks as $cat) {
             $catTasksCount = $allTasks->filter(function ($task) use ($cat) {
                 return $task->categories->contains('id', $cat->id);
             })->count();
@@ -605,6 +615,103 @@ class TaskController extends Controller
                 ];
             }
         }
+
+        $uncategorizedCount = $allTasks->filter(function ($task) {
+            return $task->categories->isEmpty();
+        })->count();
+
+        if ($uncategorizedCount > 0) {
+            $categoryData[] = [
+                'name' => 'Бириктирилмаган',
+                'count' => $uncategorizedCount,
+            ];
+        }
+
+        if (empty($categoryData) && $totalTasks > 0) {
+            $categoryData[] = [
+                'name' => 'Умумий топшириқлар',
+                'count' => $totalTasks,
+            ];
+        }
+
+        // ----------------------------------------------------
+        // И-индекс (Илмий мақолалар) статистикаси
+        // ----------------------------------------------------
+        $articlesQuery = Article::query();
+        if ($period === 'today') {
+            $articlesQuery->whereDate('created_at', Carbon::today());
+        } elseif ($period === 'this_month') {
+            $articlesQuery->whereYear('created_at', Carbon::now()->year)
+                          ->whereMonth('created_at', Carbon::now()->month);
+        } elseif ($period === 'this_year') {
+            $articlesQuery->whereYear('created_at', Carbon::now()->year);
+        } elseif ($startDate && $endDate) {
+            $articlesQuery->whereBetween('created_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+
+        $allArticles = $articlesQuery->with(['user', 'articleScore'])->get();
+        $articlesTotal = $allArticles->count();
+        $articlesChecked = $allArticles->where('status', 'checked')->count();
+        $articlesPending = $allArticles->where('status', 'pending')->count();
+        $articlesTotalScore = round($allArticles->sum(function ($a) {
+            return $a->articleScore ? (float)$a->articleScore->total_score : 0;
+        }), 2);
+        $articlesAvgScore = $articlesChecked > 0 ? round($articlesTotalScore / $articlesChecked, 2) : 0;
+
+        $topArticleAuthors = User::whereHas('articles')->with(['articles.articleScore'])->get()->map(function ($u) {
+            $arts = $u->articles;
+            $score = $arts->sum(function ($a) {
+                return $a->articleScore ? (float)$a->articleScore->total_score : 0;
+            });
+            return [
+                'name' => $u->name,
+                'full_name' => $u->full_name ?: $u->name,
+                'position' => $u->position ?: 'Ходим / Ўқитувчи',
+                'articles_count' => $arts->count(),
+                'checked_count' => $arts->where('status', 'checked')->count(),
+                'pending_count' => $arts->where('status', 'pending')->count(),
+                'total_score' => round($score, 2),
+            ];
+        })->sortByDesc('total_score')->values()->take(5);
+
+        $articleStats = [
+            'total' => $articlesTotal,
+            'checked' => $articlesChecked,
+            'pending' => $articlesPending,
+            'total_score' => $articlesTotalScore,
+            'avg_score' => $articlesAvgScore,
+            'top_authors' => $topArticleAuthors,
+        ];
+
+        // ----------------------------------------------------
+        // Лойиҳалар статистикаси
+        // ----------------------------------------------------
+        $allProjects = Project::with(['user', 'participants', 'pro_documents'])->latest()->get();
+        $projectsTotal = $allProjects->count();
+        $projectsParticipantsCount = Participant::count();
+        $projectsDocumentsCount = Pro_document::count();
+
+        $projectList = $allProjects->take(5)->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'name' => trim(strip_tags($p->name)),
+                'leader' => trim(strip_tags($p->pro_bos_name)) ?: ($p->user?->name ?: 'Кўрсатилмаган'),
+                'job' => trim(strip_tags($p->job)),
+                'participants_count' => $p->participants->count(),
+                'docs_count' => $p->pro_documents->count(),
+                'created_at' => $p->created_at ? $p->created_at->format('d.m.Y') : '',
+            ];
+        });
+
+        $projectStats = [
+            'total' => $projectsTotal,
+            'participants_count' => $projectsParticipantsCount,
+            'documents_count' => $projectsDocumentsCount,
+            'list' => $projectList,
+        ];
 
         // Oylik dinamika
         $uzMonthNames = [
@@ -649,6 +756,8 @@ class TaskController extends Controller
             'categoryData',
             'monthlyTrends',
             'chartEmployees',
+            'articleStats',
+            'projectStats',
             'period',
             'startDate',
             'endDate',
