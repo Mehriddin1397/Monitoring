@@ -530,24 +530,60 @@
             </div>
         </div>
 
-        {{-- Right: Interactive teaser / Quick look --}}
+        {{-- Right: Group Photos Carousel (with auto-cycling and true aspect ratio fitting) --}}
         <div class="lg:col-span-6 space-y-4">
-            <div class="text-center lg:text-left">
-                <p class="font-serif italic text-gold/80 text-sm md:text-base uppercase tracking-[0.25em]">Институт тарихи ва ҳаёти</p>
-                <h2 class="font-display font-bold text-3xl md:text-4xl lg:text-5xl text-white">
-                    Бизнинг <span class="gold-text">жамоа ва ижод</span>
-                </h2>
+            <div class="text-center lg:text-left flex items-center justify-between">
+                <div>
+                    <p class="font-serif italic text-gold/80 text-sm md:text-base uppercase tracking-[0.25em]">Институт тарихи ва ҳаёти</p>
+                    <h2 class="font-display font-bold text-3xl md:text-4xl lg:text-5xl text-white">
+                        Бизнинг <span class="gold-text">жамоа</span>
+                    </h2>
+                </div>
+                @if($groupPhotos->count() > 1)
+                    <div class="flex items-center gap-1.5" id="day-photo-dots">
+                        @foreach($groupPhotos as $index => $photo)
+                            <button onclick="goToDayPhoto({{ $index }})"
+                                    class="day-photo-dot w-2.5 h-2.5 rounded-full {{ $index === 0 ? 'bg-gold w-8 shadow-lg shadow-gold/50' : 'bg-white/30' }} transition-all"
+                                    id="day-dot-{{ $index }}"></button>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             @if($groupPhotos->isNotEmpty())
-                <div class="carousel-box">
-                    <img src="{{ asset('storage/' . $groupPhotos->first()->image_path) }}" alt="Jamoa" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-8">
-                        <div>
-                            <span class="text-xs sm:text-sm uppercase tracking-widest text-gold font-bold">Биргаликда кучлимиз</span>
-                            <p class="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-white">Криминология тадқиқот институти</p>
+                <div class="day-photo-frame relative w-full h-[460px] sm:h-[520px] lg:h-[600px] xl:h-[660px] rounded-3xl overflow-hidden bg-black/70 border border-gold/30 shadow-2xl">
+                    @foreach($groupPhotos as $index => $photo)
+                        <div class="day-photo-slide absolute inset-0 transition-opacity duration-1000 flex items-center justify-center overflow-hidden {{ $index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}"
+                             id="day-slide-{{ $index }}">
+                            {{-- Blurred Ambient Fill for True Aspect Ratio --}}
+                            <img src="{{ asset('storage/' . $photo->image_path) }}"
+                                 alt="Ambient Background"
+                                 class="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-35 scale-110 pointer-events-none" />
+
+                            {{-- Sharp Foreground Photo maintaining its true dimensions --}}
+                            <img src="{{ asset('storage/' . $photo->image_path) }}"
+                                 alt="Жамоа сурати {{ $index + 1 }}"
+                                 class="relative z-10 max-w-full max-h-full object-contain mx-auto drop-shadow-[0_20px_35px_rgba(0,0,0,0.9)] p-2" />
+
+                            {{-- Bottom subtle gradient with caption --}}
+                            <div class="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6 sm:p-8 flex items-end justify-between pointer-events-none">
+                                <div class="space-y-1">
+                                    <span class="text-xs sm:text-sm uppercase tracking-widest text-gold font-bold">Биргаликда кучлимиз</span>
+                                    <p class="font-display text-xl sm:text-2xl md:text-3xl font-bold text-white">Криминология тадқиқот институти</p>
+                                </div>
+                                @if($groupPhotos->count() > 1)
+                                    <span class="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-xs sm:text-sm font-mono text-gold border border-gold/30">
+                                        {{ $index + 1 }} / {{ $groupPhotos->count() }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
-                    </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="day-photo-frame relative w-full h-[460px] rounded-3xl overflow-hidden bg-black/50 border border-gold/20 flex flex-col items-center justify-center p-8 text-center space-y-3">
+                    <span class="material-symbols-outlined text-gold text-5xl">photo_library</span>
+                    <p class="text-white/70 text-sm">Жамоа суратлари мавжуд эмас</p>
                 </div>
             @endif
         </div>
@@ -761,52 +797,6 @@
     </div>
 </section>
 
-{{-- ======================================================== --}}
-{{-- ================= MASTER SCENE 3: GALLERY =============== --}}
-{{-- ======================================================== --}}
-<section id="scene-gallery" class="master-scene master-scene-hidden">
-    <div class="w-full max-w-[96vw] xl:max-w-[1800px] mx-auto space-y-4 px-2 sm:px-4">
-        <div class="text-center space-y-2">
-            <p class="font-serif italic text-gold/80 text-sm md:text-base uppercase tracking-[0.3em]">Бизнинг фаолият</p>
-            <h2 class="font-display font-bold text-3xl md:text-5xl lg:text-6xl text-white">
-                <span class="gold-text">Криминология</span> жамоаси
-            </h2>
-        </div>
-
-        @if($groupPhotos->isNotEmpty())
-            <div class="carousel-box group" id="gallery-carousel">
-                @foreach($groupPhotos as $index => $photo)
-                    <div class="carousel-slide {{ $index === 0 ? 'active' : '' }}" id="gal-slide-{{ $index }}">
-                        <img src="{{ asset('storage/' . $photo->image_path) }}"
-                             alt="Жамоа сурати {{ $index + 1 }}"/>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-8 md:p-12">
-                            <div class="space-y-2">
-                                <span class="text-xs sm:text-sm md:text-base uppercase tracking-widest text-gold font-semibold">Жамоавий тадбирлар ва кундалик фаолият</span>
-                                <p class="font-display font-bold text-3xl md:text-4xl lg:text-5xl text-white">Институт аҳли биргаликда</p>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
-            @if($groupPhotos->count() > 1)
-                <div class="flex items-center justify-center gap-2 pt-3">
-                    @foreach($groupPhotos as $index => $photo)
-                        <button onclick="goToGalSlide({{ $index }})"
-                                class="gal-dot w-2.5 h-2.5 rounded-full {{ $index === 0 ? 'bg-gold w-10 shadow-lg shadow-gold/50' : 'bg-white/30' }} transition-all"
-                                id="gal-dot-{{ $index }}"></button>
-                    @endforeach
-                </div>
-            @endif
-        @else
-            <div class="luxe-glass rounded-3xl p-12 text-center max-w-xl mx-auto space-y-4">
-                <span class="material-symbols-outlined text-gold text-6xl">photo_library</span>
-                <h3 class="font-display font-bold text-2xl text-white">Жамоа суратлари мавжуд эмас</h3>
-                <p class="text-sm text-white/70">Админ панелнинг «Гуруҳ расмлари» бўлимидан суратлар юкланг.</p>
-            </div>
-        @endif
-    </div>
-</section>
 
 {{-- ======================================================== --}}
 {{-- ================= MASTER SCENE: LATEST NEWS ============ --}}
@@ -939,10 +929,6 @@
         <span class="material-symbols-outlined text-sm">auto_stories</span>
         <span>Ходимлар ижоди</span>
     </button>
-    <button class="tab-btn" id="tab-btn-gallery" onclick="switchMasterScene('gallery')">
-        <span class="material-symbols-outlined text-sm">photo_camera</span>
-        <span>Жамоа галереяси</span>
-    </button>
 </nav>
 
 <script>
@@ -1000,15 +986,14 @@
     updateClock();
 
     // ===== MASTER SCENE MANAGER =====
-    const scenes = ['day', 'news', 'works', 'gallery'];
+    const scenes = ['day', 'news', 'works'];
     let currentSceneIndex = 0;
     let masterTimer = null;
 
     const sceneDurations = {
-        'day': 14000,       // 14 seconds for clock & day
+        'day': 22000,       // 22 seconds for clock & day (allows multiple group photos to cycle)
         'news': 26000,      // 26 seconds for latest news
-        'works': 30000,     // 30 seconds for creative works (gives ample time to auto-scroll stories)
-        'gallery': 14000    // 14 seconds for photos
+        'works': 30000      // 30 seconds for creative works
     };
 
     function switchMasterScene(sceneName) {
@@ -1026,6 +1011,12 @@
         });
 
         currentSceneIndex = scenes.indexOf(sceneName);
+
+        if (sceneName === 'day') {
+            startDayPhotoCycle();
+        } else {
+            stopDayPhotoCycle();
+        }
 
         if (sceneName === 'works') {
             showWorkIndex(currentWorkIdx);
@@ -1282,32 +1273,51 @@
         }, delay);
     }
 
-    // ===== GALLERY SUB-CAROUSEL =====
-    const totalPhotos = {{ $groupPhotos->count() }};
-    let currentGalIdx = 0;
+    // ===== DAY SCENE GROUP PHOTOS CAROUSEL =====
+    const totalDayPhotos = {{ $groupPhotos->count() }};
+    let currentDayPhotoIdx = 0;
+    let dayPhotoTimer = null;
 
-    function goToGalSlide(idx) {
-        if (totalPhotos <= 0) return;
-        currentGalIdx = ((idx % totalPhotos) + totalPhotos) % totalPhotos;
+    function goToDayPhoto(idx) {
+        if (totalDayPhotos <= 0) return;
+        currentDayPhotoIdx = ((idx % totalDayPhotos) + totalDayPhotos) % totalDayPhotos;
 
-        for (let i = 0; i < totalPhotos; i++) {
-            const slide = document.getElementById('gal-slide-' + i);
-            const dot = document.getElementById('gal-dot-' + i);
-            if (slide) slide.classList.toggle('active', i === currentGalIdx);
+        for (let i = 0; i < totalDayPhotos; i++) {
+            const slide = document.getElementById('day-slide-' + i);
+            const dot = document.getElementById('day-dot-' + i);
+            const isActive = (i === currentDayPhotoIdx);
+            if (slide) {
+                slide.classList.toggle('opacity-100', isActive);
+                slide.classList.toggle('z-10', isActive);
+                slide.classList.toggle('opacity-0', !isActive);
+                slide.classList.toggle('z-0', !isActive);
+                slide.classList.toggle('pointer-events-none', !isActive);
+            }
             if (dot) {
-                dot.classList.toggle('bg-gold', i === currentGalIdx);
-                dot.classList.toggle('w-8', i === currentGalIdx);
-                dot.classList.toggle('bg-white/30', i !== currentGalIdx);
+                dot.classList.toggle('bg-gold', isActive);
+                dot.classList.toggle('w-8', isActive);
+                dot.classList.toggle('shadow-lg', isActive);
+                dot.classList.toggle('shadow-gold/50', isActive);
+                dot.classList.toggle('bg-white/30', !isActive);
             }
         }
     }
 
-    if (totalPhotos > 1) {
-        setInterval(() => {
-            if (scenes[currentSceneIndex] === 'gallery') {
-                goToGalSlide(currentGalIdx + 1);
+    function startDayPhotoCycle() {
+        stopDayPhotoCycle();
+        if (totalDayPhotos <= 1) return;
+        dayPhotoTimer = setInterval(() => {
+            if (scenes[currentSceneIndex] === 'day') {
+                goToDayPhoto(currentDayPhotoIdx + 1);
             }
-        }, 6000);
+        }, 5000);
+    }
+
+    function stopDayPhotoCycle() {
+        if (dayPhotoTimer) {
+            clearInterval(dayPhotoTimer);
+            dayPhotoTimer = null;
+        }
     }
 
     // ===== STAR BACKGROUND =====
@@ -1332,6 +1342,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         createStarField();
         restartMasterTimer();
+        startDayPhotoCycle();
 
         // Keyboard controls
         document.addEventListener('keydown', (e) => {
