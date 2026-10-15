@@ -282,15 +282,29 @@
 </head>
 
 @php
-    $hour = now()->hour;
-    if ($hour >= 5 && $hour < 12)      { $greetingText = 'Хайрли тонг'; $greetingIcon = 'wb_twilight'; }
-    elseif ($hour >= 12 && $hour < 18) { $greetingText = 'Хайрли кун';  $greetingIcon = 'wb_sunny'; }
-    elseif ($hour >= 18 && $hour < 22) { $greetingText = 'Хайрли кеч';  $greetingIcon = 'nights_stay'; }
-    else                                { $greetingText = 'Хайрли тун';  $greetingIcon = 'bedtime'; }
+    $today = now('Asia/Tashkent');
+    $hour = $today->hour;
+
+    // Vaqtga qarab 3 ta davr: Tong (05:00 - 11:59), Kun (12:00 - 17:59), Tun (18:00 - 04:59)
+    if ($hour >= 5 && $hour < 12) {
+        $greetingText = 'Хайрли тонг';
+        $greetingIcon = 'wb_twilight';
+        $periodText = 'Тонг';
+        $periodIcon = 'wb_twilight';
+    } elseif ($hour >= 12 && $hour < 18) {
+        $greetingText = 'Хайрли кун';
+        $greetingIcon = 'wb_sunny';
+        $periodText = 'Кун';
+        $periodIcon = 'wb_sunny';
+    } else {
+        $greetingText = 'Хайрли тун';
+        $greetingIcon = 'nights_stay';
+        $periodText = 'Тун';
+        $periodIcon = 'nights_stay';
+    }
 
     $monthsCy = ['Январ','Феврал','Март','Апрел','Май','Июн','Июл','Август','Сентябр','Октябр','Ноябр','Декабр'];
     $weekdaysCy = ['Якшанба','Душанба','Сешанба','Чоршанба','Пайшанба','Жума','Шанба'];
-    $today = now();
 @endphp
 
 <body class="font-sans text-white">
@@ -341,11 +355,11 @@
 
             <div class="luxe-glass rounded-3xl p-6 md:p-8 space-y-3">
                 <div class="flex items-center justify-center lg:justify-start gap-2">
-                    <span class="material-symbols-outlined text-gold text-2xl md:text-3xl" style="font-variation-settings: 'FILL' 1;">{{ $greetingIcon }}</span>
+                    <span class="material-symbols-outlined text-gold text-2xl md:text-3xl" id="greeting-icon" style="font-variation-settings: 'FILL' 1;">{{ $greetingIcon }}</span>
                     <span class="text-xs font-serif uppercase tracking-widest text-gold/80">Кундалик фаолият</span>
                 </div>
                 <h1 class="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white">
-                    <span class="gold-text">{{ $greetingText }},</span><br/>
+                    <span class="gold-text" id="greeting-text">{{ $greetingText }},</span><br/>
                     <span>азиз ҳамкасблар!</span>
                 </h1>
                 <p class="font-serif italic text-white/75 text-sm md:text-base lg:text-lg max-w-lg mx-auto lg:mx-0">
@@ -353,16 +367,18 @@
                 </p>
             </div>
 
-            {{-- Live Clock --}}
-            <div class="clock-card rounded-3xl p-6 md:p-8 space-y-2">
+            {{-- Live Clock & Day --}}
+            <div class="clock-card rounded-3xl p-6 md:p-8 space-y-4">
+                {{-- Kun qismi (Hafta kuni va Sana) --}}
                 <div class="flex items-center justify-center lg:justify-start gap-2 text-gold/90 text-sm md:text-base">
-                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+                    <span class="material-symbols-outlined text-gold" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
                     <span class="font-serif tracking-wider">
                         <span id="current-weekday">{{ $weekdaysCy[$today->dayOfWeek] }}</span>,
                         <span id="current-date">{{ $today->day }}-{{ $monthsCy[$today->month - 1] }} {{ $today->year }}-йил</span>
                     </span>
                 </div>
 
+                {{-- Soat qismi (Raqamli jonli soat) --}}
                 <div class="flex items-baseline justify-center lg:justify-start gap-1 font-mono font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl clock-digits gold-text">
                     <span id="clock-hour">--</span>
                     <span class="clock-colon text-gold/70 mx-1">:</span>
@@ -371,10 +387,12 @@
                     <span id="clock-sec" class="opacity-70">--</span>
                 </div>
 
+                {{-- Vaqt davri: Тонг / Кун / Тун --}}
                 <div class="flex items-center justify-center lg:justify-start gap-2 pt-1">
-                    <span class="h-px w-10 bg-gradient-to-r from-transparent to-gold/40"></span>
-                    <span id="time-period" class="font-serif italic text-white/60 text-xs md:text-sm uppercase tracking-[0.25em]">Тонг</span>
-                    <span class="h-px w-10 bg-gradient-to-l from-transparent to-gold/40"></span>
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/30 backdrop-blur-md">
+                        <span class="material-symbols-outlined text-gold text-lg md:text-xl" id="period-icon" style="font-variation-settings: 'FILL' 1;">{{ $periodIcon }}</span>
+                        <span id="time-period" class="font-serif font-bold text-gold text-xs md:text-sm uppercase tracking-[0.25em]">{{ $periodText }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -658,11 +676,19 @@
 </nav>
 
 <script>
-    // ===== LIVE CLOCK =====
+    // ===== LIVE CLOCK & DAY =====
     const hourEl = document.getElementById('clock-hour');
     const minEl = document.getElementById('clock-min');
     const secEl = document.getElementById('clock-sec');
     const periodEl = document.getElementById('time-period');
+    const periodIconEl = document.getElementById('period-icon');
+    const greetingEl = document.getElementById('greeting-text');
+    const greetingIconEl = document.getElementById('greeting-icon');
+    const weekdayEl = document.getElementById('current-weekday');
+    const dateEl = document.getElementById('current-date');
+
+    const monthsCy = ['Январ','Феврал','Март','Апрел','Май','Июн','Июл','Август','Сентябр','Октябр','Ноябр','Декабр'];
+    const weekdaysCy = ['Якшанба','Душанба','Сешанба','Чоршанба','Пайшанба','Жума','Шанба'];
 
     function updateClock() {
         const now = new Date();
@@ -674,12 +700,31 @@
         if (secEl) secEl.textContent = s;
 
         const hr = now.getHours();
-        let period;
-        if (hr >= 5 && hr < 12) period = 'Тонг';
-        else if (hr >= 12 && hr < 18) period = 'Кун';
-        else if (hr >= 18 && hr < 22) period = 'Кеч';
-        else period = 'Тун';
+        let period, greeting, icon;
+
+        // Vaqtga qarab 3 ta davr: Tong (05:00 - 11:59), Kun (12:00 - 17:59), Tun (18:00 - 04:59)
+        if (hr >= 5 && hr < 12) {
+            period = 'Тонг';
+            greeting = 'Хайрли тонг';
+            icon = 'wb_twilight';
+        } else if (hr >= 12 && hr < 18) {
+            period = 'Кун';
+            greeting = 'Хайрли кун';
+            icon = 'wb_sunny';
+        } else {
+            period = 'Тун';
+            greeting = 'Хайрли тун';
+            icon = 'nights_stay';
+        }
+
         if (periodEl) periodEl.textContent = period;
+        if (periodIconEl) periodIconEl.textContent = icon;
+        if (greetingEl) greetingEl.textContent = greeting + ',';
+        if (greetingIconEl) greetingIconEl.textContent = icon;
+
+        // Sana va hafta kunini yangilash
+        if (weekdayEl) weekdayEl.textContent = weekdaysCy[now.getDay()];
+        if (dateEl) dateEl.textContent = `${now.getDate()}-${monthsCy[now.getMonth()]} ${now.getFullYear()}-йил`;
     }
     setInterval(updateClock, 1000);
     updateClock();
