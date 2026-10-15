@@ -353,11 +353,11 @@
                                             </div>
                                         </div>
                                         <div class="text-end">
-                                            <span class="badge bg-success bg-opacity-15 text-success fs-13 fw-bold px-2 py-1 rounded-pill">
+                                            <span class="badge text-white fs-13 fw-bold px-3 py-1 rounded-pill shadow-sm" style="background-color: #00b894 !important; color: #ffffff !important;">
                                                 <i class="feather-check-circle me-1"></i> {{ $p['completed'] }} та ({{ $p['completion_rate'] }}%)
                                             </span>
-                                            <div class="progress mt-2" style="width: 100px; height: 6px; border-radius: 6px;">
-                                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ $p['completion_rate'] }}%"></div>
+                                            <div class="progress mt-2" style="width: 110px; height: 6px; border-radius: 6px; background-color: #e2e8f0;">
+                                                <div class="progress-bar" role="progressbar" style="width: {{ $p['completion_rate'] }}%; background-color: #00b894 !important;"></div>
                                             </div>
                                         </div>
                                     </div>
