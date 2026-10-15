@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
     <script id="tailwind-config">
@@ -29,6 +29,7 @@
                     fontFamily: {
                         "display": ["Playfair Display", "serif"],
                         "serif": ["PT Serif", "serif"],
+                        "story": ["Cormorant Garamond", "PT Serif", "serif"],
                         "sans": ["Inter", "sans-serif"],
                         "mono": ["JetBrains Mono", "monospace"],
                     },
@@ -141,10 +142,83 @@
         }
 
         .book-card {
-            background: linear-gradient(145deg, rgba(28, 22, 18, 0.85) 0%, rgba(12, 9, 7, 0.95) 100%);
+            background: linear-gradient(145deg, rgba(28, 22, 18, 0.88) 0%, rgba(12, 9, 7, 0.96) 100%);
             backdrop-filter: blur(24px);
             border: 1px solid rgba(212, 175, 55, 0.35);
             box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 40px rgba(212, 175, 55, 0.12);
+        }
+
+        /* === STORY / BADIA CREATIVE AUTO-SCROLL STYLES === */
+        .story-scroll-box {
+            position: relative;
+            background: linear-gradient(180deg, rgba(16, 11, 7, 0.8) 0%, rgba(7, 4, 2, 0.95) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), inset 0 0 40px rgba(212, 175, 55, 0.05);
+            overflow: hidden;
+        }
+
+        .story-scroll-inner {
+            height: clamp(340px, 46vh, 520px);
+            overflow-y: scroll;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 1.75rem 2.25rem;
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%);
+            scroll-behavior: auto;
+        }
+
+        .story-scroll-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+        .story-content-text {
+            font-family: 'Cormorant Garamond', 'PT Serif', serif;
+            font-size: clamp(1.35rem, 1.95vw, 2rem);
+            line-height: 1.85;
+            letter-spacing: 0.015em;
+            color: #fef3c7;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+            white-space: pre-line;
+            text-align: justify;
+        }
+
+        .story-content-text::first-letter {
+            font-family: 'Playfair Display', 'Cormorant Garamond', serif;
+            float: left;
+            font-size: 3.4em;
+            line-height: 0.82;
+            padding-right: 0.18em;
+            padding-top: 0.08em;
+            color: #ffd700;
+            font-weight: 700;
+            text-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .scroll-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background: rgba(212, 175, 55, 0.12);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            font-size: 0.72rem;
+            color: #f5d76e;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        @keyframes pulse-scroll {
+            0%, 100% { transform: translateY(0); opacity: 0.6; }
+            50% { transform: translateY(3px); opacity: 1; }
+        }
+
+        .scroll-arrow-anim {
+            animation: pulse-scroll 1.5s ease-in-out infinite;
         }
 
         .lyric-card {
@@ -472,14 +546,19 @@
                             </div>
                         </div>
 
-                    @elseif($work->layout_theme === 'book')
-                        {{-- ============ VARIANT 2: BOOK / PROSE STORY ============ --}}
-                        <div class="book-card rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden border border-amber-600/30">
-                            <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-center">
+                    @elseif($work->layout_theme === 'book' || $work->type === 'story')
+                        {{-- ============ VARIANT 2: BOOK / PROSE STORY (HIKOYA / BADIA) ============ --}}
+                        <div class="book-card rounded-3xl p-6 sm:p-8 md:p-10 relative overflow-hidden border border-amber-600/30">
+                            {{-- Watermark book icon in background --}}
+                            <div class="absolute -right-8 -bottom-8 opacity-5 pointer-events-none">
+                                <span class="material-symbols-outlined text-[280px] text-gold">auto_stories</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-6 md:gap-8 items-start">
                                 {{-- Left: Author Profile --}}
                                 <div class="text-center lg:text-left space-y-4">
                                     <div class="relative inline-block mx-auto lg:mx-0">
-                                        <div class="w-36 h-36 md:w-48 md:h-48 rounded-2xl overflow-hidden border-2 border-gold shadow-2xl bg-black">
+                                        <div class="w-32 h-32 md:w-44 md:h-44 rounded-2xl overflow-hidden border-2 border-gold shadow-2xl bg-black">
                                             @if($work->employee && $work->employee->photo)
                                                 <img src="{{ asset('storage/' . $work->employee->photo) }}"
                                                      alt="{{ $work->employee->full_name }}"
@@ -493,27 +572,40 @@
                                     </div>
                                     <div>
                                         <p class="text-xs uppercase tracking-widest text-gold font-serif">Муаллиф:</p>
-                                        <h3 class="font-display font-bold text-xl md:text-2xl text-white">{{ $work->employee->full_name ?? '—' }}</h3>
+                                        <h3 class="font-display font-bold text-lg md:text-2xl text-white">{{ $work->employee->full_name ?? '—' }}</h3>
                                         <p class="text-xs text-amber-200/80 font-serif italic">{{ $work->employee->position ?? '' }}</p>
+                                    </div>
+
+                                    <div class="pt-1">
+                                        <span class="scroll-badge">
+                                            <span class="material-symbols-outlined text-xs scroll-arrow-anim">arrow_downward</span>
+                                            <span>Автоматик ҳаракат</span>
+                                        </span>
                                     </div>
                                 </div>
 
                                 {{-- Right: Story content --}}
-                                <div class="space-y-4">
+                                <div class="space-y-3 min-w-0">
                                     <div class="flex items-center gap-2">
                                         <span class="material-symbols-outlined text-gold">auto_stories</span>
-                                        <span class="text-xs uppercase tracking-[0.25em] text-gold/90 font-serif">Бадиий наср ва бадиалар</span>
+                                        <span class="text-xs uppercase tracking-[0.25em] text-gold/90 font-serif font-bold">Ҳикоя ва бадиалар</span>
                                     </div>
-                                    <h2 class="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-white">
+                                    <h2 class="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-white leading-tight">
                                         {{ $work->title }}
                                     </h2>
                                     @if($work->excerpt)
-                                        <p class="text-amber-200 font-serif italic border-l-2 border-gold pl-3 py-1">{{ $work->excerpt }}</p>
-                                    @endif
-                                    <div class="p-6 rounded-2xl bg-black/40 border border-gold/20 max-h-[45vh] overflow-y-auto">
-                                        <p class="font-serif text-white/90 text-sm sm:text-base md:text-lg leading-relaxed whitespace-pre-line text-justify">
-                                            {{ $work->content }}
+                                        <p class="text-amber-200/90 font-serif italic text-sm md:text-base border-l-2 border-gold pl-3 py-1">
+                                            {{ $work->excerpt }}
                                         </p>
+                                    @endif
+
+                                    {{-- Creative Large Text Auto-Scroll Box --}}
+                                    <div class="story-scroll-box">
+                                        <div class="story-scroll-inner autoscroll-target" id="story-scroll-{{ $idx }}">
+                                            <div class="story-content-text">
+                                                {{ $work->content }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -735,9 +827,9 @@
     let masterTimer = null;
 
     const sceneDurations = {
-        'day': 12000,       // 12 seconds for clock
-        'works': 16000,     // 16 seconds for creative works
-        'gallery': 12000    // 12 seconds for photos
+        'day': 14000,       // 14 seconds for clock & day
+        'works': 30000,     // 30 seconds for creative works (gives ample time to auto-scroll stories)
+        'gallery': 14000    // 14 seconds for photos
     };
 
     function switchMasterScene(sceneName) {
@@ -755,6 +847,13 @@
         });
 
         currentSceneIndex = scenes.indexOf(sceneName);
+
+        if (sceneName === 'works') {
+            showWorkIndex(currentWorkIdx);
+        } else {
+            stopStoryAutoScroll();
+        }
+
         restartMasterTimer();
     }
 
@@ -771,10 +870,75 @@
     function restartMasterTimer() {
         if (masterTimer) clearTimeout(masterTimer);
         const currentName = scenes[currentSceneIndex];
-        const dur = sceneDurations[currentName] || 12000;
+        const dur = sceneDurations[currentName] || 14000;
         masterTimer = setTimeout(() => {
             nextMasterScene();
         }, dur);
+    }
+
+    // ===== STORY / BADIA AUTO-SCROLL CONTROLLER =====
+    let storyScrollAnimId = null;
+    let storyScrollTimer = null;
+    let workSwitchTimer = null;
+
+    function startStoryAutoScroll(slideElement) {
+        stopStoryAutoScroll();
+        if (!slideElement) return;
+
+        const scrollContainer = slideElement.querySelector('.autoscroll-target');
+        if (!scrollContainer) return;
+
+        // Reset to top
+        scrollContainer.scrollTop = 0;
+
+        const maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+        if (maxScroll <= 5) {
+            // Text is short enough to fit without scrolling
+            return;
+        }
+
+        // Boshida 2.5 soniya kutib turadi, so'ng silliq va sekin pastga harakatlanadi
+        storyScrollTimer = setTimeout(() => {
+            let lastTimestamp = null;
+            const scrollSpeed = 24; // Sekundiga 24 piksel (qulay, o'qish uchun juda sekin va silliq tezlik)
+
+            function stepScroll(timestamp) {
+                if (!lastTimestamp) lastTimestamp = timestamp;
+                const delta = (timestamp - lastTimestamp) / 1000;
+                lastTimestamp = timestamp;
+
+                scrollContainer.scrollTop += scrollSpeed * delta;
+
+                // Eng pastiga yetganda
+                if (scrollContainer.scrollTop >= maxScroll - 2) {
+                    // Pastki qismda 4 soniya to'xtab turadi
+                    storyScrollTimer = setTimeout(() => {
+                        // Silliq qilib yana boshiga qaytaradi
+                        scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                        storyScrollTimer = setTimeout(() => {
+                            lastTimestamp = null;
+                            storyScrollAnimId = requestAnimationFrame(stepScroll);
+                        }, 2500);
+                    }, 4000);
+                    return;
+                }
+
+                storyScrollAnimId = requestAnimationFrame(stepScroll);
+            }
+
+            storyScrollAnimId = requestAnimationFrame(stepScroll);
+        }, 2200);
+    }
+
+    function stopStoryAutoScroll() {
+        if (storyScrollAnimId) {
+            cancelAnimationFrame(storyScrollAnimId);
+            storyScrollAnimId = null;
+        }
+        if (storyScrollTimer) {
+            clearTimeout(storyScrollTimer);
+            storyScrollTimer = null;
+        }
     }
 
     // ===== WORKS SUB-CAROUSEL =====
@@ -785,24 +949,47 @@
         if (totalWorks <= 0) return;
         currentWorkIdx = ((idx % totalWorks) + totalWorks) % totalWorks;
 
+        stopStoryAutoScroll();
+
+        let activeSlide = null;
         for (let i = 0; i < totalWorks; i++) {
             const el = document.getElementById('work-slide-' + i);
             const dot = document.getElementById('work-dot-' + i);
-            if (el) el.classList.toggle('hidden', i !== currentWorkIdx);
+            const isActive = (i === currentWorkIdx);
+            if (el) {
+                el.classList.toggle('hidden', !isActive);
+                if (isActive) activeSlide = el;
+            }
             if (dot) {
-                dot.classList.toggle('bg-gold', i === currentWorkIdx);
-                dot.classList.toggle('w-8', i === currentWorkIdx);
-                dot.classList.toggle('bg-white/30', i !== currentWorkIdx);
+                dot.classList.toggle('bg-gold', isActive);
+                dot.classList.toggle('w-8', isActive);
+                dot.classList.toggle('bg-white/30', !isActive);
             }
         }
+
+        // Agar bu slayd hikoya/badia bo'lsa, avtomatik sekin pastga harakatlanishni boshlaymiz
+        if (activeSlide && scenes[currentSceneIndex] === 'works') {
+            startStoryAutoScroll(activeSlide);
+        }
+
+        scheduleNextWork();
     }
 
-    if (totalWorks > 1) {
-        setInterval(() => {
+    function scheduleNextWork() {
+        if (workSwitchTimer) clearTimeout(workSwitchTimer);
+        if (totalWorks <= 1) return;
+
+        const currentSlide = document.getElementById('work-slide-' + currentWorkIdx);
+        const hasStoryScroll = currentSlide && currentSlide.querySelector('.autoscroll-target');
+
+        // Hikoya/badia matnlari uzun bo'lgani uchun 26 soniya, boshqa qisqa ishlar uchun 10 soniya
+        const delay = hasStoryScroll ? 26000 : 10000;
+
+        workSwitchTimer = setTimeout(() => {
             if (scenes[currentSceneIndex] === 'works') {
                 showWorkIndex(currentWorkIdx + 1);
             }
-        }, 8000);
+        }, delay);
     }
 
     // ===== GALLERY SUB-CAROUSEL =====
