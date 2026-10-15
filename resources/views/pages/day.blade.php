@@ -250,6 +250,42 @@
             box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 45px rgba(168, 85, 247, 0.15);
         }
 
+        /* === LATEST NEWS === */
+        .news-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.88) 0%, rgba(7, 11, 20, 0.96) 100%);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 45px rgba(56, 189, 248, 0.15);
+        }
+        .news-hero-container {
+            position: relative;
+            border-radius: 1.25rem;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+        }
+        .news-thumb {
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .news-thumb.active {
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+            transform: scale(1.04);
+        }
+        .news-content-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+            line-height: 1.85;
+            letter-spacing: 0.01em;
+            color: #e2e8f0;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+            white-space: pre-line;
+            text-align: justify;
+        }
+
         /* === LIVE CLOCK === */
         .clock-card {
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(0, 0, 0, 0.75) 100%);
@@ -772,12 +808,131 @@
 </section>
 
 {{-- ======================================================== --}}
+{{-- ================= MASTER SCENE: LATEST NEWS ============ --}}
+{{-- ======================================================== --}}
+<section id="scene-news" class="master-scene master-scene-hidden">
+    <div class="w-full max-w-6xl mx-auto z-10 px-4">
+        @if(isset($latestNews) && $latestNews->count() > 0)
+            @foreach($latestNews as $nIdx => $item)
+                @php
+                    $imgs = is_array($item->images) ? $item->images : [];
+                @endphp
+                <div class="news-slide {{ $nIdx > 0 ? 'hidden' : '' }}" id="news-slide-{{ $nIdx }}">
+                    <div class="news-card rounded-3xl p-6 sm:p-8 md:p-10 relative overflow-hidden">
+                        {{-- Top Section: Category, Date, Pagination --}}
+                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sky-400">newspaper</span>
+                                <span class="text-xs uppercase tracking-[0.25em] text-sky-300 font-bold">
+                                    {{ $item->category ?: 'Сўнгги янгиликлар' }}
+                                </span>
+                                @if($item->published_date)
+                                    <span class="text-white/40 text-xs">•</span>
+                                    <span class="text-xs text-white/60 font-mono">
+                                        {{ \Carbon\Carbon::parse($item->published_date)->format('d.m.Y') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="scroll-badge" style="background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.35); color: #7dd3fc;">
+                                    <span class="material-symbols-outlined text-xs scroll-arrow-anim">arrow_downward</span>
+                                    <span>Автоматик ҳаракат</span>
+                                </span>
+                                @if($latestNews->count() > 1)
+                                    <span class="px-3 py-1 rounded-full bg-white/10 text-xs font-mono text-white/80">
+                                        {{ $nIdx + 1 }} / {{ $latestNews->count() }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Body: Left (Multi-Image Display) & Right (Title + Auto-scroll Content) --}}
+                        <div class="grid grid-cols-1 {{ count($imgs) > 0 ? 'lg:grid-cols-12' : '' }} gap-6 md:gap-8 items-start">
+                            @if(count($imgs) > 0)
+                                {{-- Left: Multi-Image Showcase --}}
+                                <div class="lg:col-span-5 space-y-3">
+                                    {{-- Main Hero Image --}}
+                                    <div class="news-hero-container aspect-[4/3] w-full">
+                                        @foreach($imgs as $pIdx => $img)
+                                            <img src="{{ asset('storage/' . $img) }}"
+                                                 id="news-img-{{ $nIdx }}-{{ $pIdx }}"
+                                                 class="news-hero-img-{{ $nIdx }} w-full h-full object-cover transition-opacity duration-700 absolute inset-0 {{ $pIdx === 0 ? 'opacity-100' : 'opacity-0' }}"
+                                                 alt="{{ $item->title }} - {{ $pIdx + 1 }}" />
+                                        @endforeach
+                                        @if(count($imgs) > 1)
+                                            <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[11px] font-mono text-white/90 flex items-center gap-1.5 border border-white/20">
+                                                <span class="material-symbols-outlined text-xs text-sky-400">photo_library</span>
+                                                <span id="news-counter-{{ $nIdx }}">1 / {{ count($imgs) }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    {{-- Thumbnails strip if more than 1 image --}}
+                                    @if(count($imgs) > 1)
+                                        <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+                                            @foreach($imgs as $pIdx => $img)
+                                                <div onclick="selectNewsPhoto({{ $nIdx }}, {{ $pIdx }})"
+                                                     id="news-thumb-{{ $nIdx }}-{{ $pIdx }}"
+                                                     class="news-thumb news-thumb-{{ $nIdx }} w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 {{ $pIdx === 0 ? 'active' : 'opacity-60 hover:opacity-100' }} bg-black">
+                                                    <img src="{{ asset('storage/' . $img) }}" class="w-full h-full object-cover" alt="Thumb {{ $pIdx + 1 }}" />
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
+                            {{-- Right: Content & Title --}}
+                            <div class="{{ count($imgs) > 0 ? 'lg:col-span-7' : 'lg:col-span-12' }} space-y-4 min-w-0">
+                                <h2 class="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-white leading-tight">
+                                    {{ $item->title }}
+                                </h2>
+
+                                {{-- Auto-Scrolling News Content Box --}}
+                                <div class="story-scroll-box" style="border-color: rgba(56, 189, 248, 0.25);">
+                                    <div class="story-scroll-inner autoscroll-target" id="news-scroll-{{ $nIdx }}">
+                                        <div class="news-content-text">
+                                            {!! nl2br(e($item->content)) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            {{-- Dots pagination if multiple news --}}
+            @if($latestNews->count() > 1)
+                <div class="flex items-center justify-center gap-2 pt-4">
+                    @foreach($latestNews as $nIdx => $item)
+                        <button onclick="showNewsIndex({{ $nIdx }})"
+                                class="news-dot w-2 h-2 rounded-full {{ $nIdx === 0 ? 'bg-sky-400 w-8' : 'bg-white/30' }} transition-all"
+                                id="news-dot-{{ $nIdx }}"></button>
+                    @endforeach
+                </div>
+            @endif
+        @else
+            <div class="luxe-glass rounded-3xl p-12 text-center max-w-xl mx-auto space-y-4">
+                <span class="material-symbols-outlined text-sky-400 text-6xl">feed</span>
+                <h3 class="font-display font-bold text-2xl text-white">Янгиликлар мавжуд эмас</h3>
+                <p class="text-sm text-white/70">Админ панелнинг «Сўнгги янгиликлар» бўлимидан янгиликлар юкланг.</p>
+            </div>
+        @endif
+    </div>
+</section>
+
+{{-- ======================================================== --}}
 {{-- ================= MASTER BOTTOM NAVIGATION ============== --}}
 {{-- ======================================================== --}}
 <nav class="master-nav">
     <button class="tab-btn active" id="tab-btn-day" onclick="switchMasterScene('day')">
         <span class="material-symbols-outlined text-sm">schedule</span>
         <span>Соат ва кун</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-news" onclick="switchMasterScene('news')">
+        <span class="material-symbols-outlined text-sm">newspaper</span>
+        <span>Сўнгги янгиликлар</span>
     </button>
     <button class="tab-btn" id="tab-btn-works" onclick="switchMasterScene('works')">
         <span class="material-symbols-outlined text-sm">auto_stories</span>
@@ -844,12 +999,13 @@
     updateClock();
 
     // ===== MASTER SCENE MANAGER =====
-    const scenes = ['day', 'works', 'gallery'];
+    const scenes = ['day', 'news', 'works', 'gallery'];
     let currentSceneIndex = 0;
     let masterTimer = null;
 
     const sceneDurations = {
         'day': 14000,       // 14 seconds for clock & day
+        'news': 26000,      // 26 seconds for latest news
         'works': 30000,     // 30 seconds for creative works (gives ample time to auto-scroll stories)
         'gallery': 14000    // 14 seconds for photos
     };
@@ -874,6 +1030,12 @@
             showWorkIndex(currentWorkIdx);
         } else {
             stopStoryAutoScroll();
+        }
+
+        if (sceneName === 'news') {
+            showNewsIndex(currentNewsIdx);
+        } else {
+            stopNewsPhotoCycle();
         }
 
         restartMasterTimer();
@@ -973,6 +1135,99 @@
                 }
             }, 35);
         }, 1000);
+    }
+
+    // ===== NEWS SUB-CAROUSEL & MULTI-PHOTO CYCLE =====
+    const totalNews = {{ isset($latestNews) ? $latestNews->count() : 0 }};
+    let currentNewsIdx = 0;
+    let newsSwitchTimer = null;
+    let newsPhotoCycleTimer = null;
+    const currentPhotoIdxPerNews = {};
+
+    function selectNewsPhoto(newsIdx, photoIdx) {
+        const heroImgs = document.querySelectorAll('.news-hero-img-' + newsIdx);
+        const thumbs = document.querySelectorAll('.news-thumb-' + newsIdx);
+        const counter = document.getElementById('news-counter-' + newsIdx);
+        if (!heroImgs.length) return;
+
+        currentPhotoIdxPerNews[newsIdx] = photoIdx % heroImgs.length;
+
+        heroImgs.forEach((img, i) => {
+            img.classList.toggle('opacity-100', i === currentPhotoIdxPerNews[newsIdx]);
+            img.classList.toggle('opacity-0', i !== currentPhotoIdxPerNews[newsIdx]);
+        });
+
+        thumbs.forEach((thumb, i) => {
+            thumb.classList.toggle('active', i === currentPhotoIdxPerNews[newsIdx]);
+            thumb.classList.toggle('opacity-60', i !== currentPhotoIdxPerNews[newsIdx]);
+        });
+
+        if (counter) {
+            counter.textContent = `${currentPhotoIdxPerNews[newsIdx] + 1} / ${heroImgs.length}`;
+        }
+    }
+
+    function stopNewsPhotoCycle() {
+        if (newsPhotoCycleTimer) {
+            clearInterval(newsPhotoCycleTimer);
+            newsPhotoCycleTimer = null;
+        }
+    }
+
+    function startNewsPhotoCycle(newsIdx) {
+        stopNewsPhotoCycle();
+        const heroImgs = document.querySelectorAll('.news-hero-img-' + newsIdx);
+        if (heroImgs.length <= 1) return;
+
+        newsPhotoCycleTimer = setInterval(() => {
+            if (scenes[currentSceneIndex] === 'news') {
+                const cur = currentPhotoIdxPerNews[newsIdx] || 0;
+                const nextP = (cur + 1) % heroImgs.length;
+                selectNewsPhoto(newsIdx, nextP);
+            }
+        }, 4500);
+    }
+
+    function showNewsIndex(idx) {
+        if (totalNews <= 0) return;
+        currentNewsIdx = ((idx % totalNews) + totalNews) % totalNews;
+
+        stopStoryAutoScroll();
+        stopNewsPhotoCycle();
+
+        let activeSlide = null;
+        for (let i = 0; i < totalNews; i++) {
+            const el = document.getElementById('news-slide-' + i);
+            const dot = document.getElementById('news-dot-' + i);
+            const isActive = (i === currentNewsIdx);
+            if (el) {
+                el.classList.toggle('hidden', !isActive);
+                if (isActive) activeSlide = el;
+            }
+            if (dot) {
+                dot.classList.toggle('bg-sky-400', isActive);
+                dot.classList.toggle('w-8', isActive);
+                dot.classList.toggle('bg-white/30', !isActive);
+            }
+        }
+
+        if (activeSlide) {
+            startStoryAutoScroll(activeSlide);
+            startNewsPhotoCycle(currentNewsIdx);
+        }
+
+        scheduleNextNews();
+    }
+
+    function scheduleNextNews() {
+        if (newsSwitchTimer) clearTimeout(newsSwitchTimer);
+        if (totalNews <= 1) return;
+
+        newsSwitchTimer = setTimeout(() => {
+            if (scenes[currentSceneIndex] === 'news') {
+                showNewsIndex(currentNewsIdx + 1);
+            }
+        }, 26000);
     }
 
     // ===== WORKS SUB-CAROUSEL =====

@@ -24,6 +24,10 @@
                             <i class="feather-external-link me-2"></i>
                             <span>Экранни кўриш (/brith)</span>
                         </a>
+                        <a href="{{ route('news.index') }}" class="btn btn-warning text-dark">
+                            <i class="feather-bell me-2"></i>
+                            <span>Сўнгги янгиликлар</span>
+                        </a>
                         <a href="{{ route('employees.index') }}" class="btn btn-secondary">
                             <i class="feather-users me-2"></i>
                             <span>Ходимлар рўйхати</span>

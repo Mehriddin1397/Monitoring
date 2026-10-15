@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Employee;
 use App\Models\EmployeeWork;
 use App\Models\GroupPhoto;
+use App\Models\News;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -299,15 +300,19 @@ class PageController extends Controller
             return view('pages.birthday', compact('birthdayEmployees'));
         }
 
-        // Aks holda, ijodiy ishlar va guruh rasmlari bor sahifaga yuboramiz
+        // Aks holda, ijodiy ishlar, guruh rasmlari va so'nggi yangiliklar bor sahifaga yuboramiz
         $groupPhotos = GroupPhoto::latest()->get();
         $employeeWorks = EmployeeWork::with('employee')
             ->where('is_active', true)
             ->orderBy('order')
             ->latest()
             ->get();
+        $latestNews = News::where('is_active', true)
+            ->orderBy('order')
+            ->latest()
+            ->get();
 
-        return view('pages.day', compact('groupPhotos', 'employeeWorks'));
+        return view('pages.day', compact('groupPhotos', 'employeeWorks', 'latestNews'));
     }
 
 

@@ -100,6 +100,8 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
     Route::resource('group-photos', \App\Http\Controllers\GroupPhotoController::class)->except(['show', 'edit', 'update']); // Guruh rasmlari uchun faqat ko'rish, qo'shish va o'chirish yetarli
     Route::resource('employee-works', \App\Http\Controllers\EmployeeWorkController::class);
     Route::post('employee-works/{employeeWork}/toggle', [\App\Http\Controllers\EmployeeWorkController::class, 'toggle'])->name('employee-works.toggle');
+    Route::resource('news', \App\Http\Controllers\NewsController::class);
+    Route::post('news/{news}/toggle', [\App\Http\Controllers\NewsController::class, 'toggle'])->name('news.toggle');
 
 
     // Qidiruv sahifasini ochish uchun

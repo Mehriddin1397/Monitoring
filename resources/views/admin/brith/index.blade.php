@@ -29,6 +29,10 @@
                             <i class="feather-external-link me-2"></i>
                             <span>Ekranni ko'rish (/brith)</span>
                         </a>
+                        <a href="{{ route('news.index') }}" class="btn btn-warning text-dark">
+                            <i class="feather-bell me-2"></i>
+                            <span>Сўнгги янгиликлар</span>
+                        </a>
                         <a href="{{ route('employee-works.index') }}" class="btn btn-info text-white">
                             <i class="feather-book-open me-2"></i>
                             <span>Xodimlar ijodi</span>

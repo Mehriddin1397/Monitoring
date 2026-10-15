@@ -57,6 +57,13 @@
                             </a>
                         </li>
                         <li class="nxl-item nxl-hasmenu">
+                            <a href="{{route('news.index')}}" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-bell"></i></span>
+                                <span class="nxl-mtext"> <strong>So'nggi yangiliklar</strong></span><span
+                                    class="nxl-arrow"></span>
+                            </a>
+                        </li>
+                        <li class="nxl-item nxl-hasmenu">
                             <a href="{{route('employee-works.index')}}" class="nxl-link">
                                 <span class="nxl-micon"><i class="feather-book-open"></i></span>
                                 <span class="nxl-mtext"> <strong>Xodimlar ijodi</strong></span><span
