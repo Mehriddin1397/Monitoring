@@ -204,6 +204,8 @@
     });
 </script>
 <!--! END: Theme Customizer !-->
+    @yield('scripts')
+    @stack('scripts')
 </body>
 
 </html>

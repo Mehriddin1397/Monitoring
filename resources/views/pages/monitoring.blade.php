@@ -123,39 +123,18 @@
                 <div class="col-lg-12">
                     <div class="card stretch stretch-full">
                         <div class="card-body p-0">
-                            <div class="table-responsive table-container table-wrapper" style=" overflow-y: auto;">
-                                <h2>📊 Ходимлар статистикаси</h2>
-{{--                                <div class="d-flex justify-content-between align-items-center mb-3">--}}
-{{--                                    @php--}}
-{{--                                        $currentStatus = request()->route('status');--}}
-{{--                                    @endphp--}}
-{{--                                        <!-- Chap tarafdagi 4ta status tugma -->--}}
-{{--                                    <div class="d-flex gap-1 mb-3">--}}
-{{--                                        <a href="{{ route('tasks.status', 'bajarilmoqda') }}"--}}
-{{--                                           class="custom-btn btn btn-primary {{ request()->route('status') === 'bajarilmoqda' ? 'active' : '' }}">--}}
-{{--                                            Бажарилмоқда--}}
-{{--                                        </a>--}}
-{{--                                        <a href="{{ route('tasks.status', 'uzaytirildi') }}"--}}
-{{--                                           class="custom-btn btn btn-warning text-dark {{ request()->route('status') === 'uzaytirildi' ? 'active' : '' }}">--}}
-{{--                                            Узайтирилган--}}
-{{--                                        </a>--}}
-{{--                                        <a href="{{ route('tasks.status', 'bajarildi') }}"--}}
-{{--                                           class="custom-btn btn btn-success {{ request()->route('status') === 'bajarildi' ? 'active' : '' }}">--}}
-{{--                                            Бажарилган--}}
-{{--                                        </a>--}}
-{{--                                        <a href="{{ route('tasks.failed') }}"--}}
-{{--                                           class="custom-btn btn btn-danger {{ request()->routeIs('tasks.failed') ? 'active' : '' }}">--}}
-{{--                                            Бажарилмаган--}}
-{{--                                        </a>--}}
-
-{{--                                    </div>--}}
-
-                                    <!-- O'ng tarafdagi print tugma -->
-                                <button onclick="printTable()" class="btn btn-primary">
-                                    🖨️ Чиқариш
-                                </button>
-
+                            <div class="d-flex flex-wrap align-items-center justify-content-between p-3 gap-2 border-bottom bg-light">
+                                <h3 class="mb-0 fw-bold text-dark">📋 Ходимлар статистикаси (Жадвал кўриниши)</h3>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a href="{{ route('monitoring.diagramma') }}" class="btn btn-primary rounded-pill px-3 shadow-sm fw-semibold">
+                                        <i class="feather-pie-chart me-1"></i> 📊 Креатив Диаграммалар
+                                    </a>
+                                    <button onclick="printTable()" class="btn btn-outline-secondary rounded-pill px-3">
+                                        🖨️ Чиқариш
+                                    </button>
+                                </div>
                             </div>
+                            <div class="table-responsive table-container table-wrapper" style="overflow-y: auto;">
 
 
                                 <style>

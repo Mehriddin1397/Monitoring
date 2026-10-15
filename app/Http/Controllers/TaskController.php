@@ -489,6 +489,173 @@ class TaskController extends Controller
         return view('pages.monitoring', compact( 'summary','xodimlar'));
     }
 
+    public function statistikaDiagramma(Request $request)
+    {
+        $today = Carbon::today();
+        
+        $period = $request->get('period', 'all');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $categoryId = $request->get('category_id');
+
+        $usersQuery = User::where('role', 'xodim')->with(['assignedTasks' => function ($q) use ($period, $startDate, $endDate, $categoryId) {
+            if ($period === 'today') {
+                $q->whereDate('tasks.created_at', Carbon::today());
+            } elseif ($period === 'this_month') {
+                $q->whereYear('tasks.created_at', Carbon::now()->year)
+                  ->whereMonth('tasks.created_at', Carbon::now()->month);
+            } elseif ($period === 'this_year') {
+                $q->whereYear('tasks.created_at', Carbon::now()->year);
+            } elseif ($startDate && $endDate) {
+                $q->whereBetween('tasks.created_at', [
+                    Carbon::parse($startDate)->startOfDay(),
+                    Carbon::parse($endDate)->endOfDay()
+                ]);
+            }
+
+            if ($categoryId) {
+                $q->whereHas('categories', function ($catQ) use ($categoryId) {
+                    $catQ->where('categories.id', $categoryId);
+                });
+            }
+        }, 'assignedTasks.categories']);
+
+        $users = $usersQuery->orderBy('name')->get();
+
+        $allTasks = $users->flatMap(function ($u) {
+            return $u->assignedTasks;
+        })->unique('id');
+
+        $totalTasks = $allTasks->count();
+        $completedTasks = $allTasks->where('status', 'bajarildi')->count();
+        $inProcessTasks = $allTasks->filter(function ($t) use ($today) {
+            return in_array($t->status, ['yangi', 'bajarilmoqda']) && $t->end_date >= $today;
+        })->count();
+        $extendedTasks = $allTasks->where('status', 'uzaytirildi')->count();
+        $notCompletedTasks = $allTasks->filter(function ($t) use ($today) {
+            return $t->status == 'bajarilmadi' || (
+                in_array($t->status, ['yangi', 'bajarilmoqda']) && $t->end_date < $today
+            );
+        })->count();
+
+        $completionRate = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 1) : 0;
+
+        $summary = [
+            'total' => $totalTasks,
+            'completed' => $completedTasks,
+            'in_process' => $inProcessTasks,
+            'extended' => $extendedTasks,
+            'not_completed' => $notCompletedTasks,
+            'completion_rate' => $completionRate,
+            'active_users_count' => $users->count(),
+        ];
+
+        $xodimlarStats = $users->map(function ($user) use ($today) {
+            $tasks = $user->assignedTasks->unique('id');
+            $total = $tasks->count();
+            $completed = $tasks->where('status', 'bajarildi')->count();
+            $inProcess = $tasks->filter(function ($t) use ($today) {
+                return in_array($t->status, ['yangi', 'bajarilmoqda']) && $t->end_date >= $today;
+            })->count();
+            $extended = $tasks->where('status', 'uzaytirildi')->count();
+            $notCompleted = $tasks->filter(function ($t) use ($today) {
+                return $t->status == 'bajarilmadi' || (
+                    in_array($t->status, ['yangi', 'bajarilmoqda']) && $t->end_date < $today
+                );
+            })->count();
+
+            $rate = $total > 0 ? round(($completed / $total) * 100, 1) : 0;
+
+            return [
+                'user' => $user,
+                'name' => $user->name,
+                'full_name' => $user->full_name ?: $user->name,
+                'position' => $user->position ?: 'Xodim',
+                'total' => $total,
+                'completed' => $completed,
+                'in_process' => $inProcess,
+                'extended' => $extended,
+                'not_completed' => $notCompleted,
+                'completion_rate' => $rate,
+            ];
+        });
+
+        // Top 5 eng namunali xodimlar
+        $topPerformers = $xodimlarStats->filter(function ($s) {
+            return $s['total'] > 0;
+        })->sortByDesc('completion_rate')->sortByDesc('completed')->values()->take(5);
+
+        // Nazorat talab qiluvchi xodimlar
+        $attentionUsers = $xodimlarStats->filter(function ($s) {
+            return $s['not_completed'] > 0;
+        })->sortByDesc('not_completed')->values()->take(5);
+
+        // Kategoriyalar statistikasi
+        $categories = Category::forObjectType('tasks');
+        $categoryData = [];
+        foreach ($categories as $cat) {
+            $catTasksCount = $allTasks->filter(function ($task) use ($cat) {
+                return $task->categories->contains('id', $cat->id);
+            })->count();
+
+            if ($catTasksCount > 0) {
+                $categoryData[] = [
+                    'name' => $cat->name,
+                    'count' => $catTasksCount,
+                ];
+            }
+        }
+
+        // Oylik dinamika
+        $uzMonthNames = [
+            1 => 'Yan', 2 => 'Fev', 3 => 'Mar', 4 => 'Apr',
+            5 => 'May', 6 => 'Iyun', 7 => 'Iyul', 8 => 'Avg',
+            9 => 'Sen', 10 => 'Okt', 11 => 'Noy', 12 => 'Dek'
+        ];
+        $monthlyTrends = [
+            'months' => [],
+            'total' => [],
+            'completed' => []
+        ];
+        for ($i = 5; $i >= 0; $i--) {
+            $m = Carbon::now()->subMonths($i);
+            $label = $uzMonthNames[$m->month] . ' ' . $m->format('Y');
+            $yearMonth = $m->format('Y-m');
+
+            $mTasks = $allTasks->filter(function ($task) use ($yearMonth) {
+                return Carbon::parse($task->created_at)->format('Y-m') === $yearMonth;
+            });
+
+            $monthlyTrends['months'][] = $label;
+            $monthlyTrends['total'][] = $mTasks->count();
+            $monthlyTrends['completed'][] = $mTasks->where('status', 'bajarildi')->count();
+        }
+
+        $chartEmployees = [
+            'names' => $xodimlarStats->pluck('name')->toArray(),
+            'completed' => $xodimlarStats->pluck('completed')->toArray(),
+            'in_process' => $xodimlarStats->pluck('in_process')->toArray(),
+            'extended' => $xodimlarStats->pluck('extended')->toArray(),
+            'not_completed' => $xodimlarStats->pluck('not_completed')->toArray(),
+            'rates' => $xodimlarStats->pluck('completion_rate')->toArray(),
+        ];
+
+        return view('pages.statistika_diagramma', compact(
+            'summary',
+            'xodimlarStats',
+            'topPerformers',
+            'attentionUsers',
+            'categories',
+            'categoryData',
+            'monthlyTrends',
+            'chartEmployees',
+            'period',
+            'startDate',
+            'endDate',
+            'categoryId'
+        ));
+    }
+
 
     //filtr sahifasi uchun
     public function filterPage()

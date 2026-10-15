@@ -77,6 +77,7 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
 
     Route::get('/tasks/completed', [\App\Http\Controllers\TaskController::class, 'completed'])->name('tasks.completed');
     Route::get('/monitoring/umumiy', [\App\Http\Controllers\TaskController::class, 'umumiyStatistika'])->name('monitoring.umumiy');
+    Route::get('/monitoring/diagramma', [\App\Http\Controllers\TaskController::class, 'statistikaDiagramma'])->name('monitoring.diagramma');
     Route::get('/monitoring/hisobot', [\App\Http\Controllers\PageController::class, 'hisobot'])->name('monitoring.hisobot');
 
     Route::resource('projects', \App\Http\Controllers\ProjectController::class);

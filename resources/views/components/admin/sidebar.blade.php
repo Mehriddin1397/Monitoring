@@ -88,12 +88,19 @@
 
 
                     @if (in_array(auth()->user()->role, ['admin']))
-
-                        <li class="nxl-item nxl-hasmenu">
-                            <a href="{{route('monitoring.umumiy')}}" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-cast"></i></span>
-                                <span class="nxl-mtext">Ходимлар статистикаси</span><span class="nxl-arrow"></span>
+                        <li class="nxl-item nxl-hasmenu {{ request()->routeIs('monitoring.umumiy') || request()->routeIs('monitoring.diagramma') ? 'active nxl-trigger' : '' }}">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-pie-chart"></i></span>
+                                <span class="nxl-mtext">Ходимлар статистикаси</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
                             </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item {{ request()->routeIs('monitoring.diagramma') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('monitoring.diagramma') }}">📊 Диаграмма ва Таҳлил</a>
+                                </li>
+                                <li class="nxl-item {{ request()->routeIs('monitoring.umumiy') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('monitoring.umumiy') }}">📋 Жадвал кўриниши</a>
+                                </li>
+                            </ul>
                         </li>
                     @endif
                     @if (in_array(auth()->user()->role, ['admin','boshliq']))
