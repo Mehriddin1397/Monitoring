@@ -41,6 +41,13 @@ return [
         'password' => env('ESKIZ_PASSWORD'),
     ],
 
+    'cctv' => [
+        'base_url'   => env('CCTV_BASE_URL', 'http://192.168.40.123:8000'),
+        'api_url'    => env('CCTV_API_URL', 'http://192.168.40.123:8000/api/v1'),
+        'api_key'    => env('CCTV_API_KEY', 'cctv_portal_40_253'),
+        'api_secret' => env('CCTV_API_SECRET', 'SecretKey_40_253_CCTV!'),
+    ],
+
 
 
 ];

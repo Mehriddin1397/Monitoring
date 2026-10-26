@@ -131,6 +131,8 @@ class RestrictLoginByIP
                         '192.168.40.117',
                         '192.168.40.118',
                         '192.168.40.119',
+                        '192.168.40.253',
+                        '::1',
         ]; // sizga kerakli IPlar
 
         if (!in_array($real_ip, $allowed_ips)) {
