@@ -81,8 +81,14 @@
                                         <tr class="single-item">
                                             <th>{{$index +1 }}</th>
                                             <td>
-                                                <img src="{{ asset('storage/' . $employee->photo) }}" alt=""
-                                                     width="36" height="36" class="rounded-circle object-fit-cover shadow-sm">
+                                                @if($employee->photo)
+                                                    <img src="{{ asset('storage/' . $employee->photo) }}" alt=""
+                                                         width="36" height="36" class="rounded-circle object-fit-cover shadow-sm">
+                                                @else
+                                                    <div class="avatar-text avatar-sm bg-soft-primary text-primary rounded-circle fw-bold">
+                                                        {{ mb_substr($employee->full_name, 0, 1) }}
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td>
                                                 <strong>{{ $employee->full_name }}</strong>
@@ -91,13 +97,21 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                {{ $employee->position }}
+                                                {{ $employee->position ?: '—' }}
                                             </td>
                                             <td>
-                                                {{$employee->birth_date}}
+                                                @if($employee->birth_date)
+                                                    <span class="badge bg-soft-success text-success border border-success-subtle">
+                                                        <i class="feather-calendar me-1"></i>{{ \Carbon\Carbon::parse($employee->birth_date)->format('d.m.Y') }}
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-light text-muted border">
+                                                        <i class="feather-alert-circle me-1 text-warning"></i>Kiritilmagan
+                                                    </span>
+                                                @endif
                                             </td>
                                             <td>
-                                                {{$employee->phone}}
+                                                {{ $employee->phone ?: '—' }}
                                             </td>
                                             <td>
                                                 @php

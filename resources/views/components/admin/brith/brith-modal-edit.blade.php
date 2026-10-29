@@ -24,28 +24,28 @@
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Tuliq F.I.Sh:</label>
-                            <input type="text" name="full_name" value="{{old('name_uz',$employee->full_name)}}"
-                                   class="form-control">
+                            <input type="text" name="full_name" value="{{old('full_name',$employee->full_name)}}"
+                                   class="form-control" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Telefon raqami:</label>
-                            <input type="text" name="phone" value="{{old('name_ru',$employee->phone)}}"
+                            <input type="text" name="phone" value="{{old('phone',$employee->phone)}}"
                                    class="form-control">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Lavozimi:</label>
-                            <input type="text" name="position" value="{{old('name_en',$employee->position)}}"
+                            <input type="text" name="position" value="{{old('position',$employee->position)}}"
                                    class="form-control">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-4">
                             <label class="form-label">Tug'ilgan kuni:</label>
-                            <input type="date" name="birth_date" value="{{old('name_kr',$employee->birth_date)}}"
+                            <input type="date" name="birth_date" value="{{old('birth_date',$employee->birth_date)}}"
                                    class="form-control">
                         </div>
                     </div>

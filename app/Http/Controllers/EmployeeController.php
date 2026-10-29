@@ -11,7 +11,7 @@ class EmployeeController extends Controller
     // 1. READ: Barcha xodimlarni ro'yxatini ko'rsatish
     public function index()
     {
-        $employees = Employee::all();
+        $employees = Employee::latest('id')->get();
         return view('admin.brith.index', compact('employees'));
     }
 
@@ -21,9 +21,9 @@ class EmployeeController extends Controller
     {
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'position' => 'required|string|max:255',
-            'birth_date' => 'required|date',
+            'phone' => 'nullable|string|max:50',
+            'position' => 'nullable|string|max:255',
+            'birth_date' => 'nullable|date',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:10120',
             'theme' => 'nullable|string|max:50',
             'custom_wish' => 'nullable|string',
@@ -44,12 +44,11 @@ class EmployeeController extends Controller
     // 6. UPDATE: Xodim ma'lumotlarini yangilash
     public function update(Request $request, Employee $employee)
     {
-
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'position' => 'required|string|max:255',
-            'birth_date' => 'required|date',
+            'phone' => 'nullable|string|max:50',
+            'position' => 'nullable|string|max:255',
+            'birth_date' => 'nullable|date',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:10120',
             'theme' => 'nullable|string|max:50',
             'custom_wish' => 'nullable|string',
