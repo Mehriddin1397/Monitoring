@@ -9,13 +9,17 @@ use App\Models\ArticleScore;
 use App\Models\Project;
 use App\Models\Participant;
 use App\Models\Pro_document;
+use App\Models\Employee;
 use App\Services\EskizSmsService;
+use App\Services\TurniketService;
+use App\Services\EmployeeSyncService;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 
 class TaskController extends Controller
@@ -442,56 +446,351 @@ class TaskController extends Controller
         return redirect()->back()->with('success', 'Fayl muvaffaqiyatli yuklandi!');
     }
 
-    public function umumiyStatistika()
+    public function umumiyStatistika(TurniketService $turniketService)
     {
         $today = Carbon::today();
 
-        // 1. Faqat "xodim" rolidagi userlarni olish
-        $users = User::where('role', 'xodim')->with('assignedTasks')->get();
+        // 1. Ensure any User with role 'xodim' has an Employee profile, and link matching names
+        try {
+            $unlinkedEmployees = Employee::whereNull('user_id')->get();
+            foreach ($unlinkedEmployees as $emp) {
+                $matchedUser = User::where('name', $emp->full_name)->first();
+                if ($matchedUser) {
+                    $emp->user_id = $matchedUser->id;
+                    $emp->save();
+                }
+            }
 
-        // 2. Barcha takrorlanmas (noyob) topshiriqlarni yig‘ish
-        $uniqueTasks = $users->flatMap(function ($user) {
-            return $user->assignedTasks;
-        })->unique('id');
+            $xodimUsers = User::where('role', 'xodim')->get();
+            foreach ($xodimUsers as $u) {
+                if (!Employee::where('user_id', $u->id)->exists() && !Employee::where('full_name', $u->name)->exists()) {
+                    Employee::create([
+                        'user_id' => $u->id,
+                        'full_name' => $u->name,
+                        'department' => $u->department ?? 'Бошқарув',
+                        'position' => $u->position ?? 'Мутахассис',
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Employee-User sync in umumiyStatistika: ' . $e->getMessage());
+        }
 
-        // 3. Umumiy statistika faqat noyob topshiriqlar bo‘yicha
-        $summary = [
-            'total' => $uniqueTasks->count(),
-            'in_process' => $uniqueTasks->filter(function ($task) use ($today) {
-                return in_array($task->status, ['yangi', 'bajarilmoqda']) &&
-                    $task->end_date >= $today;
-            })->count(),
-            'extended' => $uniqueTasks->where('status', 'uzaytirildi')->count(),
-            'completed' => $uniqueTasks->where('status', 'bajarildi')->count(),
-            'not_completed' => $uniqueTasks->filter(function ($task) use ($today) {
-                return $task->status == 'bajarilmadi' ;
-            })->count(),
-        ];
+        // 2. Fetch all employees with full relations
+        $employees = Employee::with([
+            'user.assignedTasks',
+            'user.articles.articleScore',
+            'user.projects',
+            'works'
+        ])->orderBy('full_name')->get();
 
-        // 4. Har bir xodim uchun statistikani hisoblash
-        $xodimlar = $users->map(function ($user) use ($today) {
-            $tasks = $user->assignedTasks->unique('id'); // takror topshiriqlarni olib tashlash
+        // 3. Turniket real-time data
+        $insideMap = [];
+        $lateMap = [];
+        $arrivedMap = [];
+        $absentMap = [];
+
+        try {
+            $insideRes = $turniketService->getInsideEmployees();
+            if (!empty($insideRes['data'])) {
+                foreach ($insideRes['data'] as $item) {
+                    $no = (string)($item['employee_no'] ?? '');
+                    if ($no !== '') $insideMap[$no] = $item;
+                    $norm = EmployeeSyncService::normalizeName($item['fullname'] ?? '');
+                    if ($norm !== '') $insideMap['name_' . $norm] = $item;
+                }
+            }
+
+            $lateRes = $turniketService->getLateEmployees();
+            if (!empty($lateRes['data'])) {
+                foreach ($lateRes['data'] as $item) {
+                    $no = (string)($item['employee_no'] ?? '');
+                    if ($no !== '') $lateMap[$no] = $item;
+                    $norm = EmployeeSyncService::normalizeName($item['fullname'] ?? '');
+                    if ($norm !== '') $lateMap['name_' . $norm] = $item;
+                }
+            }
+
+            $arrivedRes = $turniketService->getArrivedEmployees();
+            if (!empty($arrivedRes['data'])) {
+                foreach ($arrivedRes['data'] as $item) {
+                    $no = (string)($item['employee_no'] ?? '');
+                    if ($no !== '') $arrivedMap[$no] = $item;
+                    $norm = EmployeeSyncService::normalizeName($item['fullname'] ?? '');
+                    if ($norm !== '') $arrivedMap['name_' . $norm] = $item;
+                }
+            }
+
+            $absentRes = $turniketService->getAbsentEmployees();
+            if (!empty($absentRes['data'])) {
+                foreach ($absentRes['data'] as $item) {
+                    $no = (string)($item['employee_no'] ?? '');
+                    if ($no !== '') $absentMap[$no] = $item;
+                    $norm = EmployeeSyncService::normalizeName($item['fullname'] ?? '');
+                    if ($norm !== '') $absentMap['name_' . $norm] = $item;
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Turniket fetch failed in umumiyStatistika: ' . $e->getMessage());
+        }
+
+        // 4. Unique tasks collection for global summary
+        $allAssignedTasks = collect();
+
+        // 5. Build rich dossiers
+        $departments = [];
+        $totalScoresAll = 0;
+        $totalArticlesAll = 0;
+        $totalProjectsAll = 0;
+        $totalWorksAll = 0;
+
+        $xodimlar = $employees->map(function ($emp) use (
+            $today,
+            $insideMap,
+            $lateMap,
+            $arrivedMap,
+            $absentMap,
+            &$allAssignedTasks,
+            &$departments,
+            &$totalScoresAll,
+            &$totalArticlesAll,
+            &$totalProjectsAll,
+            &$totalWorksAll
+        ) {
+            if (!empty($emp->department)) {
+                $departments[$emp->department] = true;
+            }
+
+            $user = $emp->user ?? new User(['name' => $emp->full_name, 'role' => 'xodim']);
+
+            // Tasks stats
+            $tasks = ($emp->user && $emp->user->assignedTasks) ? $emp->user->assignedTasks->unique('id') : collect();
+            foreach ($tasks as $t) {
+                $allAssignedTasks->push($t);
+            }
 
             $inProcess = $tasks->filter(function ($task) use ($today) {
-                return in_array($task->status, ['yangi', 'bajarilmoqda']) &&
-                    $task->end_date >= $today;
+                return in_array($task->status, ['yangi', 'bajarilmoqda']) && $task->end_date >= $today;
+            });
+            $extended = $tasks->where('status', 'uzaytirildi');
+            $completed = $tasks->where('status', 'bajarildi');
+            $notCompleted = $tasks->filter(function ($task) use ($today) {
+                return $task->status === 'bajarilmadi' || (in_array($task->status, ['yangi', 'bajarilmoqda']) && $task->end_date < $today);
             });
 
-            $notCompleted = $tasks->filter(function ($task) use ($today) {
-                return $task->status == 'bajarilmadi' ;
+            $totalTasks = $tasks->count();
+            $completedCount = $completed->count();
+            $taskPercent = $totalTasks > 0 ? (int) round(($completedCount / $totalTasks) * 100) : 0;
+
+            // I-index stats
+            $articles = ($emp->user && $emp->user->articles) ? $emp->user->articles : collect();
+            $articlesCount = $articles->count();
+            $iIndexScore = (float) $articles->sum(function ($art) {
+                return $art->articleScore ? (float) $art->articleScore->total_score : 0;
             });
+            $totalArticlesAll += $articlesCount;
+            $totalScoresAll += $iIndexScore;
+
+            // Projects count
+            $projectsCount = ($emp->user && $emp->user->projects) ? $emp->user->projects->count() : 0;
+            $totalProjectsAll += $projectsCount;
+
+            // Works count
+            $worksCount = $emp->works ? $emp->works->count() : 0;
+            $totalWorksAll += $worksCount;
+
+            // Birthday stats
+            $birthdayInfo = null;
+            if (!empty($emp->birth_date)) {
+                try {
+                    $birthDate = Carbon::parse($emp->birth_date);
+                    $age = $birthDate->age;
+                    $nextBirthday = $birthDate->copy()->year($today->year);
+                    if ($nextBirthday->isPast() && !$nextBirthday->isToday()) {
+                        $nextBirthday->addYear();
+                    }
+                    $daysUntil = (int) $today->diffInDays($nextBirthday, false);
+                    $isToday = $nextBirthday->isToday();
+
+                    $birthdayInfo = [
+                        'formatted' => $birthDate->format('d.m.Y'),
+                        'age' => $age,
+                        'days_until' => $daysUntil,
+                        'is_today' => $isToday,
+                        'badge' => $isToday ? '🎉 Бугун таваллуд куни!' : ($daysUntil === 1 ? 'Эртага' : "{$daysUntil} кун қолди"),
+                    ];
+                } catch (\Throwable $e) {}
+            }
+
+            // Attendance matching: turniket_id first, then normalized name
+            $tId = (string) ($emp->turniket_id ?? '');
+            $norm = EmployeeSyncService::normalizeName($emp->full_name);
+            $normUser = $emp->user ? EmployeeSyncService::normalizeName($emp->user->name) : '';
+
+            $isInside = false;
+            $isLate = false;
+            $isArrived = false;
+            $isAbsent = false;
+            $hasExcuse = false;
+            $excuseReason = null;
+            $excuseType = null;
+            $entryTime = null;
+            $lateMinutes = 0;
+
+            // Check inside
+            if (($tId !== '' && isset($insideMap[$tId])) || ($norm !== '' && isset($insideMap['name_' . $norm])) || ($normUser !== '' && isset($insideMap['name_' . $normUser]))) {
+                $isInside = true;
+                $isArrived = true;
+                $match = $insideMap[$tId] ?? ($insideMap['name_' . $norm] ?? $insideMap['name_' . $normUser]);
+                $entryTime = $match['first_entry'] ?? null;
+            }
+
+            // Check late
+            if (($tId !== '' && isset($lateMap[$tId])) || ($norm !== '' && isset($lateMap['name_' . $norm])) || ($normUser !== '' && isset($lateMap['name_' . $normUser]))) {
+                $isLate = true;
+                $match = $lateMap[$tId] ?? ($lateMap['name_' . $norm] ?? $lateMap['name_' . $normUser]);
+                $lateMinutes = (int) ($match['late_minutes'] ?? 0);
+                $entryTime = $entryTime ?: ($match['first_entry'] ?? null);
+                if (!empty($match['has_excuse'])) {
+                    $hasExcuse = true;
+                    $excuseReason = $match['excuse_reason'] ?? null;
+                    $excuseType = $match['excuse_type'] ?? null;
+                }
+            }
+
+            // Check arrived
+            if (!$isArrived && (($tId !== '' && isset($arrivedMap[$tId])) || ($norm !== '' && isset($arrivedMap['name_' . $norm])) || ($normUser !== '' && isset($arrivedMap['name_' . $normUser])))) {
+                $isArrived = true;
+                $match = $arrivedMap[$tId] ?? ($arrivedMap['name_' . $norm] ?? $arrivedMap['name_' . $normUser]);
+                $entryTime = $entryTime ?: ($match['first_entry'] ?? null);
+            }
+
+            // Check absent
+            if (!$isArrived && (($tId !== '' && isset($absentMap[$tId])) || ($norm !== '' && isset($absentMap['name_' . $norm])) || ($normUser !== '' && isset($absentMap['name_' . $normUser])))) {
+                $isAbsent = true;
+                $match = $absentMap[$tId] ?? ($absentMap['name_' . $norm] ?? $absentMap['name_' . $normUser]);
+                if (!empty($match['has_excuse'])) {
+                    $hasExcuse = true;
+                    $excuseReason = $match['excuse_reason'] ?? null;
+                    $excuseType = $match['excuse_type'] ?? null;
+                }
+            }
+
+            // Determine attendance display status
+            if ($hasExcuse) {
+                $attStatus = 'excused';
+                $attLabel = 'Сабабли' . ($excuseReason ? ': ' . mb_substr($excuseReason, 0, 20) . '...' : '');
+                $attBadge = 'bg-primary text-white';
+            } elseif ($isInside) {
+                $attStatus = 'inside';
+                $attLabel = 'Бинода' . ($entryTime ? ' (' . substr($entryTime, 11, 5) . ')' : '');
+                $attBadge = 'bg-success text-white';
+            } elseif ($isLate) {
+                $attStatus = 'late';
+                $attLabel = "Кечиккан (+{$lateMinutes} дақ)";
+                $attBadge = 'bg-warning text-dark';
+            } elseif ($isArrived) {
+                $attStatus = 'arrived';
+                $attLabel = 'Келган' . ($entryTime ? ' (' . substr($entryTime, 11, 5) . ')' : '');
+                $attBadge = 'bg-info text-white';
+            } elseif ($isAbsent) {
+                $attStatus = 'absent';
+                $attLabel = 'Келмаган';
+                $attBadge = 'bg-danger text-white';
+            } else {
+                $attStatus = 'unknown';
+                $attLabel = '—';
+                $attBadge = 'bg-secondary text-white';
+            }
 
             return [
+                'id' => $emp->id,
+                'user_id' => $emp->user_id,
+                'employee' => $emp,
                 'user' => $user,
-                'total' => $tasks->count(),
+                'name' => $emp->full_name,
+                'position' => $emp->position ?? 'Мутахассис',
+                'department' => $emp->department ?? 'Бошқарув',
+                'rank' => $emp->rank,
+                'avatar' => $emp->avatar_url,
+                'turniket_id' => $emp->turniket_id,
+                'attendance' => [
+                    'status' => $attStatus,
+                    'label' => $attLabel,
+                    'badge' => $attBadge,
+                    'is_inside' => $isInside,
+                    'is_late' => $isLate,
+                    'is_arrived' => $isArrived,
+                    'is_absent' => $isAbsent,
+                    'has_excuse' => $hasExcuse,
+                    'excuse_reason' => $excuseReason,
+                    'excuse_type' => $excuseType,
+                    'entry_time' => $entryTime,
+                    'late_minutes' => $lateMinutes,
+                ],
+                'tasks' => [
+                    'total' => $totalTasks,
+                    'in_process' => $inProcess->count(),
+                    'extended' => $extended->count(),
+                    'completed' => $completedCount,
+                    'not_completed' => $notCompleted->count(),
+                    'percent' => $taskPercent,
+                ],
+                'i_index' => [
+                    'articles_count' => $articlesCount,
+                    'score' => $iIndexScore,
+                ],
+                'projects_count' => $projectsCount,
+                'works_count' => $worksCount,
+                'birthday' => $birthdayInfo,
+
+                // Backwards-compatible keys
+                'total' => $totalTasks,
                 'in_process' => $inProcess->count(),
-                'extended' => $tasks->where('status', 'uzaytirildi')->count(),
-                'completed' => $tasks->where('status', 'bajarildi')->count(),
+                'extended' => $extended->count(),
+                'completed' => $completedCount,
                 'not_completed' => $notCompleted->count(),
             ];
         });
 
-        return view('pages.monitoring', compact( 'summary','xodimlar'));
+        $uniqueTasks = $allAssignedTasks->unique('id');
+
+        $tasksTotal = $uniqueTasks->count();
+        $tasksCompleted = $uniqueTasks->where('status', 'bajarildi')->count();
+        $tasksInProcess = $uniqueTasks->filter(function ($task) use ($today) {
+            return in_array($task->status, ['yangi', 'bajarilmoqda']) && $task->end_date >= $today;
+        })->count();
+        $tasksExtended = $uniqueTasks->where('status', 'uzaytirildi')->count();
+        $tasksNotCompleted = $uniqueTasks->filter(function ($task) use ($today) {
+            return $task->status === 'bajarilmadi' || (in_array($task->status, ['yangi', 'bajarilmoqda']) && $task->end_date < $today);
+        })->count();
+        $tasksPercent = $tasksTotal > 0 ? (int) round(($tasksCompleted / $tasksTotal) * 100) : 0;
+
+        $summary = [
+            'total' => $tasksTotal,
+            'in_process' => $tasksInProcess,
+            'extended' => $tasksExtended,
+            'completed' => $tasksCompleted,
+            'not_completed' => $tasksNotCompleted,
+            'percent' => $tasksPercent,
+
+            'total_employees' => $employees->count(),
+            'total_articles' => $totalArticlesAll,
+            'total_score' => $totalScoresAll,
+            'total_projects' => $totalProjectsAll,
+            'total_works' => $totalWorksAll,
+
+            // Attendance metrics
+            'inside_count' => count(array_filter($xodimlar->toArray(), fn($x) => $x['attendance']['is_inside'])),
+            'late_count' => count(array_filter($xodimlar->toArray(), fn($x) => $x['attendance']['is_late'])),
+            'absent_count' => count(array_filter($xodimlar->toArray(), fn($x) => $x['attendance']['is_absent'] && !$x['attendance']['has_excuse'])),
+            'excused_count' => count(array_filter($xodimlar->toArray(), fn($x) => $x['attendance']['has_excuse'])),
+            'arrived_count' => count(array_filter($xodimlar->toArray(), fn($x) => $x['attendance']['is_arrived'])),
+
+            'departments' => array_keys($departments),
+        ];
+
+        return view('pages.monitoring', compact('summary', 'xodimlar'));
     }
 
     public function statistikaDiagramma(Request $request)

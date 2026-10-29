@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Services\TurniketService;
+use App\Services\EmployeeSyncService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,6 +16,101 @@ class EmployeeController extends Controller
     {
         $employees = Employee::latest('id')->get();
         return view('admin.brith.index', compact('employees'));
+    }
+
+    /**
+     * Xodimning 360° to'liq dosyesi va barcha ma'lumotlari:
+     * Topshiriqlari, I-index natijasi, Tug'ilgan kun, Ijodi, Davomati, Loyihalari
+     */
+    public function show($id, TurniketService $turniketService)
+    {
+        $employee = Employee::with([
+            'user.assignedTasks.statuses',
+            'user.assignedTasks.files',
+            'user.articles.articleScore',
+            'user.projects',
+            'works'
+        ])->where('id', $id)->orWhere('user_id', $id)->firstOrFail();
+
+        $user = $employee->user;
+        $tasks = $user ? $user->assignedTasks->unique('id') : collect();
+        $articles = $user ? $user->articles : collect();
+        $projects = $user ? $user->projects : collect();
+        $works = $employee->works;
+
+        // Turniket attendance
+        $turniketProfile = null;
+        $turniketLogs = [];
+        $turniketLeaves = [];
+        if (!empty($employee->turniket_id)) {
+            $turniketProfileRes = $turniketService->getEmployee($employee->turniket_id);
+            $turniketProfile = $turniketProfileRes['data'] ?? null;
+
+            $turniketLogsRes = $turniketService->getAttendance(['employee_no' => $employee->turniket_id, 'limit' => 20]);
+            $turniketLogs = $turniketLogsRes['data'] ?? [];
+
+            $turniketLeavesRes = $turniketService->getLeaves(['employee_filter' => $employee->turniket_id]);
+            $turniketLeaves = $turniketLeavesRes['data'] ?? [];
+        }
+
+        // Stats calculation
+        $today = Carbon::today();
+        $taskStats = [
+            'total'         => $tasks->count(),
+            'completed'     => $tasks->where('status', 'bajarildi')->count(),
+            'in_process'    => $tasks->filter(fn($t) => in_array($t->status, ['yangi', 'bajarilmoqda']) && $t->end_date >= $today)->count(),
+            'overdue'       => $tasks->filter(fn($t) => $t->status === 'bajarilmadi' || (in_array($t->status, ['yangi', 'bajarilmoqda']) && $t->end_date < $today))->count(),
+            'extended'      => $tasks->where('status', 'uzaytirildi')->count(),
+        ];
+        $taskStats['pct'] = $taskStats['total'] > 0 ? round(($taskStats['completed'] / $taskStats['total']) * 100) : 0;
+
+        $articleStats = [
+            'total'       => $articles->count(),
+            'approved'    => $articles->where('status', 'tasdiqlandi')->count(),
+            'total_score' => round($articles->sum(fn($a) => $a->articleScore ? (float)$a->articleScore->total_score : 0), 2),
+        ];
+
+        // Birthday countdown
+        $birthdayInfo = null;
+        if (!empty($employee->birth_date)) {
+            $bdate = Carbon::parse($employee->birth_date);
+            $now = Carbon::now();
+            $nextBirthday = $bdate->copy()->year($now->year);
+            if ($nextBirthday->isPast() && !$nextBirthday->isToday()) {
+                $nextBirthday->addYear();
+            }
+            $daysLeft = $now->diffInDays($nextBirthday, false);
+            $birthdayInfo = [
+                'formatted' => $bdate->format('d.m.Y'),
+                'age'       => $bdate->age,
+                'days_left' => max(0, ceil($daysLeft)),
+                'is_today'  => $bdate->isBirthday(),
+            ];
+        }
+
+        return view('admin.employees.show', compact(
+            'employee',
+            'user',
+            'tasks',
+            'taskStats',
+            'articles',
+            'articleStats',
+            'projects',
+            'works',
+            'turniketProfile',
+            'turniketLogs',
+            'turniketLeaves',
+            'birthdayInfo'
+        ));
+    }
+
+    /**
+     * Turniket rasmlari va ID raqamlarini sinxronlash
+     */
+    public function syncTurniket(EmployeeSyncService $syncService)
+    {
+        $res = $syncService->syncTurniketPhotos();
+        return back()->with($res['success'] ? 'success' : 'error', $res['message']);
     }
 
 

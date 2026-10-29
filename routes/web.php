@@ -96,6 +96,7 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
         [TaskFileController::class, 'store']
     )->name('tasks.files.upload');
 
+    Route::post('/employees/sync-turniket', [\App\Http\Controllers\EmployeeController::class, 'syncTurniket'])->name('employees.sync_turniket');
     Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
     Route::resource('group-photos', \App\Http\Controllers\GroupPhotoController::class)->except(['show', 'edit', 'update']); // Guruh rasmlari uchun faqat ko'rish, qo'shish va o'chirish yetarli
     Route::resource('employee-works', \App\Http\Controllers\EmployeeWorkController::class);

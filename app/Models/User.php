@@ -104,4 +104,21 @@ class User extends Authenticatable
         return $this->hasMany(TaskFile::class);
     }
 
+    public function employee()
+    {
+        return $this->hasOne(Employee::class, 'user_id');
+    }
+
+    /**
+     * Get display avatar for user
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->employee && !empty($this->employee->avatar_url)) {
+            return $this->employee->avatar_url;
+        }
+
+        return asset('assets/images/avatar/default.png');
+    }
+
 }
