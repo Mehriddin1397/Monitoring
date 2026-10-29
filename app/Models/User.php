@@ -45,6 +45,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
     public function createdTasks() {
         return $this->hasMany(Task::class, 'created_by');
     }

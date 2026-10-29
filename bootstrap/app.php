@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'last.activity'=> \App\Http\Middleware\CheckLastActivity::class,
             'ip.restrict' => \App\Http\Middleware\RestrictLoginByIP::class,
             'task_status' => \App\Http\Middleware\CheckTaskStatus::class,

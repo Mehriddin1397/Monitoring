@@ -80,23 +80,27 @@
                     @endif
 
 
-                    <li class="nxl-item nxl-hasmenu {{ request()->routeIs('cctv.*') ? 'active nxl-trigger' : '' }}">
-                        <a href="javascript:void(0);" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-video"></i></span>
-                            <span class="nxl-mtext"> <strong>Videokuzatuv</strong></span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                        </a>
-                        <ul class="nxl-submenu">
-                            <li class="nxl-item {{ request()->routeIs('cctv.index') ? 'active' : '' }}">
-                                <a class="nxl-link" href="{{ route('cctv.index') }}">📹 Kameralar (Grid/Ro'yxat)</a>
-                            </li>
-                            <li class="nxl-item {{ request()->routeIs('cctv.ptz') ? 'active' : '' }}">
-                                <a class="nxl-link" href="{{ route('cctv.ptz') }}">🕹️ PTZ Boshqaruv</a>
-                            </li>
-                            <li class="nxl-item {{ request()->routeIs('cctv.wall') ? 'active' : '' }}">
-                                <a class="nxl-link" href="{{ route('cctv.wall') }}" target="_blank">🖥️ Monitor devori (Wall)</a>
-                            </li>
-                        </ul>
-                    </li>
+                    @if (auth()->user()->role === 'admin')
+                        <li class="nxl-item nxl-hasmenu {{ request()->routeIs('cctv.*') ? 'active nxl-trigger' : '' }}">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-video"></i></span>
+                                <span class="nxl-mtext"> <strong>Videokuzatuv</strong></span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                            </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item {{ request()->routeIs('cctv.index') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('cctv.index') }}">📹 Kameralar (Grid/Ro'yxat)</a>
+                                </li>
+                                <li class="nxl-item {{ request()->routeIs('cctv.ptz') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('cctv.ptz') }}">🕹️ PTZ Boshqaruv</a>
+                                </li>
+                                <li class="nxl-item {{ request()->routeIs('cctv.wall') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('cctv.wall') }}" target="_blank">🖥️ Monitor devori (Wall)</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {{-- Kelgusida faqat adminga ko'rinadigan yangi funksiyalar shu blok ichiga joylashtiriladi --}}
+                    @endif
                     <li class="nxl-item nxl-hasmenu">
                         <a href="{{route('projects.index')}}" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-layout"></i></span>

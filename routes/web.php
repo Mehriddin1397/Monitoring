@@ -116,12 +116,15 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
     Route::post('/files/{id}/reject', [TaskFileController::class, 'reject'])
         ->name('files.reject');
 
-    // CCTV Kameralar monitoringi
-    Route::get('/cctv', [\App\Http\Controllers\CctvController::class, 'index'])->name('cctv.index');
-    Route::get('/cctv/wall', [\App\Http\Controllers\CctvController::class, 'wall'])->name('cctv.wall');
-    Route::get('/cctv/ptz', [\App\Http\Controllers\CctvController::class, 'ptz'])->name('cctv.ptz');
-    Route::get('/cctv/stream/{id}', [\App\Http\Controllers\CctvController::class, 'stream'])->name('cctv.stream');
-    Route::match(['GET', 'POST', 'DELETE'], '/cctv/{id}/ptz/{action}/{subId?}', [\App\Http\Controllers\CctvController::class, 'ptzAction'])->name('cctv.ptz.action');
+    // Faqat administrator uchun bo'limlar (CCTV va kelgusidagi yangi funksiyalar)
+    Route::middleware('admin')->group(function () {
+        // CCTV Kameralar monitoringi
+        Route::get('/cctv', [\App\Http\Controllers\CctvController::class, 'index'])->name('cctv.index');
+        Route::get('/cctv/wall', [\App\Http\Controllers\CctvController::class, 'wall'])->name('cctv.wall');
+        Route::get('/cctv/ptz', [\App\Http\Controllers\CctvController::class, 'ptz'])->name('cctv.ptz');
+        Route::get('/cctv/stream/{id}', [\App\Http\Controllers\CctvController::class, 'stream'])->name('cctv.stream');
+        Route::match(['GET', 'POST', 'DELETE'], '/cctv/{id}/ptz/{action}/{subId?}', [\App\Http\Controllers\CctvController::class, 'ptzAction'])->name('cctv.ptz.action');
+    });
 
 });
 
