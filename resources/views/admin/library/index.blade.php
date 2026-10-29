@@ -1,309 +1,251 @@
 @extends('layouts.admin')
 
-@section('title', 'Маълумотлар банки')
+@section('title', 'Электрон кутубхона')
 
 @section('content')
-
-    <div class="nxl-content d-flex flex-column h-100">
-        <!-- [ page-header ] start -->
-        <div class="page-header " style="background-color: #7878a3">
-            <div class="page-header-left d-flex align-items-center">
-                <div class="page-header-title ">
-                    <h5 class="m-b-10 ">Маълумотлар банки</h5>
+<div class="nxl-content d-flex flex-column h-100">
+    <!-- [ page-header ] start -->
+    <div class="page-header py-3 px-4 bg-white border-bottom shadow-sm">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+            <div class="page-header-left d-flex align-items-center gap-3">
+                <div class="avatar-text avatar-md bg-soft-success text-success rounded-3">
+                    <i class="feather-book-open fs-18"></i>
                 </div>
-            </div>
-            <div class="nxl-lavel-mega-menu-wrapper d-flex gap-3 " style="margin-left: 20px">
-
-                <input
-                    type="text"
-                    id="search"
-                    class="search-box"
-                    placeholder="Hujjat nomi yoki muallif ismi"
-                >
-
-
-
-                <style>
-                    .search-box {
-                        outline: none;
-                        padding: 7px;
-                        padding-left: 10px;
-                        padding-right: 40px;
-                        height: 35px;
-                        width: 100%;
-                        border-radius: 30px;
-                        font-size: 15px;
-                        border: 1px solid #444; /* Chegara qo'shildi */
-                        background-color: #f0f0f0; /* Biroz qoraytirilgan fon */
-                        color: #333; /* Matn rangi */
-                        font-weight: bold; /* Matnni sal qalin qilish */
-                        box-shadow: 0px 0px 5px;
-                    }
-                </style>
-            </div>
-            <div class="page-header-right ms-auto">
-                <div class="page-header-right-items">
-                    <div class="d-flex d-md-none">
-                        <a href="javascript:void(0)" class="page-header-right-close-toggle">
-                            <i class="feather-arrow-left me-2"></i>
-                            <span>Back</span>
-                        </a>
-                    </div>
-                    @auth
-                        @if (auth()->user()->role !== 'xodim' || auth()->user()->id == 59 || auth()->user()->id == 40)
-                            <div class="d-flex align-items-center gap-2 page-header-right-items-wrapper">
-                                <a href="javascript:void(0);" class="btn btn-primary " data-bs-toggle="offcanvas"
-                                   data-bs-target="#tasksDetailsOffcanvas">
-                                    <i class="feather-plus me-2"></i>
-                                    <span>Яратиш</span>
-                                </a>
-                            </div>
+                <div>
+                    <h5 class="mb-0 fw-bold text-dark">Электрон кутубхона (Маълумотлар банки)</h5>
+                    <span class="fs-12 text-muted">
+                        @if($category)
+                            Жорий бўлим: <strong class="text-success">{{ $category->name }}</strong>
+                        @else
+                            Барча адабиётлар
                         @endif
-                    @endauth
+                    </span>
                 </div>
-                <div class="d-md-none d-flex align-items-center">
-                    <a href="javascript:void(0)" class="page-header-right-open-toggle">
-                        <i class="feather-align-right fs-20"></i>
+            </div>
+
+            <div class="page-header-right d-flex align-items-center gap-2">
+                @auth
+                    <a href="javascript:void(0);" class="btn btn-success d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#tasksDetailsOffcanvas">
+                        <i class="feather-plus"></i>
+                        <span>Янги адабиёт қўшиш</span>
                     </a>
-                </div>
+                @endauth
             </div>
         </div>
-        <div id="collapseOne" class="accordion-collapse collapse page-header-collapse">
-            <div class="accordion-body pb-2">
-                <div class="row">
-                    <div class="col-xxl-3 col-md-6">
-                        <div class="card stretch stretch-full">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <a href="javascript:void(0);" class="fw-bold d-block">
-                                        <span class="d-block">Paid</span>
-                                        <span class="fs-20 fw-bold d-block">78/100</span>
-                                    </a>
-                                    <div class="progress-1"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xxl-3 col-md-6">
-                        <div class="card stretch stretch-full">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <a href="javascript:void(0);" class="fw-bold d-block">
-                                        <span class="d-block">Unpaid</span>
-                                        <span class="fs-20 fw-bold d-block">38/50</span>
-                                    </a>
-                                    <div class="progress-2"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xxl-3 col-md-6">
-                        <div class="card stretch stretch-full">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <a href="javascript:void(0);" class="fw-bold d-block">
-                                        <span class="d-block">Overdue</span>
-                                        <span class="fs-20 fw-bold d-block">15/30</span>
-                                    </a>
-                                    <div class="progress-3"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xxl-3 col-md-6">
-                        <div class="card stretch stretch-full">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <a href="javascript:void(0);" class="fw-bold d-block">
-                                        <span class="d-block">Draft</span>
-                                        <span class="fs-20 fw-bold d-block">3/10</span>
-                                    </a>
-                                    <div class="progress-4"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- [ page-header ] end -->
-        <!-- [ Main Content ] start -->
-        <div class="main-content">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card stretch stretch-full">
-                        <div class="card-body p-0">
-                            <div class="table-responsive table-container">
-                                <table class="table table-hover" id="proposalList">
-                                    <thead style="background-color: #c7c7f0">
-                                    <tr>
-
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">№</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Хужжат номи</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333;">Муаллифи</th>
-                                        <th style="font-weight: bold; font-size: 13px; color: #333; text-align: center">
-                                            Кўриш
-                                        </th>
-                                        <th class="text-end">Tahrirlash</th>
-                                    </tr>
-                                    </thead>
-
-                                    <tbody id="result" style="background-color: #e7e7f3">
-                                    @foreach($libraries as $document)
-                                        <tr class="single-item">
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td class="wrap-text">
-                                                {{ $document->name }}
-                                            </td>
-
-
-                                            <td>{{ $document->author }}</td>
-                                            <td class="text-center">
-                                                <button class="btn btn-primary btn-sm"
-                                                        onclick="openModal('{{ asset('storage/' . $document->pdf_path) }}')">
-                                                    Кўриш
-                                                </button>
-                                            </td>
-                                            <!-- Modal oynasi -->
-                                            <div id="pdfModal" class="custom-modal">
-                                                <div class="custom-modal-content">
-                                                    <span class="close-btn" onclick="closeModal()">&times;</span>
-                                                    <iframe id="pdfFrame" src="" width="100%" height="600px" style="border:none;"></iframe>
-                                                </div>
-                                            </div>
-                                            <td class="text-end">
-                                                @auth
-                                                    @if (auth()->user()->role !== 'xodim' || auth()->user()->id == 59)
-                                                        <div class="hstack gap-2 justify-content-end">
-                                                            <a href="javascript:void(0)" data-bs-toggle="offcanvas"
-                                                               data-bs-target="#tasksDetailsOffcanvasEdit{{ $document->id }}"
-                                                               class="avatar-text avatar-md">
-                                                                <i class="feather feather-edit-3"></i>
-                                                            </a>
-                                                            <form action="{{ route('library.destroy', $document->id) }}" method="POST">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="avatar-text avatar-md"
-                                                                        onclick="return confirm('Uchirasizmi ?')">
-                                                                    <i class="feather feather-trash-2"></i>
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    @endif
-                                                @endauth
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        const searchInput = document.getElementById('search');
-                                        const resultBody = document.getElementById('result');
-                                        const searchUrl = "{{ route('library.search') }}";
-
-                                        if (!searchInput || !resultBody) {
-                                            console.error('Search input yoki result tbody topilmadi');
-                                            return;
-                                        }
-
-                                        searchInput.addEventListener('keyup', function () {
-                                            let q = this.value.trim();
-
-                                            fetch(searchUrl + '?q=' + q)
-                                                .then(res => res.json())
-                                                .then(data => {
-                                                    let html = '';
-
-                                                    if (data.length === 0) {
-                                                        html = `
-                        <tr>
-                            <td colspan="5" class="text-center text-danger">
-                                Natija topilmadi
-                            </td>
-                        </tr>`;
-                                                    } else {
-                                                        data.forEach((item, index) => {
-                                                            html += `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${item.name}</td>
-                            <td>${item.author}</td>
-                            <td class="text-center">
-                                <button class="btn btn-primary btn-sm"
-                                    onclick="openModal('/storage/${item.pdf_path}')">
-                                    Кўриш
-                                </button>
-                            </td>
-                            <td class="text-end">
-                                                @auth
-                                                            @if (auth()->user()->role !== 'xodim' || auth()->user()->id == 59)
-                                                            <div class="hstack gap-2 justify-content-end">
-                                                                <a href="javascript:void(0)" data-bs-toggle="offcanvas"
-                                                           data-bs-target="#tasksDetailsOffcanvasEdit${item.id}"
-                                                           class="avatar-text avatar-md">
-                                                            <i class="feather feather-edit-3"></i>
-                                                        </a>
-                                                                <form action="/admin/library/${item.id}" method="POST">
-                                                                @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="avatar-text avatar-md"
-                                                                    onclick="return confirm('Uchirasizmi ?')">
-                                                                <i class="feather feather-trash-2"></i>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-@endif
-                                                            @endauth
-                                                            </td>
-                                        </tr>`;
-                                                        });
-                                                    }
-
-                                                    resultBody.innerHTML = html;
-                                                })
-                                                .catch(err => console.error(err));
-                                        });
-                                    });
-                                </script>
-
-
-
-
-
-
-
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
-    <style>
-        .table-container {
-            overflow-x: auto !important; /* Gorizontal skroll qo‘shadi */
-            width: 100%;
-        }
+    <!-- [ page-header ] end -->
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+    <!-- [ Main Content ] start -->
+    <div class="main-content p-4">
+        {{-- 1. КАТЕГОРИЯЛАР ТАБЛАРИ (PILLS) --}}
+        @if($categories && $categories->count() > 0)
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                        <span class="fs-12 fw-bold text-uppercase text-muted">
+                            <i class="feather-book me-1"></i> Кутубхона йўналишлари:
+                        </span>
+                        <span class="fs-12 text-muted">Жами бўлимлар: {{ $categories->count() }} та</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach($categories as $cat)
+                            @php
+                                $isActive = isset($category) && $category && $category->id == $cat->id;
+                            @endphp
+                            <a href="{{ route('libraries.byCategory', $cat->id) }}" 
+                               class="btn btn-sm rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 {{ $isActive ? 'btn-success text-white shadow-sm' : 'btn-outline-secondary bg-white text-dark' }}">
+                                <i class="feather-bookmark fs-13"></i>
+                                <span>{{ $cat->name }}</span>
+                                <span class="badge {{ $isActive ? 'bg-white text-success' : 'bg-light text-dark border' }} rounded-pill fs-11">
+                                    {{ $cat->libraries_count ?? 0 }}
+                                </span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
 
+        {{-- 2. ҚИДИРУВ ВА ҲОЛАТ ПАНЕЛИ --}}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3">
+                <form action="{{ isset($category) && $category ? route('libraries.byCategory', $category->id) : route('library.index') }}" method="GET" class="row g-2 align-items-center">
+                    <div class="col-md-6 col-lg-5">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="feather-search"></i>
+                            </span>
+                            <input type="text" name="search" class="form-control border-start-0 ps-0" 
+                                   placeholder="Китоб номи ёки муаллиф бўйича қидириш..." 
+                                   value="{{ request('search') }}">
+                            @if(request('search'))
+                                <a href="{{ isset($category) && $category ? route('libraries.byCategory', $category->id) : route('library.index') }}" 
+                                   class="btn btn-outline-secondary border-start-0 border-end-0" title="Тозалаш">
+                                    <i class="feather-x text-danger"></i>
+                                </a>
+                            @endif
+                            <button type="submit" class="btn btn-success px-3">Қидириш</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-7 text-md-end text-muted fs-13">
+                        @if(request('search'))
+                            Қидирув натижаси: <strong>"{{ request('search') }}"</strong> бўйича <strong>{{ $libraries->total() }}</strong> та адабиёт топилди.
+                        @else
+                            Ушбу бўлимда: <strong>{{ $libraries->total() }}</strong> та адабиёт мавжуд
+                        @endif
+                    </div>
+                </form>
+            </div>
+        </div>
 
-        .wrap-text {
-            white-space: normal !important;
-            word-break: break-word !important;
-            overflow-wrap: break-word !important;
-        }
+        {{-- 3. АДАБИЁТЛАР ЖАДВАЛИ --}}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-muted fs-12 text-uppercase">
+                            <tr>
+                                <th class="text-center" style="width: 50px;">№</th>
+                                <th>Китоб / Адабиёт номи</th>
+                                <th>Муаллиф(лар)</th>
+                                <th style="width: 140px;">Ҳажм</th>
+                                <th style="width: 130px;">Сана</th>
+                                <th class="text-end" style="width: 180px;">Амаллар</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($libraries as $item)
+                                <tr>
+                                    <td class="text-center text-muted fw-semibold fs-13">
+                                        {{ ($libraries->currentPage() - 1) * $libraries->perPage() + $loop->iteration }}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge bg-danger text-uppercase fs-10 px-2 py-1 rounded">
+                                                PDF
+                                            </span>
+                                            <span class="fw-semibold text-dark fs-14">
+                                                {{ $item->name }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="feather-user text-muted fs-13"></i>
+                                            <span class="fs-13 text-secondary">{{ $item->author }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-muted border fs-11">
+                                            <i class="feather-hard-drive me-1"></i>{{ $item->file_size_formatted }}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted fs-12">
+                                        <i class="feather-calendar me-1"></i>{{ $item->created_at ? $item->created_at->format('d.m.Y') : '-' }}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex align-items-center gap-1">
+                                            <button type="button" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
+                                                    onclick="openPdfModal('{{ asset('storage/' . $item->pdf_path) }}', '{{ addslashes($item->name) }}')">
+                                                <i class="feather-book-open"></i>
+                                                <span>Ўқиш</span>
+                                            </button>
 
+                                            <a href="{{ asset('storage/' . $item->pdf_path) }}" 
+                                               download="{{ $item->name }}.pdf" 
+                                               class="btn btn-sm btn-outline-secondary" 
+                                               title="Юклаб олиш">
+                                                <i class="feather-download"></i>
+                                            </a>
 
-    </style>
+                                            @auth
+                                                <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                        data-bs-toggle="offcanvas" 
+                                                        data-bs-target="#tasksDetailsOffcanvasEdit{{ $item->id }}" 
+                                                        title="Таҳрирлаш">
+                                                    <i class="feather-edit-2"></i>
+                                                </button>
 
-    @include('components.admin.library.document-modal-create')
-    @include('components.admin.library.document-modal-edit')
+                                                <form action="{{ route('library.destroy', $item->id) }}" method="POST" class="d-inline"
+                                                      onsubmit="return confirm('Ҳақиқатан ҳам ушбу адабиётни ўчирмоқчимисиз?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Ўчириш">
+                                                        <i class="feather-trash-2"></i>
+                                                    </button>
+                                                </form>
+                                            @endauth
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="text-muted">
+                                            <i class="feather-book-open fs-40 d-block mb-2 text-secondary opacity-50"></i>
+                                            <h6 class="fw-bold mb-1">Ушбу бўлимда адабиётлар топилмади</h6>
+                                            <p class="fs-13 text-muted mb-3">Қидирув сўзини ўзгартириб кўринг ёки янги китоб қўшинг.</p>
+                                            @auth
+                                                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="offcanvas" data-bs-target="#tasksDetailsOffcanvas">
+                                                    <i class="feather-plus me-1"></i> Адабиёт қўшиш
+                                                </button>
+                                            @endauth
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Пагинация --}}
+                @if($libraries->hasPages())
+                    <div class="card-footer bg-white border-top py-3 d-flex justify-content-end">
+                        {{ $libraries->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+</div>
+
+<!-- Битта умумий PDF кўриш модали -->
+<div class="modal fade" id="universalPdfModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 90vw; height: 90vh;">
+        <div class="modal-content h-100 border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white py-2 px-3">
+                <h6 class="modal-title fs-14 fw-bold text-truncate" id="pdfModalTitle">Китобни мутолаа қилиш</h6>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="#" id="pdfDownloadBtn" download class="btn btn-sm btn-outline-light d-flex align-items-center gap-1">
+                        <i class="feather-download"></i>
+                        <span>Юклаб олиш</span>
+                    </a>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0 h-100 bg-secondary">
+                <iframe id="pdfModalFrame" src="" width="100%" height="100%" style="border:none; min-height: 80vh;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openPdfModal(fileUrl, title) {
+        document.getElementById('pdfModalTitle').innerText = title || 'Китобни мутолаа қилиш';
+        document.getElementById('pdfModalFrame').src = fileUrl;
+        document.getElementById('pdfDownloadBtn').href = fileUrl;
+        var myModal = new bootstrap.Modal(document.getElementById('universalPdfModal'));
+        myModal.show();
+    }
+
+    document.getElementById('universalPdfModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('pdfModalFrame').src = '';
+    });
+</script>
+
+@include('components.admin.library.document-modal-create')
+@include('components.admin.library.document-modal-edit', ['libraries' => $libraries])
 
 @endsection

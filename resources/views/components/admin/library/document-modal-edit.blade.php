@@ -1,18 +1,18 @@
-<!--! ================================================================ !-->
-@foreach($libraries as $document )
+<!--! [Start] Library Edit Offcanvas !-->
+@foreach($libraries as $document)
     <div class="offcanvas offcanvas-end w-50" tabindex="-1" id="tasksDetailsOffcanvasEdit{{ $document->id }}">
-        <div class="offcanvas-header border-bottom" style="padding-top: 20px; padding-bottom: 20px">
+        <div class="offcanvas-header border-bottom py-3">
             <div class="d-flex align-items-center">
-                <div class="avatar-text avatar-md items-details-close-trigger" data-bs-dismiss="offcanvas"
-                     data-bs-toggle="tooltip" data-bs-trigger="hover" title="Details Close">
+                <div class="avatar-text avatar-md items-details-close-trigger" data-bs-dismiss="offcanvas" title="Ёпиш">
                     <i class="feather-arrow-left"></i>
                 </div>
-                <span class="vr text-muted mx-4"></span>
-                <a href="javascript:void(0);">
-                    <h2 class="fs-14 fw-bold text-truncate-1-line">Топшириқлар</h2>
-                    <span class="fs-12 fw-normal text-muted text-truncate-1-line">Ўзгартириш</span>
-                </a>
+                <span class="vr text-muted mx-3"></span>
+                <div>
+                    <h2 class="fs-14 fw-bold mb-0">Адабиётни таҳрирлаш</h2>
+                    <span class="fs-12 text-muted">ID: #{{ $document->id }}</span>
+                </div>
             </div>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
         <div class="offcanvas-body">
@@ -20,33 +20,44 @@
                 @csrf
                 @method('PUT')
 
-                <div class="row">
-                    <div class="form-group mb-6">
-                        <label class="form-label">Хужжат номи:</label>
-                        <input type="text" class="form-control" name="name" value="{{old('name',$document->name)}}" required>
-                    </div>
-                    <div class="form-group mb-6">
-                        <label class="form-label">Хужжат Муаллифи:</label>
-                        <input type="text" class="form-control" name="author" value="{{old('author',$document->author)}}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-4">
-                            <label for="name_free_count" class="form-label">Хужжат файли:</label>
-                            <input type="file" class="form-control" name="pdf" >
-                            <input type="hidden" class="form-control" name="category_id" value="{{$category->id}}">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Бўлим (Категория):</label>
+                    <select class="form-select" name="category_id" required>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}" {{ $document->categories->contains('id', $cat->id) ? 'selected' : '' }}>
+                                {{ $cat->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Китоб / Адабиёт номи:</label>
+                    <input type="text" class="form-control" name="name" value="{{ old('name', $document->name) }}" required>
+                </div>
 
-                    <button type="submit" class="btn btn-primary d-inline-block mt-4">Сақлаш</button>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Муаллиф(лар):</label>
+                    <input type="text" class="form-control" name="author" value="{{ old('author', $document->author) }}" required>
+                </div>
 
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Файлни янгилаш (Ихтиёрий PDF):</label>
+                    <input type="file" class="form-control" name="file" accept=".pdf">
+                    <small class="text-muted d-block mt-1">
+                        Жорий файл: <span class="badge bg-danger text-white">PDF</span>
+                        ({{ $document->file_size_formatted }})
+                    </small>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="offcanvas">Бекор қилиш</button>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="feather-check me-1"></i> Янгилаш
+                    </button>
                 </div>
             </form>
         </div>
-
     </div>
-
 @endforeach
-
-<!--! ================================================================ !-->
-<!--! [End] Tasks Details Offcanvas !-->
+<!--! [End] Library Edit Offcanvas !-->

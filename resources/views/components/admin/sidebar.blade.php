@@ -97,56 +97,34 @@
                     <label>Ҳужжатлар ва кутубхона</label>
                 </li>
 
-                {{-- Институт буйруқ ва фармойишлари --}}
-                <li class="nxl-item nxl-hasmenu {{ request()->routeIs('documents.byCategory') && request()->route('id') == 3 ? 'active' : '' }}">
-                    <a href="{{ route('documents.byCategory', 3) }}" class="nxl-link">
-                        <span class="nxl-micon"><i class="feather-file-text"></i></span>
-                        <span class="nxl-mtext">Институт буйруқ ва фармойишлари</span>
-                    </a>
-                </li>
-
-                {{-- Электрон кутубхона --}}
-                @php
-                    $isLibraryActive = request()->routeIs('library.*') || request()->routeIs('libraries.*') || (request()->routeIs('documents.byCategory') && request()->route('id') != 3);
-                @endphp
-                <li class="nxl-item nxl-hasmenu {{ $isLibraryActive ? 'active nxl-trigger' : '' }}">
+                {{-- Меъёрий-ҳуқуқий ҳужжатлар --}}
+                <li class="nxl-item nxl-hasmenu {{ request()->routeIs('documents.*') ? 'active nxl-trigger' : '' }}">
                     <a href="javascript:void(0);" class="nxl-link">
-                        <span class="nxl-micon"><i class="feather-book-open"></i></span>
-                        <span class="nxl-mtext">Электрон кутубхона</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                        <span class="nxl-micon"><i class="feather-file-text"></i></span>
+                        <span class="nxl-mtext">Меъёрий ҳужжатлар</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
                     </a>
                     <ul class="nxl-submenu">
-                        <li class="nxl-item nxl-hasmenu {{ request()->routeIs('library.*') || request()->routeIs('libraries.*') ? 'active nxl-trigger' : '' }}">
-                            <a href="javascript:void(0);" class="nxl-link">
-                                <span class="nxl-micon"><i class="feather-database"></i></span>
-                                <span class="nxl-mtext">Маълумотлар банки</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                            </a>
-                            <ul class="nxl-submenu">
-                                <li class="nxl-item {{ request()->routeIs('library.index') ? 'active' : '' }}"><a class="nxl-link" href="{{ route('library.index') }}">Дарсликлар</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 12 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 12) }}">Монографиялар</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 13 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 13) }}">Услубий қўлланмалар</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 14 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 14) }}">Ўқув қўлланмалар</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 15 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 15) }}">Диссертациялар</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 16 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 16) }}">Авторефератлар</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 17 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 17) }}">Илмий лойиҳалар</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 18 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 18) }}">Давлат ҳисоботлари</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 19 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 19) }}">Меморандумлар</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 20 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 20) }}">Журналлар</a></li>
-                                <li class="nxl-item {{ request()->routeIs('libraries.byCategory') && request()->route('id') == 21 ? 'active' : '' }}"><a class="nxl-link" href="{{ route('libraries.byCategory', 21) }}">Конференция тўпламлари</a></li>
-                            </ul>
+                        <li class="nxl-item {{ request()->routeIs('documents.index') ? 'active' : '' }}">
+                            <a class="nxl-link" href="{{ route('documents.index') }}">📋 Барча ҳужжатлар</a>
+                        </li>
+                        <li class="nxl-item {{ request()->routeIs('documents.byCategory') && request()->route('id') == 3 ? 'active' : '' }}">
+                            <a class="nxl-link" href="{{ route('documents.byCategory', 3) }}">Институт буйруқлари</a>
                         </li>
                         <li class="nxl-item {{ request()->routeIs('documents.byCategory') && request()->route('id') == 1 ? 'active' : '' }}">
                             <a class="nxl-link" href="{{ route('documents.byCategory', 1) }}">Президент фармон ва қарорлари</a>
                         </li>
                         <li class="nxl-item {{ request()->routeIs('documents.byCategory') && request()->route('id') == 2 ? 'active' : '' }}">
-                            <a class="nxl-link" href="{{ route('documents.byCategory', 2) }}">Вазирлар Маҳкамасининг фармон ва қарорлари</a>
-                        </li>
-                        <li class="nxl-item {{ request()->routeIs('documents.byCategory') && request()->route('id') == 4 ? 'active' : '' }}">
-                            <a class="nxl-link" href="{{ route('documents.byCategory', 4) }}">Лойиҳа ва илмий-амалий тадқиқотлар</a>
-                        </li>
-                        <li class="nxl-item {{ request()->routeIs('documents.byCategory') && request()->route('id') == 5 ? 'active' : '' }}">
-                            <a class="nxl-link" href="{{ route('documents.byCategory', 5) }}">Халқаро хорижий сафарлар ва ҳамкорлик</a>
+                            <a class="nxl-link" href="{{ route('documents.byCategory', 2) }}">Ҳукумат қарорлари</a>
                         </li>
                     </ul>
+                </li>
+
+                {{-- Электрон кутубхона (Маълумотлар банки) --}}
+                <li class="nxl-item nxl-hasmenu {{ request()->routeIs('library.*') || request()->routeIs('libraries.*') ? 'active' : '' }}">
+                    <a href="{{ route('library.index') }}" class="nxl-link">
+                        <span class="nxl-micon"><i class="feather-book-open"></i></span>
+                        <span class="nxl-mtext">Электрон кутубхона</span>
+                    </a>
                 </li>
 
                 {{-- Лаборатория --}}
