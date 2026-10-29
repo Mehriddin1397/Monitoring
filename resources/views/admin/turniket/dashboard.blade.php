@@ -34,6 +34,9 @@
                 <a href="{{ route('admin.turniket.attendance') }}" class="btn btn-sm btn-outline-light">
                     <i class="feather-list me-1"></i> Давомат журнали
                 </a>
+                <a href="{{ route('admin.turniket.leaves') }}" class="btn btn-sm btn-outline-light">
+                    <i class="feather-check-square me-1"></i> Сабаблилар / Таътиллар
+                </a>
                 <a href="{{ route('admin.turniket.reports') }}" class="btn btn-sm btn-outline-light">
                     <i class="feather-file-text me-1"></i> Ҳисоботлар
                 </a>
@@ -320,6 +323,8 @@
                                         <th>Келган вақти</th>
                                         <th>Кечикиш дақиқаси</th>
                                         <th>Қурилма</th>
+                                        <th>Ҳолати</th>
+                                        <th class="text-end" style="width: 140px;">Амал</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -362,10 +367,27 @@
                                             <td>
                                                 <span class="text-muted fs-13">{{ $item['device_name'] ?? '-' }}</span>
                                             </td>
+                                            <td>
+                                                @if(!empty($item['has_excuse']))
+                                                    <span class="badge bg-soft-info text-info">
+                                                        <i class="feather-check-circle me-1"></i>Сабабли
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-soft-warning text-warning">
+                                                        <i class="feather-alert-circle me-1"></i>Сабабсиз
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td class="text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-warning py-1 px-2 fs-12" 
+                                                        onclick="openExcuseModal('{{ $item['employee_no'] }}', 'late_excuse')">
+                                                    <i class="feather-edit-2 me-1"></i> Сабаб ёзиш
+                                                </button>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center py-4 text-muted">
+                                            <td colspan="8" class="text-center py-4 text-muted">
                                                 <i class="feather-smile fs-32 d-block mb-2 text-success"></i>
                                                 Бугун кечиккан ходимлар мавжуд эмас!
                                             </td>
@@ -456,6 +478,7 @@
                                         <th>Бўлим</th>
                                         <th>Сабаби</th>
                                         <th>Ҳолати</th>
+                                        <th class="text-end" style="width: 140px;">Амал</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -499,10 +522,16 @@
                                                     <i class="feather-x me-1"></i>Келмаган
                                                 </span>
                                             </td>
+                                            <td class="text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12" 
+                                                        onclick="openExcuseModal('{{ $item['employee_no'] }}', 'business_trip')">
+                                                    <i class="feather-plus-circle me-1"></i> Сабаб ёзиш
+                                                </button>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center py-4 text-muted">
+                                            <td colspan="7" class="text-center py-4 text-muted">
                                                 <i class="feather-check-circle fs-32 d-block mb-2 text-success"></i>
                                                 Барча ходимлар ишга келган!
                                             </td>
@@ -618,7 +647,108 @@
 }
 </style>
 
+<!-- ======================================================== -->
+<!-- MODAL: Сабаб / Таътил киритиш                            -->
+<!-- ======================================================== -->
+<div id="excuseCustomOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999999; align-items:center; justify-content:center;">
+    <div class="card border-0 shadow-lg" style="width: 540px; max-width: 95%; max-height: 90vh; overflow-y: auto;">
+        <div class="card-header bg-dark text-white p-3 d-flex align-items-center justify-content-between">
+            <h5 class="card-title mb-0 fs-16 text-white fw-bold">
+                <i class="feather-check-square me-2 text-warning"></i> Ходимга сабаб / таътил киритиш
+            </h5>
+            <button type="button" class="btn-close btn-close-white" onclick="closeExcuseModal()"></button>
+        </div>
+        <form action="{{ route('admin.turniket.leaves.store') }}" method="POST">
+            @csrf
+            <div class="card-body p-4">
+                <!-- Employee select -->
+                <div class="mb-3">
+                    <label class="form-label fs-13 fw-semibold text-muted">Ходимни танланг <span class="text-danger">*</span></label>
+                    <select name="employee_no" id="modal_employee_no" class="form-select" required>
+                        <option value="">-- Ходимни танланг --</option>
+                        @foreach($allEmployees as $emp)
+                            <option value="{{ $emp['employee_no'] }}">
+                                {{ $emp['fullname'] }} (ID: {{ $emp['employee_no'] }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Type -->
+                <div class="mb-3">
+                    <label class="form-label fs-13 fw-semibold text-muted">Сабаб тури <span class="text-danger">*</span></label>
+                    <select name="type" id="modal_type" class="form-select" required>
+                        <option value="late_excuse">Кечикиш сабаби / рухсатнома</option>
+                        <option value="business_trip">Хизмат сафари (командировка)</option>
+                        <option value="vacation">Меҳнат таътили</option>
+                        <option value="sick_leave">Касаллик варақаси (больничный)</option>
+                        <option value="other">Бошқа сабаблар</option>
+                    </select>
+                </div>
+
+                <!-- Dates -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label fs-13 fw-semibold text-muted">Бошланиш санаси</label>
+                        <input type="date" name="start_date" id="modal_start_date" class="form-control" value="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fs-13 fw-semibold text-muted">Тугаш санаси</label>
+                        <input type="date" name="end_date" id="modal_end_date" class="form-control" value="{{ date('Y-m-d') }}">
+                    </div>
+                </div>
+
+                <!-- Reason text -->
+                <div class="mb-3">
+                    <label class="form-label fs-13 fw-semibold text-muted">Сабаб ёки изоҳ матни <span class="text-danger">*</span></label>
+                    <textarea name="reason" id="modal_reason" rows="3" class="form-control" 
+                              placeholder="Масалан: Тирбандлик сабабли 15 дақиқа кечикди, раҳбариятдан рухсат олган..." required maxlength="500"></textarea>
+                    <small class="text-muted fs-11">Максимал 500 белги.</small>
+                </div>
+
+                <!-- Document no -->
+                <div class="mb-2">
+                    <label class="form-label fs-13 fw-semibold text-muted">Ҳужжат / Буйруқ рақами (ихтиёрий)</label>
+                    <input type="text" name="document_no" id="modal_document_no" class="form-control" placeholder="Масалан: Буйруқ № 142-К">
+                </div>
+            </div>
+
+            <div class="card-footer bg-light p-3 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-sm btn-light border" onclick="closeExcuseModal()">Бекор қилиш</button>
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="feather-check me-1"></i> Сақлаш ва тасдиқлаш
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+function openExcuseModal(employeeNo, type) {
+    const overlay = document.getElementById('excuseCustomOverlay');
+    if (!overlay) return;
+
+    if (employeeNo) {
+        const empSelect = document.getElementById('modal_employee_no');
+        if (empSelect) empSelect.value = employeeNo;
+    }
+    if (type) {
+        const typeSelect = document.getElementById('modal_type');
+        if (typeSelect) typeSelect.value = type;
+    }
+
+    overlay.style.display = 'flex';
+}
+
+function closeExcuseModal() {
+    const overlay = document.getElementById('excuseCustomOverlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeExcuseModal();
+});
+
 // Auto-poll metrics every 15 seconds to keep dashboard fresh
 document.addEventListener('DOMContentLoaded', function() {
     setInterval(function() {

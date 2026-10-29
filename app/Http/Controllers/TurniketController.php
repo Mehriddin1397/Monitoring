@@ -56,6 +56,9 @@ class TurniketController extends Controller
         $recentAttendanceRes = $this->turniketService->getAttendance(['limit' => 12]);
         $recentAttendance = $recentAttendanceRes['data'] ?? [];
 
+        $employeesRes = $this->turniketService->getEmployees(['limit' => 200]);
+        $allEmployees = $employeesRes['data'] ?? [];
+
         $isOnline = $this->turniketService->isOnline();
 
         return view('admin.turniket.dashboard', compact(
@@ -66,6 +69,7 @@ class TurniketController extends Controller
             'inside',
             'absent',
             'recentAttendance',
+            'allEmployees',
             'isOnline'
         ));
     }
@@ -179,6 +183,74 @@ class TurniketController extends Controller
         $isOnline = $this->turniketService->isOnline();
 
         return view('admin.turniket.employees', compact('employees', 'pagination', 'isOnline'));
+    }
+
+    /**
+     * Сабаблилар, таътиллар ва хизмат сафарлари рўйхати (Leaves & Excuses)
+     */
+    public function leaves(Request $request): View
+    {
+        $params = [
+            'type'            => $request->input('type'),
+            'employee_filter' => $request->input('employee_filter'),
+            'date'            => $request->input('date'),
+        ];
+        $params = array_filter($params, fn($v) => !is_null($v) && $v !== '');
+
+        $leavesRes = $this->turniketService->getLeaves($params);
+        $leaves = $leavesRes['data'] ?? [];
+
+        $employeesRes = $this->turniketService->getEmployees(['limit' => 200]);
+        $allEmployees = $employeesRes['data'] ?? [];
+
+        $isOnline = $this->turniketService->isOnline();
+
+        return view('admin.turniket.leaves', compact('leaves', 'allEmployees', 'isOnline'));
+    }
+
+    /**
+     * Янги сабаб / кечикиш изоҳи / таътил сақлаш
+     */
+    public function storeLeave(Request $request)
+    {
+        $validated = $request->validate([
+            'employee_no' => 'required|string',
+            'reason'      => 'required|string|max:500',
+            'type'        => 'nullable|string|in:late_excuse,business_trip,vacation,sick_leave,other',
+            'start_date'  => 'nullable|date',
+            'end_date'    => 'nullable|date',
+            'document_no' => 'nullable|string|max:100',
+        ]);
+
+        $res = $this->turniketService->createLeave($validated);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json($res, !empty($res['success']) ? 200 : 422);
+        }
+
+        if (!empty($res['success'])) {
+            return back()->with('success', $res['message'] ?? 'Ходим учун сабаб муваффақиятли сақланди.');
+        }
+
+        return back()->with('error', $res['message'] ?? ($res['error'] ?? 'Сабабни сақлашда хатолик юз берди.'))->withInput();
+    }
+
+    /**
+     * Сабабни ўчириш
+     */
+    public function destroyLeave($id, Request $request)
+    {
+        $res = $this->turniketService->deleteLeave($id);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json($res, !empty($res['success']) ? 200 : 422);
+        }
+
+        if (!empty($res['success'])) {
+            return back()->with('success', $res['message'] ?? 'Сабаб муваффақиятли ўчирилди.');
+        }
+
+        return back()->with('error', $res['message'] ?? ($res['error'] ?? 'Сабабни ўчиришда хатолик.'));
     }
 
     /**

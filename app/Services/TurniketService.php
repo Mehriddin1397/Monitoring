@@ -174,10 +174,117 @@ class TurniketService
     }
 
     /**
+     * Send POST request to turniket API with error handling
+     */
+    protected function post(string $path, array $data = []): array
+    {
+        $url = $this->baseUrl . '/' . ltrim($path, '/');
+
+        try {
+            $response = Http::timeout($this->timeout)
+                ->withHeaders($this->getHeaders())
+                ->post($url, $data);
+
+            return $response->json() ?? [
+                'success' => $response->successful(),
+                'status'  => $response->status(),
+            ];
+        } catch (Throwable $e) {
+            Log::error("Turniket API POST failed: " . $e->getMessage(), ['url' => $url]);
+            return [
+                'success' => false,
+                'error'   => 'Турникет сервери билан боғланиш имконсиз: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Send PUT request to turniket API with error handling
+     */
+    protected function put(string $path, array $data = []): array
+    {
+        $url = $this->baseUrl . '/' . ltrim($path, '/');
+
+        try {
+            $response = Http::timeout($this->timeout)
+                ->withHeaders($this->getHeaders())
+                ->put($url, $data);
+
+            return $response->json() ?? [
+                'success' => $response->successful(),
+                'status'  => $response->status(),
+            ];
+        } catch (Throwable $e) {
+            Log::error("Turniket API PUT failed: " . $e->getMessage(), ['url' => $url]);
+            return [
+                'success' => false,
+                'error'   => 'Турникет сервери билан боғланиш имконсиз: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Send DELETE request to turniket API with error handling
+     */
+    protected function delete(string $path): array
+    {
+        $url = $this->baseUrl . '/' . ltrim($path, '/');
+
+        try {
+            $response = Http::timeout($this->timeout)
+                ->withHeaders($this->getHeaders())
+                ->delete($url);
+
+            return $response->json() ?? [
+                'success' => $response->successful(),
+                'status'  => $response->status(),
+            ];
+        } catch (Throwable $e) {
+            Log::error("Turniket API DELETE failed: " . $e->getMessage(), ['url' => $url]);
+            return [
+                'success' => false,
+                'error'   => 'Турникет сервери билан боғланиш имконсиз: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
      * 13. Leaves, excuses and business trips
      */
     public function getLeaves(array $params = []): array
     {
         return $this->get('/api/v1/leaves', $params);
+    }
+
+    /**
+     * 14. Create new leave / excuse
+     */
+    public function createLeave(array $data): array
+    {
+        return $this->post('/api/v1/leaves', $data);
+    }
+
+    /**
+     * 15. Get single leave by ID
+     */
+    public function getLeave(int|string $id): array
+    {
+        return $this->get('/api/v1/leaves/' . urlencode((string) $id));
+    }
+
+    /**
+     * 16. Update leave by ID
+     */
+    public function updateLeave(int|string $id, array $data): array
+    {
+        return $this->put('/api/v1/leaves/' . urlencode((string) $id), $data);
+    }
+
+    /**
+     * 17. Delete leave by ID
+     */
+    public function deleteLeave(int|string $id): array
+    {
+        return $this->delete('/api/v1/leaves/' . urlencode((string) $id));
     }
 }

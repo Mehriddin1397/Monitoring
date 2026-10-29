@@ -132,6 +132,9 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
         Route::get('/reports', [\App\Http\Controllers\TurniketController::class, 'reports'])->name('reports');
         Route::get('/devices', [\App\Http\Controllers\TurniketController::class, 'devices'])->name('devices');
         Route::get('/employees', [\App\Http\Controllers\TurniketController::class, 'employees'])->name('employees');
+        Route::get('/leaves', [\App\Http\Controllers\TurniketController::class, 'leaves'])->name('leaves');
+        Route::post('/leaves', [\App\Http\Controllers\TurniketController::class, 'storeLeave'])->name('leaves.store');
+        Route::delete('/leaves/{id}', [\App\Http\Controllers\TurniketController::class, 'destroyLeave'])->name('leaves.destroy');
         Route::get('/live-stats', [\App\Http\Controllers\TurniketController::class, 'liveStats'])->name('live_stats');
     });
 

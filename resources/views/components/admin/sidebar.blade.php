@@ -185,6 +185,9 @@
                                 <li class="nxl-item {{ request()->routeIs('admin.turniket.attendance') ? 'active' : '' }}">
                                     <a class="nxl-link" href="{{ route('admin.turniket.attendance') }}">📋 Давомат журнали</a>
                                 </li>
+                                <li class="nxl-item {{ request()->routeIs('admin.turniket.leaves') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('admin.turniket.leaves') }}">📝 Сабаблилар ва таътиллар</a>
+                                </li>
                                 <li class="nxl-item {{ request()->routeIs('admin.turniket.reports') ? 'active' : '' }}">
                                     <a class="nxl-link" href="{{ route('admin.turniket.reports') }}">📑 Ҳисоботлар</a>
                                 </li>
