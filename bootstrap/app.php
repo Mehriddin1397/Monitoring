@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'cctv.access' => \App\Http\Middleware\CctvAccessMiddleware::class,
+            'turniket.access' => \App\Http\Middleware\TurniketAccessMiddleware::class,
             'last.activity'=> \App\Http\Middleware\CheckLastActivity::class,
             'ip.restrict' => \App\Http\Middleware\RestrictLoginByIP::class,
             'task_status' => \App\Http\Middleware\CheckTaskStatus::class,

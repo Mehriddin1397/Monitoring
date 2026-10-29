@@ -48,6 +48,12 @@ return [
         'api_secret' => env('CCTV_API_SECRET', 'SecretKey_40_253_CCTV!'),
     ],
 
+    'turniket' => [
+        'base_url' => env('TURNIKET_BASE_URL', 'http://192.168.40.95:8000'),
+        'api_key'  => env('TURNIKET_API_KEY', 'turniket_api_secret_40_253_2026'),
+        'timeout'  => (int) env('TURNIKET_TIMEOUT', 6),
+    ],
+
 
 
 ];

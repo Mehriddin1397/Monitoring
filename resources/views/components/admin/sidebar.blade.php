@@ -171,6 +171,28 @@
                                 </li>
                             </ul>
                         </li>
+
+                        {{-- Турникет ва давомат (Hikvision) --}}
+                        <li class="nxl-item nxl-hasmenu {{ request()->routeIs('admin.turniket.*') ? 'active nxl-trigger' : '' }}">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-user-check"></i></span>
+                                <span class="nxl-mtext">Турникет / Давомат</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                            </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item {{ request()->routeIs('admin.turniket.dashboard') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('admin.turniket.dashboard') }}">📊 Кўрсаткичлар (Панел)</a>
+                                </li>
+                                <li class="nxl-item {{ request()->routeIs('admin.turniket.attendance') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('admin.turniket.attendance') }}">📋 Давомат журнали</a>
+                                </li>
+                                <li class="nxl-item {{ request()->routeIs('admin.turniket.reports') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('admin.turniket.reports') }}">📑 Ҳисоботлар</a>
+                                </li>
+                                <li class="nxl-item {{ request()->routeIs('admin.turniket.devices') ? 'active' : '' }}">
+                                    <a class="nxl-link" href="{{ route('admin.turniket.devices') }}">🛡️ Турникетлар (Қурилмалар)</a>
+                                </li>
+                            </ul>
+                        </li>
                     @endif
 
                     {{-- ======================================================== --}}

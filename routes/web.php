@@ -125,6 +125,16 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
         Route::match(['GET', 'POST', 'DELETE'], '/cctv/{id}/ptz/{action}/{subId?}', [\App\Http\Controllers\CctvController::class, 'ptzAction'])->name('cctv.ptz.action');
     });
 
+    // Turniket va Davomat monitoringi (Administrator va Kadrlar bo'limi uchun)
+    Route::middleware('turniket.access')->prefix('turniket')->name('admin.turniket.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\TurniketController::class, 'dashboard'])->name('dashboard');
+        Route::get('/attendance', [\App\Http\Controllers\TurniketController::class, 'attendance'])->name('attendance');
+        Route::get('/reports', [\App\Http\Controllers\TurniketController::class, 'reports'])->name('reports');
+        Route::get('/devices', [\App\Http\Controllers\TurniketController::class, 'devices'])->name('devices');
+        Route::get('/employees', [\App\Http\Controllers\TurniketController::class, 'employees'])->name('employees');
+        Route::get('/live-stats', [\App\Http\Controllers\TurniketController::class, 'liveStats'])->name('live_stats');
+    });
+
 });
 
 
