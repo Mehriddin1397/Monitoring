@@ -416,28 +416,32 @@
     <!-- [ Main Content ] end -->
 </div>
 
-<!-- ================= CAMERA FULLSCREEN MODAL ================= -->
-<div class="modal fade" id="cameraModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border-0 shadow-lg rounded-4 overflow-hidden">
-            <div class="modal-header border-0 bg-darker px-4 py-3 d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="feather-video text-danger fs-20"></i>
-                    <h5 class="modal-title fw-bold text-white mb-0" id="modalCamTitle">Kamera</h5>
-                    <span class="badge bg-secondary fs-11" id="modalCamIp">192.168.0.x</span>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="btn btn-outline-light btn-sm" onclick="toggleIframeFullscreen('modalCamFrame')">
-                        <i class="feather-maximize me-1"></i> To'liq ekran
-                    </button>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+<!-- ================= CAMERA FULLSCREEN MODAL (NO BACKDROP BUG) ================= -->
+<div id="cameraModalOverlay" style="display:none; position:fixed; z-index:99999999; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.85); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div style="width:94%; max-width:1300px; height:90vh; background:#0f172a; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.1);">
+        <!-- Modal Header -->
+        <div style="background:#1e293b; color:#ffffff; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                <span style="background:#ef4444; color:#ffffff; font-size:11px; font-weight:bold; padding:3px 8px; border-radius:4px; display:flex; align-items:center; gap:4px;">
+                    <i class="feather-video fs-12"></i> JONLI
+                </span>
+                <span id="modalCamTitle" style="font-weight:600; font-size:16px; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:600px;">
+                    Kamera
+                </span>
+                <span class="badge bg-secondary fs-11" id="modalCamIp">192.168.0.x</span>
             </div>
-            <div class="modal-body p-0 bg-black">
-                <div class="ratio ratio-16x9">
-                    <iframe id="modalCamFrame" src="" allow="fullscreen; autoplay" allowfullscreen style="border: 0; width: 100%; height: 100%;"></iframe>
-                </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button type="button" class="btn btn-outline-light btn-sm d-flex align-items-center gap-1" onclick="toggleIframeFullscreen('modalCamFrame')" style="font-size:12px;">
+                    <i class="feather-maximize"></i> To'liq ekran
+                </button>
+                <button type="button" onclick="closeCameraModal()" style="background:transparent; border:none; color:#cbd5e1; font-size:28px; line-height:1; cursor:pointer; padding:0 5px;" title="Yopish (Esc)">
+                    &times;
+                </button>
             </div>
+        </div>
+        <!-- Modal Body: Camera stream iframe -->
+        <div style="flex:1; background:#000000; position:relative;">
+            <iframe id="modalCamFrame" src="" allow="fullscreen; autoplay" allowfullscreen style="border: 0; width: 100%; height: 100%; display:block;"></iframe>
         </div>
     </div>
 </div>
@@ -500,19 +504,35 @@
         }
     }
 
-    // Modal popup for single camera stream
+    // Modal popup for single camera stream (Custom Overlay - No Backdrop Bug)
     function openCameraModal(id, name, embedUrl, ip) {
         document.getElementById('modalCamTitle').innerText = name;
         document.getElementById('modalCamIp').innerText = 'IP: ' + ip;
         const frame = document.getElementById('modalCamFrame');
         frame.src = embedUrl;
 
-        const myModal = new bootstrap.Modal(document.getElementById('cameraModal'));
-        myModal.show();
+        const overlay = document.getElementById('cameraModalOverlay');
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
 
-    document.getElementById('cameraModal').addEventListener('hidden.bs.modal', function () {
+    function closeCameraModal() {
+        const overlay = document.getElementById('cameraModalOverlay');
+        overlay.style.display = 'none';
         document.getElementById('modalCamFrame').src = '';
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('cameraModalOverlay').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeCameraModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeCameraModal();
+        }
     });
 
     // Native Fullscreen toggle helper
