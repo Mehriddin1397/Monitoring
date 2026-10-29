@@ -98,18 +98,16 @@
             </div>
         </div>
 
-        {{-- 3. ҲУЖЖАТЛАР ЖАДВАЛИ --}}
+        {{-- 3. ҲУЖЖАТЛАР ЖАДВАЛИ (ҲАЖМ ВА САНА ОЛИБ ТАШЛАНДИ) --}}
         <div class="card border-0 shadow-sm">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light text-muted fs-12 text-uppercase">
                             <tr>
-                                <th class="text-center" style="width: 50px;">№</th>
+                                <th class="text-center" style="width: 60px;">№</th>
                                 <th>Ҳужжат номи</th>
-                                <th style="width: 140px;">Формат / Ҳажм</th>
-                                <th>Юклаган ходим</th>
-                                <th style="width: 130px;">Сана</th>
+                                <th style="width: 250px;">Юклаган ходим</th>
                                 <th class="text-end" style="width: 180px;">Амаллар</th>
                             </tr>
                         </thead>
@@ -141,11 +139,6 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-light text-muted border fs-11">
-                                            <i class="feather-hard-drive me-1"></i>{{ $doc->file_size_formatted }}
-                                        </span>
-                                    </td>
-                                    <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="avatar-text avatar-xs bg-soft-info text-info rounded-circle">
                                                 {{ mb_substr($doc->uploader->name ?? 'X', 0, 1) }}
@@ -153,14 +146,11 @@
                                             <span class="fs-13 text-secondary">{{ $doc->uploader->name ?? 'Тизим' }}</span>
                                         </div>
                                     </td>
-                                    <td class="text-muted fs-12">
-                                        <i class="feather-calendar me-1"></i>{{ $doc->created_at ? $doc->created_at->format('d.m.Y') : '-' }}
-                                    </td>
                                     <td class="text-end">
                                         <div class="d-inline-flex align-items-center gap-1">
                                             @if($isPdf)
                                                 <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
-                                                        onclick="openPdfModal('{{ asset('storage/' . $doc->file_path) }}', '{{ addslashes($doc->name) }}')">
+                                                        onclick="openCustomPdfViewer('{{ asset('storage/' . $doc->file_path) }}', '{{ addslashes($doc->name) }}')">
                                                     <i class="feather-eye"></i>
                                                     <span>Кўриш</span>
                                                 </button>
@@ -195,7 +185,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-5">
+                                    <td colspan="4" class="text-center py-5">
                                         <div class="text-muted">
                                             <i class="feather-folder fs-40 d-block mb-2 text-secondary opacity-50"></i>
                                             <h6 class="fw-bold mb-1">Ушбу бўлимда ҳужжатлар топилмади</h6>
@@ -225,39 +215,65 @@
     <!-- [ Main Content ] end -->
 </div>
 
-<!-- Битта умумий PDF кўриш модали -->
-<div class="modal fade" id="universalPdfModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 90vw; height: 90vh;">
-        <div class="modal-content h-100 border-0 shadow-lg">
-            <div class="modal-header bg-dark text-white py-2 px-3">
-                <h6 class="modal-title fs-14 fw-bold text-truncate" id="pdfModalTitle">PDF Ҳужжат</h6>
-                <div class="d-flex align-items-center gap-2">
-                    <a href="#" id="pdfDownloadBtn" download class="btn btn-sm btn-outline-light d-flex align-items-center gap-1">
-                        <i class="feather-download"></i>
-                        <span>Юклаб олиш</span>
-                    </a>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+<!-- ========================================================================= -->
+<!-- ХИРАЛАШМАЙДИГАН, ТОЗА ВА ТЕЗКОР PDF КЎРИШ МОДАЛИ (NO BACKDROP BUG)      -->
+<!-- ========================================================================= -->
+<div id="customPdfModalOverlay" style="display:none; position:fixed; z-index:99999999; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.7); backdrop-filter:blur(3px); align-items:center; justify-content:center;">
+    <div style="width:94%; max-width:1250px; height:92vh; background:#ffffff; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.6);">
+        <!-- Modal Header -->
+        <div style="background:#1e293b; color:#ffffff; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+            <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                <span style="background:#ef4444; color:#ffffff; font-size:11px; font-weight:bold; padding:3px 8px; border-radius:4px;">PDF</span>
+                <span id="customPdfTitle" style="font-weight:600; font-size:15px; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:700px;">
+                    Ҳужжат
+                </span>
             </div>
-            <div class="modal-body p-0 h-100 bg-secondary">
-                <iframe id="pdfModalFrame" src="" width="100%" height="100%" style="border:none; min-height: 80vh;"></iframe>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <a href="#" id="customPdfDownloadBtn" download class="btn btn-sm btn-outline-light d-flex align-items-center gap-1" style="font-size:12px; border-radius:6px;">
+                    <i class="feather-download"></i>
+                    <span>Юклаб олиш</span>
+                </a>
+                <button type="button" onclick="closeCustomPdfViewer()" style="background:transparent; border:none; color:#cbd5e1; font-size:26px; line-height:1; cursor:pointer; padding:0 5px;" title="Ёпиш (Esc)">
+                    &times;
+                </button>
             </div>
+        </div>
+        <!-- Modal Body / Iframe -->
+        <div style="flex:1; background:#475569; position:relative;">
+            <iframe id="customPdfFrame" src="" style="width:100%; height:100%; border:none; display:block;"></iframe>
         </div>
     </div>
 </div>
 
 <script>
-    function openPdfModal(fileUrl, title) {
-        document.getElementById('pdfModalTitle').innerText = title || 'PDF Ҳужжат';
-        document.getElementById('pdfModalFrame').src = fileUrl;
-        document.getElementById('pdfDownloadBtn').href = fileUrl;
-        var myModal = new bootstrap.Modal(document.getElementById('universalPdfModal'));
-        myModal.show();
+    function openCustomPdfViewer(fileUrl, title) {
+        document.getElementById('customPdfTitle').innerText = title || 'PDF Ҳужжат';
+        document.getElementById('customPdfFrame').src = fileUrl;
+        document.getElementById('customPdfDownloadBtn').href = fileUrl;
+        var modal = document.getElementById('customPdfModalOverlay');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // sahifa orqa fonida skroll bo'lmasligi uchun
     }
 
-    // Modal yopilganda iframe xotirasini tozalash
-    document.getElementById('universalPdfModal').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('pdfModalFrame').src = '';
+    function closeCustomPdfViewer() {
+        var modal = document.getElementById('customPdfModalOverlay');
+        modal.style.display = 'none';
+        document.getElementById('customPdfFrame').src = '';
+        document.body.style.overflow = '';
+    }
+
+    // Modal tashqarisiga (orqa fonga) bosganda yopish
+    document.getElementById('customPdfModalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCustomPdfViewer();
+        }
+    });
+
+    // Esc tugmasi bosilganda yopish
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeCustomPdfViewer();
+        }
     });
 </script>
 
