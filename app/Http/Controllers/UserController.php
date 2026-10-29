@@ -22,7 +22,7 @@ class UserController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'role' => 'required|in:boshliq,xodim',
+            'role' => 'required|in:admin,boshliq,xodim,kadr,kotib',
             'auth_code' => 'required|string',
             'full_name' => 'required|string',
             'position' => 'required|string',
@@ -59,6 +59,7 @@ class UserController extends Controller
             $validated['password'] = Hash::make($request->password);
         }
         if ($request->filled('role')) {
+            $request->validate(['role' => 'in:admin,boshliq,xodim,kadr,kotib']);
             $validated['role'] = $request->role;
         }
 

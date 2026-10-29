@@ -45,12 +45,13 @@
                         <input type="email" name="email" class="form-control" required>
                     </div>
                     <div class="form-group mb-4">
-                        <label>Role</label>
+                        <label class="form-label fw-semibold">Рол (Ҳуқуқлари):</label>
                         <select name="role" class="form-control" required>
-                            <option> </option>
-                            @foreach(['boshliq', 'xodim'] as $role)
-                                <option >{{ $role }}</option>
-                            @endforeach
+                            <option value="xodim" selected>Ходим (xodim)</option>
+                            <option value="boshliq">Бўлим бошлиғи (boshliq)</option>
+                            <option value="kadr">Кадрлар бўлими (kadr - камерани кўриш)</option>
+                            <option value="kotib">Котиб(а) (kotib - I-индексни баҳолаш)</option>
+                            <option value="admin">Администратор (admin)</option>
                         </select>
                     </div>
                     <div class="form-group mb-4">

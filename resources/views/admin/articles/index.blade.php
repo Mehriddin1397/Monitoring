@@ -212,7 +212,7 @@
                                         </td>
                                         <td class="text-end">
                                             <div class="d-flex align-items-center justify-content-end gap-2 flex-nowrap">
-                                                @if(in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'boshliq']))
+                                                @if(in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'boshliq', 'kotib']))
                                                     @if($article->status === 'pending')
                                                         <button class="btn btn-sm btn-success rounded-pill px-3 py-1 fs-13 shadow-sm d-inline-flex align-items-center gap-1 check-trigger-btn text-nowrap"
                                                                 onclick="openCheckModal({{ $article->id }})"
@@ -230,7 +230,7 @@
                                                     @endif
                                                 @endif
 
-                                                @if(($article->user_id == auth()->user()->id) || (auth()->user()->role == 'admin') || auth()->user()->id == 59)
+                                                @if(($article->user_id == auth()->user()->id) || in_array(auth()->user()->role, ['admin', 'kotib']) || auth()->user()->id == 59)
                                                     <a href="javascript:void(0)"
                                                        data-bs-toggle="offcanvas"
                                                        data-bs-target="#tasksDetailsOffcanvasEdit{{ $article->id }}"

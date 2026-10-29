@@ -50,6 +50,31 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isKadr(): bool
+    {
+        return $this->role === 'kadr';
+    }
+
+    public function isKotib(): bool
+    {
+        return $this->role === 'kotib';
+    }
+
+    public function isBoshliq(): bool
+    {
+        return $this->role === 'boshliq';
+    }
+
+    public function canViewCctv(): bool
+    {
+        return in_array($this->role, ['admin', 'kadr']);
+    }
+
+    public function canScoreArticles(): bool
+    {
+        return in_array($this->role, ['admin', 'kotib', 'boshliq']) || in_array($this->id, [59, 2]);
+    }
+
     public function createdTasks() {
         return $this->hasMany(Task::class, 'created_by');
     }

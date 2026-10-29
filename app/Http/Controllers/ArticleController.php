@@ -21,7 +21,7 @@ class ArticleController extends Controller
 
         $query = Article::with(['user', 'articleScore']);
 
-        if (!(in_array($user->id, $specialUsers) || $user->role === 'admin')) {
+        if (!(in_array($user->id, $specialUsers) || in_array($user->role, ['admin', 'kotib', 'boshliq']))) {
             $query->where('user_id', $user->id);
         }
 
@@ -65,6 +65,14 @@ class ArticleController extends Controller
      */
     public function check(Request $request)
     {
+        $user = Auth::user();
+        if (!(in_array($user->id, [59, 2]) || in_array($user->role, ['admin', 'kotib', 'boshliq']))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sizda maqolani baholash huquqi yo‘q.'
+            ], 403);
+        }
+
         $request->validate([
             'article_id' => 'required|exists:articles,id',
             'definitions' => 'required|integer|min:0',

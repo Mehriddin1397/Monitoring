@@ -56,12 +56,21 @@
                         </div>
                     </div>
                     <div class="form-group mb-4">
-                        <label>Role</label>
-                        <select name="role" class="form-control" >
-                            <option> </option>
-                            @foreach(['boshliq', 'xodim'] as $role)
-                                <option
-                                    value="{{ $role }}" {{ (old('role', $user->role ?? '') == $role) ? 'selected' : '' }}>{{ $role }}</option>
+                        <label class="form-label fw-semibold">Рол (Ҳуқуқлари):</label>
+                        <select name="role" class="form-control">
+                            @php
+                                $rolesList = [
+                                    'xodim' => 'Ходим (xodim)',
+                                    'boshliq' => 'Бўлим бошлиғи (boshliq)',
+                                    'kadr' => 'Кадрлар бўлими (kadr - камерани кўриш)',
+                                    'kotib' => 'Котиб(а) (kotib - I-индексни баҳолаш)',
+                                    'admin' => 'Администратор (admin)',
+                                ];
+                            @endphp
+                            @foreach($rolesList as $rKey => $rLabel)
+                                <option value="{{ $rKey }}" {{ (old('role', $user->role ?? '') == $rKey) ? 'selected' : '' }}>
+                                    {{ $rLabel }}
+                                </option>
                             @endforeach
                         </select>
                     </div>

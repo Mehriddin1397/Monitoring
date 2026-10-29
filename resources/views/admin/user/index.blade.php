@@ -121,8 +121,18 @@
                                                 <td>
                                                     {{$user->email}}
                                                 </td>
-                                                <td>
-                                                    {{$user->role}}
+                                                <td class="text-center">
+                                                    @if($user->role === 'admin')
+                                                        <span class="badge bg-danger">Администратор</span>
+                                                    @elseif($user->role === 'kadr')
+                                                        <span class="badge bg-info text-dark">Кадрлар бўлими</span>
+                                                    @elseif($user->role === 'kotib')
+                                                        <span class="badge bg-warning text-dark">Котиб(а)</span>
+                                                    @elseif($user->role === 'boshliq')
+                                                        <span class="badge bg-primary">Бошлиқ</span>
+                                                    @else
+                                                        <span class="badge bg-secondary">Ходим</span>
+                                                    @endif
                                                 </td>
                                                 <td>
                                                     <div class="hstack gap-2 justify-content-end">
