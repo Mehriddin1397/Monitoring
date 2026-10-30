@@ -62,6 +62,30 @@
                 <div class="col-lg-12">
                     <div class="card stretch stretch-full">
                         <div class="card-body p-0">
+                            <!-- [ Real-time Live Search Bar ] -->
+                            <div class="p-3 border-bottom bg-light bg-opacity-50">
+                                <div class="row align-items-center g-2">
+                                    <div class="col-md-6 col-lg-5">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                                <i class="feather-search"></i>
+                                            </span>
+                                            <input type="text" id="employeeSearchInput" class="form-control border-start-0 ps-0" 
+                                                   placeholder="F.I.Sh, lavozim, sana yoki telefon bo'yicha tezkor qidirish..." 
+                                                   autocomplete="off">
+                                            <button type="button" class="btn btn-outline-secondary border-start-0" id="btnClearSearch" style="display: none;" title="Tozalash">
+                                                <i class="feather-x"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-7 text-md-end text-muted small">
+                                        <span>Jami: <strong class="text-dark">{{ count($employees) }}</strong> nafar</span>
+                                        <span class="mx-2">•</span>
+                                        <span>Ko'rsatilmoqda: <strong id="visibleEmployeeCount" class="text-primary">{{ count($employees) }}</strong> nafar</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="table-responsive">
                                 <table class="table table-hover" id="proposalList">
                                     <thead>
@@ -163,6 +187,12 @@
                                             </td>
                                         </tr>
                                     @endforeach
+                                        <tr id="noResultsRow" style="display: none;">
+                                            <td colspan="8" class="text-center py-5 text-muted">
+                                                <i class="feather-search fs-24 d-block mb-2 text-muted"></i>
+                                                <span>Qidiruv bo'yicha xodim topilmadi</span>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -172,10 +202,50 @@
             </div>
         </div>
 
-
     </div>
 
     @include('components.admin.brith.brith-modal-create')
     @include('components.admin.brith.brith-modal-edit')
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('employeeSearchInput');
+            const clearBtn = document.getElementById('btnClearSearch');
+            const countEl = document.getElementById('visibleEmployeeCount');
+            const rows = document.querySelectorAll('#proposalList tbody tr.single-item');
+            const noResultsRow = document.getElementById('noResultsRow');
+
+            if (!searchInput) return;
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                let visible = 0;
+
+                if (clearBtn) {
+                    clearBtn.style.display = query ? 'block' : 'none';
+                }
+
+                rows.forEach(function(row) {
+                    const text = row.innerText.toLowerCase();
+                    if (!query || text.includes(query)) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (countEl) countEl.innerText = visible;
+                if (noResultsRow) noResultsRow.style.display = (visible === 0) ? '' : 'none';
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                    searchInput.focus();
+                });
+            }
+        });
+    </script>
 @endsection
