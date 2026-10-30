@@ -31,8 +31,9 @@
                         <h4 class="text-white fw-bold mb-0 letter-spacing-1">
                             ЯГОНА МОНИТОРИНГ ВА СИТУАЦИОН МАРКАЗ
                         </h4>
-                        <span class="badge rounded-pill bg-success bg-opacity-25 text-success border border-success-subtle px-2 py-1 small">
-                            <span class="live-dot me-1"></span> ОНЛАЙН
+                        <span class="badge rounded-pill px-2.5 py-1 small fw-bold d-inline-flex align-items-center"
+                              style="background: rgba(34, 197, 94, 0.25); color: #4ade80 !important; border: 1.5px solid #22c55e; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(74, 222, 128, 0.35);">
+                            <span class="live-dot me-1.5" style="background-color: #4ade80; box-shadow: 0 0 8px #4ade80;"></span> ОНЛАЙН
                         </span>
                     </div>
                     <p class="mb-0 small" style="color: #cbd5e1;">
@@ -44,10 +45,11 @@
             <!-- Right: Real-time clock & Action buttons -->
             <div class="d-flex flex-wrap align-items-center gap-2">
                 <!-- Live Tashkent Clock -->
-                <div class="px-3 py-2 rounded-pill bg-white bg-opacity-10 border border-white border-opacity-15 text-white d-flex align-items-center gap-2 shadow-sm">
-                    <i class="feather-clock" style="color: #38bdf8;"></i>
-                    <span id="liveClock" class="fw-bold font-monospace fs-13">--:--:--</span>
-                    <span class="small" style="color: #cbd5e1;">| Asia/Tashkent</span>
+                <div class="px-3 py-2 rounded-pill d-flex align-items-center gap-2 shadow-sm"
+                     style="background: rgba(15, 23, 42, 0.7); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                    <i class="feather-clock" style="color: #38bdf8; font-size: 15px;"></i>
+                    <span id="liveClock" class="fw-black font-monospace fs-14" style="color: #ffffff !important; letter-spacing: 1px;">--:--:--</span>
+                    <span class="small fw-semibold" style="color: #7dd3fc !important;">| Asia/Tashkent</span>
                 </div>
 
                 <!-- Toggle Charts Button -->
@@ -328,11 +330,12 @@
                         <div class="card employee-card border-0 shadow-sm rounded-4 h-100 position-relative overflow-hidden">
                             <!-- Card Header Banner -->
                             <div class="card-banner px-3 py-2 d-flex align-items-center justify-content-between"
-                                 style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
-                                <span class="badge bg-white bg-opacity-20 text-white border border-white border-opacity-15 font-monospace" style="font-size: 11px;">
+                                 style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <span class="badge font-monospace px-2.5 py-1 rounded-pill shadow-sm" 
+                                      style="font-size: 12px; font-weight: 800; background-color: #ffffff !important; color: #0f172a !important; border: 1px solid #ffffff; letter-spacing: 0.5px;">
                                     #{{ $index + 1 }} {{ !empty($item['turniket_id']) ? '• ID: ' . $item['turniket_id'] : '' }}
                                 </span>
-                                <span class="small text-truncate" style="max-width: 140px; color: #cbd5e1; font-weight: 500;" title="{{ $item['department'] }}">
+                                <span class="small text-truncate fw-semibold" style="max-width: 145px; color: #ffffff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5);" title="{{ $item['department'] }}">
                                     {{ $item['department'] }}
                                 </span>
                             </div>
@@ -482,7 +485,7 @@
                                     data-has-birthday="{{ (!empty($bday) && ($bday['days_until'] ?? 999) <= 30) ? '1' : '0' }}"
                                     data-turniket-id="{{ $item['turniket_id'] ?? '' }}">
                                     
-                                    <td class="text-center text-muted fw-bold">{{ $index + 1 }}</td>
+                                    <td class="text-center text-dark fw-bold font-monospace fs-13">#{{ $index + 1 }}</td>
 
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
@@ -495,8 +498,11 @@
                                                 <a href="{{ $empId ? route('employees.show', $empId) : '#' }}" class="fw-bold text-dark text-decoration-none hover-primary d-block">
                                                     {{ $item['name'] }}
                                                 </a>
-                                                <div class="small text-muted text-truncate" style="max-width: 200px;">
+                                                <div class="small text-muted text-truncate" style="max-width: 250px;">
                                                     {{ $item['position'] }} • <span class="text-secondary">{{ $item['department'] }}</span>
+                                                    @if(!empty($item['turniket_id']))
+                                                        <span class="badge bg-dark text-white rounded-pill ms-1 font-monospace px-2 py-0.5" style="font-size: 10px;">ID: {{ $item['turniket_id'] }}</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>

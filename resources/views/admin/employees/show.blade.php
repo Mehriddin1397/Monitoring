@@ -96,12 +96,6 @@
 
             <!-- Actions -->
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                @if($employee->turniket_id)
-                    <button type="button" class="btn btn-sm btn-warning text-dark fw-semibold" 
-                            onclick="openExcuseModal('{{ $employee->turniket_id }}', 'late_excuse')">
-                        <i class="feather-check-square me-1"></i> Сабаб / Таътил киритиш
-                    </button>
-                @endif
                 <a href="{{ route('monitoring.umumiy') }}" class="btn btn-sm btn-outline-light">
                     <i class="feather-arrow-left me-1"></i> Умумий рўйхат
                 </a>
