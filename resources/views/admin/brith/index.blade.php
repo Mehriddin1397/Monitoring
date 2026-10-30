@@ -135,9 +135,21 @@
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">
-                                                    <a href="javascript:void(0)" data-bs-toggle="offcanvas"
-                                                       data-bs-target="#tasksDetailsOffcanvasEdit{{ $employee->id }}"
-                                                       class="avatar-text avatar-md">
+                                                    <a href="javascript:void(0)" 
+                                                       onclick='openEditEmployeeModal(@json([
+                                                           "id" => $employee->id,
+                                                           "full_name" => $employee->full_name,
+                                                           "phone" => $employee->phone,
+                                                           "position" => $employee->position,
+                                                           "birth_date" => $employee->birth_date ? \Carbon\Carbon::parse($employee->birth_date)->format("Y-m-d") : "",
+                                                           "gender" => $employee->gender,
+                                                           "theme" => $employee->theme,
+                                                           "custom_wish" => $employee->custom_wish,
+                                                           "photo" => $employee->photo,
+                                                           "turniket_photo" => $employee->turniket_photo,
+                                                       ]))'
+                                                       class="avatar-text avatar-md text-primary"
+                                                       title="Tahrirlash">
                                                         <i class="feather feather-edit-3"></i>
                                                     </a>
                                                     <form action="{{ route('employees.destroy', $employee->id) }}"

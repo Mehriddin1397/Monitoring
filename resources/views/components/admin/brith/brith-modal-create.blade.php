@@ -93,11 +93,9 @@
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary d-inline-block mt-2">Qo'shish</button>
                 </div>
+            </div>
         </form>
     </div>
-
-
-
 </div>
 <!--! ================================================================ !-->
 <!--! [End] Tasks Details Offcanvas !-->
