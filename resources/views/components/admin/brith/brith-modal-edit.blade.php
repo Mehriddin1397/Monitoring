@@ -159,10 +159,9 @@
         // 4. Photo preview
         const photoPrev = document.getElementById('edit_photo_preview');
         if (photoPrev) {
-            if (emp.photo) {
-                photoPrev.innerHTML = '<img src="' + "{{ asset('storage') }}/" + emp.photo + '" alt="Photo" class="img-fluid rounded shadow-sm" style="max-height: 90px; object-fit: cover;">';
-            } else if (emp.turniket_photo) {
-                photoPrev.innerHTML = '<img src="' + emp.turniket_photo + '" alt="Turniket Photo" class="img-fluid rounded shadow-sm" style="max-height: 90px; object-fit: cover;">';
+            const imgSrc = emp.photo_url || (emp.photo ? "{{ asset('storage') }}/" + emp.photo : (emp.turniket_photo || ''));
+            if (imgSrc) {
+                photoPrev.innerHTML = '<img src="' + imgSrc + '" alt="Photo" class="img-fluid rounded shadow-sm" style="max-height: 90px; object-fit: cover;">';
             } else {
                 photoPrev.innerHTML = '<span class="text-muted small">Rasm yuklanmagan</span>';
             }
@@ -179,6 +178,25 @@
             }
         }
     }
+
+    // Delegated click listener for edit button
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-edit-employee');
+        if (!btn) return;
+        e.preventDefault();
+        openEditEmployeeModal({
+            id: btn.getAttribute('data-id'),
+            full_name: btn.getAttribute('data-name'),
+            phone: btn.getAttribute('data-phone'),
+            position: btn.getAttribute('data-position'),
+            birth_date: btn.getAttribute('data-birth'),
+            gender: btn.getAttribute('data-gender'),
+            theme: btn.getAttribute('data-theme'),
+            custom_wish: btn.getAttribute('data-wish'),
+            photo_url: btn.getAttribute('data-photo'),
+            turniket_photo: btn.getAttribute('data-turniket-photo')
+        });
+    });
 </script>
 <!--! ================================================================ !-->
 <!--! [End] Employee Edit Offcanvas                                    !-->

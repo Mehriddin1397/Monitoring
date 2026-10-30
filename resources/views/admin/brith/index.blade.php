@@ -136,19 +136,17 @@
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">
                                                     <a href="javascript:void(0)" 
-                                                       onclick='openEditEmployeeModal(@json([
-                                                           "id" => $employee->id,
-                                                           "full_name" => $employee->full_name,
-                                                           "phone" => $employee->phone,
-                                                           "position" => $employee->position,
-                                                           "birth_date" => $employee->birth_date ? \Carbon\Carbon::parse($employee->birth_date)->format("Y-m-d") : "",
-                                                           "gender" => $employee->gender,
-                                                           "theme" => $employee->theme,
-                                                           "custom_wish" => $employee->custom_wish,
-                                                           "photo" => $employee->photo,
-                                                           "turniket_photo" => $employee->turniket_photo,
-                                                       ]))'
-                                                       class="avatar-text avatar-md text-primary"
+                                                       class="avatar-text avatar-md text-primary btn-edit-employee"
+                                                       data-id="{{ $employee->id }}"
+                                                       data-name="{{ $employee->full_name }}"
+                                                       data-phone="{{ $employee->phone }}"
+                                                       data-position="{{ $employee->position }}"
+                                                       data-birth="{{ $employee->birth_date ? \Carbon\Carbon::parse($employee->birth_date)->format('Y-m-d') : '' }}"
+                                                       data-gender="{{ $employee->gender }}"
+                                                       data-theme="{{ $employee->theme }}"
+                                                       data-wish="{{ $employee->custom_wish }}"
+                                                       data-photo="{{ $employee->photo ? asset('storage/' . $employee->photo) : '' }}"
+                                                       data-turniket-photo="{{ $employee->turniket_photo }}"
                                                        title="Tahrirlash">
                                                         <i class="feather feather-edit-3"></i>
                                                     </a>
