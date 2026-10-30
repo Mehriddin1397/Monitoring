@@ -18,11 +18,16 @@
                     
                     @php
                         $stToday = $turniketProfile['status_today'] ?? null;
-                        $isInside = $stToday['is_inside'] ?? false;
-                        $hasArrived = $stToday['has_arrived'] ?? false;
+                        $hasArrived = !empty($stToday['has_arrived']);
+                        $isInside = (($stToday['current_presence'] ?? '') === 'inside') || (!empty($stToday['is_inside']));
+                        $isOnLeave = !empty($stToday['is_on_leave']);
                     @endphp
 
-                    @if($isInside)
+                    @if($isOnLeave)
+                        <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-warning p-2 border border-2 border-white" title="Таътилда / Сабабли">
+                            <span class="visually-hidden">Leave</span>
+                        </span>
+                    @elseif($isInside)
                         <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-success p-2 border border-2 border-white" title="Ҳозир бино ичида">
                             <span class="visually-hidden">Online</span>
                         </span>
@@ -157,12 +162,22 @@
                             <i class="feather-user-check text-info fs-16"></i>
                         </div>
                         @php
-                            $fEntry = !empty($stToday['first_entry']) ? \Carbon\Carbon::parse($stToday['first_entry'])->timezone('Asia/Tashkent')->format('H:i') : null;
+                            $fEntryRaw = $stToday['first_entry_time'] ?? ($stToday['first_entry'] ?? null);
+                            $fEntry = !empty($fEntryRaw) ? \Carbon\Carbon::parse($fEntryRaw)->timezone('Asia/Tashkent')->format('H:i') : null;
+                            $isLate = false;
+                            $lateMin = 0;
+                            if (!empty($fEntryRaw)) {
+                                $entryOnly = substr($fEntryRaw, 11, 8);
+                                if ($entryOnly > '09:00:00') {
+                                    $isLate = true;
+                                    $lateMin = max(1, (int) round((strtotime($entryOnly) - strtotime('09:00:00')) / 60));
+                                }
+                            }
                         @endphp
                         @if($fEntry)
                             <h4 class="fw-bold mb-1 fs-20 text-info font-monospace">{{ $fEntry }}</h4>
-                            <span class="fs-12 {{ !empty($stToday['is_late']) ? 'text-warning' : 'text-success' }}">
-                                {{ !empty($stToday['is_late']) ? '+' . ($stToday['late_minutes'] ?? 0) . ' дақиқа кечиккан' : 'Ўз вақтида келган' }}
+                            <span class="fs-12 {{ $isLate ? 'text-amber-dark fw-semibold' : 'text-success' }}">
+                                {{ $isLate ? '+' . $lateMin . ' дақиқа кечиккан' : 'Ўз вақтида келган' }}
                             </span>
                         @else
                             <h4 class="fw-bold mb-1 fs-20 text-muted font-monospace">-</h4>
@@ -278,11 +293,11 @@
                                 <thead class="table-light">
                                     <tr class="fs-12 text-uppercase text-muted">
                                         <th style="width: 50px;">#</th>
-                                        <th>Топшириқ номи</th>
-                                        <th>Муддати</th>
-                                        <th>Ҳолати</th>
-                                        <th>Ҳужжат</th>
-                                        <th>Бириктирилган файллар</th>
+                                        <th style="min-width: 280px; max-width: 480px;">Топшириқ номи ва мазмуни</th>
+                                        <th style="width: 170px;">Муддати</th>
+                                        <th style="width: 120px;">Ҳолати</th>
+                                        <th style="width: 100px;">Ҳужжат</th>
+                                        <th style="width: 140px;">Бириктирилган файллар</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -290,8 +305,22 @@
                                         <tr>
                                             <td class="text-muted fs-12">{{ $idx + 1 }}</td>
                                             <td>
-                                                <div class="fw-bold text-dark fs-14">{{ $task->title }}</div>
-                                                <small class="text-muted">Тур: {{ $task->task_type ?? 'Умумий' }}</small>
+                                                @php
+                                                    $cleanTitle = trim(preg_replace('/\s+/u', ' ', strip_tags($task->title)));
+                                                    $isLong = mb_strlen($cleanTitle) > 130;
+                                                @endphp
+                                                <div class="fw-semibold text-dark fs-13 lh-base mb-1" style="max-width: 480px; word-break: break-word;">
+                                                    @if($isLong)
+                                                        <span id="task_short_{{ $task->id }}">{{ mb_substr($cleanTitle, 0, 130) }}...</span>
+                                                        <span id="task_full_{{ $task->id }}" class="d-none">{{ $cleanTitle }}</span>
+                                                        <a href="javascript:void(0);" onclick="toggleTaskText({{ $task->id }})" id="task_toggle_{{ $task->id }}" class="text-primary text-decoration-none ms-1 small fw-bold">кўпроқ</a>
+                                                    @else
+                                                        {{ $cleanTitle }}
+                                                    @endif
+                                                </div>
+                                                <span class="badge bg-light text-secondary border font-monospace" style="font-size: 11px;">
+                                                    <i class="feather-tag me-1"></i>{{ $task->task_type ?? 'Умумий' }}
+                                                </span>
                                             </td>
                                             <td>
                                                 <div class="font-monospace fs-13">
@@ -427,92 +456,209 @@
                         </div>
                     </div>
 
-                    <!-- TAB 3: ATTENDANCE -->
+                    <!-- TAB 3: ATTENDANCE (DAVOMAT) -->
                     <div class="tab-pane fade p-3" id="tab-attendance" role="tabpanel">
                         <!-- Today breakdown -->
                         <div class="row g-3 mb-4">
                             <div class="col-12 col-md-4">
-                                <div class="bg-light p-3 rounded">
-                                    <div class="text-muted fs-12">Биринчи кириш:</div>
-                                    <div class="fw-bold font-monospace fs-16 text-success">
-                                        {{ !empty($stToday['first_entry']) ? \Carbon\Carbon::parse($stToday['first_entry'])->timezone('Asia/Tashkent')->format('H:i:s (d.m.Y)') : 'Қайд этилмаган' }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <div class="bg-light p-3 rounded">
-                                    <div class="text-muted fs-12">Охирги чиқиш:</div>
-                                    <div class="fw-bold font-monospace fs-16 text-primary">
-                                        {{ !empty($stToday['last_exit']) ? \Carbon\Carbon::parse($stToday['last_exit'])->timezone('Asia/Tashkent')->format('H:i:s (d.m.Y)') : 'Қайд этилмаган' }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <div class="bg-light p-3 rounded">
-                                    <div class="text-muted fs-12">Ҳолати:</div>
-                                    <div class="fw-bold fs-16">
-                                        @if($isInside)
-                                            <span class="text-success"><span class="pulse-dot"></span> Бино ичида</span>
-                                        @elseif($hasArrived)
-                                            <span class="text-info"><i class="feather-check me-1"></i>Бинодан ташқарида</span>
+                                <div class="bg-light p-3 rounded-4 border">
+                                    <div class="text-muted fs-12 text-uppercase fw-semibold mb-1">Биринчи кириш:</div>
+                                    <div class="fw-bold font-monospace fs-18 text-success">
+                                        @php
+                                            $todayEntry = !empty($stToday['first_entry_time']) 
+                                                ? \Carbon\Carbon::parse($stToday['first_entry_time'])->timezone('Asia/Tashkent')->format('H:i:s (d.m.Y)') 
+                                                : (!empty($turniketLogs[0]['event_time']) && \Carbon\Carbon::parse($turniketLogs[0]['event_time'])->isToday() ? \Carbon\Carbon::parse($turniketLogs[0]['event_time'])->timezone('Asia/Tashkent')->format('H:i:s (d.m.Y)') : null);
+                                        @endphp
+                                        @if($todayEntry)
+                                            <i class="feather-log-in me-1"></i>{{ $todayEntry }}
                                         @else
-                                            <span class="text-danger"><i class="feather-x me-1"></i>Келмаган</span>
+                                            <span class="text-muted fs-14 fw-normal">Қайд этилмаган</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="bg-light p-3 rounded-4 border">
+                                    <div class="text-muted fs-12 text-uppercase fw-semibold mb-1">Охирги чиқиш:</div>
+                                    <div class="fw-bold font-monospace fs-18 text-primary">
+                                        @php
+                                            $todayExit = !empty($dailyAttendance[0]['last_exit']) ? $dailyAttendance[0]['last_exit'] : null;
+                                        @endphp
+                                        @if($todayExit)
+                                            <i class="feather-log-out me-1"></i>{{ $todayExit }}
+                                        @else
+                                            <span class="text-muted fs-14 fw-normal">Бино ичида (чиқиш қайд этилмаган)</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="bg-light p-3 rounded-4 border">
+                                    <div class="text-muted fs-12 text-uppercase fw-semibold mb-1">Жорий ҳолати:</div>
+                                    <div class="fw-bold fs-16">
+                                        @if(!empty($stToday['is_on_leave']))
+                                            <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">
+                                                🟡 Таътилда / Сабабли
+                                            </span>
+                                        @elseif($isInside)
+                                            <span class="badge bg-success text-white px-3 py-1 rounded-pill">
+                                                <span class="pulse-dot"></span> 🟢 Ҳозир бино ичида
+                                            </span>
+                                        @elseif($hasArrived)
+                                            <span class="badge bg-info text-white px-3 py-1 rounded-pill">
+                                                <i class="feather-check me-1"></i>🔵 Келган (ҳозир ташқарида)
+                                            </span>
+                                        @else
+                                            <span class="badge bg-danger text-white px-3 py-1 rounded-pill">
+                                                <i class="feather-x me-1"></i>🔴 Бугун келмаган
+                                            </span>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Turniket Logs Table -->
-                        <h6 class="fw-bold text-dark fs-14 mb-2">Сўнгги ўтишлар тарихи:</h6>
-                        <div class="table-responsive">
+                        <!-- Simplified Daily Attendance Journal -->
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="fw-bold text-dark fs-15 mb-0">
+                                <i class="feather-calendar text-primary me-1"></i> Кунлик давомат журнали:
+                            </h6>
+                            <span class="text-muted small">Иш вақти: 09:00 — 18:00</span>
+                        </div>
+
+                        <div class="table-responsive rounded-3 border mb-4">
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="table-light">
                                     <tr class="fs-12 text-uppercase text-muted">
                                         <th style="width: 50px;">#</th>
-                                        <th>Ўтиш вақти</th>
-                                        <th>Йўналиш</th>
-                                        <th>Турникет</th>
-                                        <th>Усул</th>
+                                        <th>Сана</th>
+                                        <th>Ҳолати</th>
+                                        <th>Биринчи кириш</th>
+                                        <th>Охирги чиқиш</th>
+                                        <th>Қурилма / Турникет</th>
+                                        <th>Сабаб / Изоҳ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($turniketLogs as $idx => $tLog)
-                                        <tr>
-                                            <td class="text-muted fs-12">{{ $idx + 1 }}</td>
-                                            <td class="font-monospace fs-13 fw-semibold text-dark">
-                                                {{ !empty($tLog['event_time']) ? \Carbon\Carbon::parse($tLog['event_time'])->timezone('Asia/Tashkent')->format('H:i:s (d.m.Y)') : '-' }}
+                                    @forelse($dailyAttendance ?? [] as $dIdx => $day)
+                                        <tr class="{{ !empty($day['is_today']) ? 'table-primary bg-opacity-10' : '' }}">
+                                            <td class="text-muted fs-12">{{ $dIdx + 1 }}</td>
+                                            <td>
+                                                <div class="fw-bold text-dark fs-13">
+                                                    {{ $day['day_title'] }}
+                                                    @if(!empty($day['is_today']))
+                                                        <span class="badge bg-primary text-white ms-1" style="font-size: 10px;">БУГУН</span>
+                                                    @endif
+                                                </div>
                                             </td>
                                             <td>
-                                                @if(($tLog['direction'] ?? '') === 'entry')
-                                                    <span class="badge bg-success px-2 py-1 fs-11">
-                                                        <i class="feather-arrow-down-right me-1"></i>Кириш
+                                                <span class="badge {{ $day['badge_class'] }} px-2 py-1 fs-11 rounded-pill">
+                                                    {{ $day['status_label'] }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if(!empty($day['first_entry']))
+                                                    <span class="font-monospace fs-13 fw-semibold {{ ($day['late_minutes'] ?? 0) > 0 ? 'text-danger' : 'text-success' }}">
+                                                        {{ $day['first_entry'] }}
                                                     </span>
                                                 @else
-                                                    <span class="badge bg-warning text-dark px-2 py-1 fs-11">
-                                                        <i class="feather-arrow-up-right me-1"></i>Чиқиш
-                                                    </span>
+                                                    <span class="text-muted fs-12">—</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                <span class="text-muted fs-13">{{ $tLog['device_name'] ?? '-' }}</span>
+                                                @if(!empty($day['last_exit']))
+                                                    <span class="font-monospace fs-13 text-primary fw-semibold">
+                                                        {{ $day['last_exit'] }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted fs-12">—</span>
+                                                @endif
                                             </td>
                                             <td>
-                                                <span class="badge bg-light text-muted border font-monospace fs-11">
-                                                    {{ strtoupper($tLog['verify_mode'] ?? 'FACE') }}
-                                                </span>
+                                                <span class="text-muted fs-12">{{ $day['device_name'] ?? 'Турникет' }}</span>
+                                            </td>
+                                            <td>
+                                                @if(!empty($day['has_leave']) && !empty($day['leave_info']))
+                                                    <div class="small text-dark fw-semibold">
+                                                        {{ $day['leave_info']['type_label'] ?? 'Сабабли' }}
+                                                    </div>
+                                                    <div class="small text-muted text-truncate" style="max-width: 250px;" title="{{ $day['leave_info']['reason'] ?? '' }}">
+                                                        {{ $day['leave_info']['reason'] ?? '' }}
+                                                    </div>
+                                                    @if(!empty($day['leave_info']['document_no']))
+                                                        <span class="badge bg-light text-dark border py-0 px-1" style="font-size: 10px;">№ {{ $day['leave_info']['document_no'] }}</span>
+                                                    @endif
+                                                @elseif(($day['late_minutes'] ?? 0) > 0)
+                                                    <span class="text-amber-dark small fw-semibold">
+                                                        +{{ $day['late_minutes'] }} дақиқа кечикди
+                                                    </span>
+                                                @elseif(!empty($day['first_entry']))
+                                                    <span class="text-success small">Ўз вақтида</span>
+                                                @else
+                                                    <span class="text-muted small">Сабаб киритилмаган</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center py-4 text-muted">
-                                                Турникетдан ўтиш тарихи топилмади.
+                                            <td colspan="7" class="text-center py-4 text-muted">
+                                                <i class="feather-calendar fs-32 d-block mb-2 text-muted"></i>
+                                                Ушбу ходимнинг давомат тарихи мавжуд эмас ёки турникетга боғланмаган.
                                             </td>
                                         </tr>
                                     @endforelse
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Official Leaves & Excuses Table -->
+                        @if(!empty($turniketLeaves))
+                            <div class="mt-4">
+                                <h6 class="fw-bold text-dark fs-14 mb-2">
+                                    <i class="feather-file-text text-warning me-1"></i> Расмий сабаблар ва таътиллар рўйхати:
+                                </h6>
+                                <div class="table-responsive rounded-3 border">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr class="fs-12 text-uppercase text-muted">
+                                                <th style="width: 50px;">#</th>
+                                                <th>Таътил / Сабаб тури</th>
+                                                <th>Муддати</th>
+                                                <th>Сабаби / Изоҳ</th>
+                                                <th>Ҳужжат рақами</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($turniketLeaves as $lIdx => $leave)
+                                                <tr>
+                                                    <td class="text-muted fs-12">{{ $lIdx + 1 }}</td>
+                                                    <td>
+                                                        <span class="badge bg-warning-subtle text-amber-dark border border-warning px-2 py-1">
+                                                            {{ $leave['type_label'] ?? $leave['type'] }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="font-monospace fs-13">
+                                                        {{ $leave['start_date'] ?? '-' }} — {{ $leave['end_date'] ?? '-' }}
+                                                    </td>
+                                                    <td class="fs-13 text-dark">
+                                                        {{ $leave['reason'] ?? '-' }}
+                                                    </td>
+                                                    <td>
+                                                        @if(!empty($leave['document_no']))
+                                                            <span class="badge bg-light text-dark border">
+                                                                {{ $leave['document_no'] }}
+                                                            </span>
+                                                        @else
+                                                            <span class="text-muted fs-12">—</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- TAB 4: PROJECTS -->
@@ -712,9 +858,27 @@
     70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
+.text-amber-dark { color: #b45309 !important; }
+.text-warning-dark { color: #d97706 !important; }
+.bg-warning-subtle { background-color: #fef3c7 !important; }
 </style>
 
 <script>
+function toggleTaskText(taskId) {
+    const shortEl = document.getElementById('task_short_' + taskId);
+    const fullEl = document.getElementById('task_full_' + taskId);
+    const toggleEl = document.getElementById('task_toggle_' + taskId);
+    if (!shortEl || !fullEl) return;
+    if (fullEl.classList.contains('d-none')) {
+        fullEl.classList.remove('d-none');
+        shortEl.classList.add('d-none');
+        if (toggleEl) toggleEl.textContent = 'камроқ';
+    } else {
+        fullEl.classList.add('d-none');
+        shortEl.classList.remove('d-none');
+        if (toggleEl) toggleEl.textContent = 'кўпроқ';
+    }
+}
 function openExcuseModal(employeeNo, type) {
     const overlay = document.getElementById('excuseCustomOverlay');
     if (!overlay) return;

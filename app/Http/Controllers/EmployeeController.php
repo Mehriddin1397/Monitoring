@@ -24,13 +24,25 @@ class EmployeeController extends Controller
      */
     public function show($id, TurniketService $turniketService)
     {
+        // 1. Employee id bo'yicha qat'iy qidirish (chalkashliklarning oldini oladi)
         $employee = Employee::with([
             'user.assignedTasks.statuses',
             'user.assignedTasks.files',
             'user.articles.articleScore',
             'user.projects',
             'works'
-        ])->where('id', $id)->orWhere('user_id', $id)->firstOrFail();
+        ])->find($id);
+
+        if (!$employee) {
+            // Agar User ID orqali murojaat qilingan bo'lsa
+            $employee = Employee::with([
+                'user.assignedTasks.statuses',
+                'user.assignedTasks.files',
+                'user.articles.articleScore',
+                'user.projects',
+                'works'
+            ])->where('user_id', $id)->firstOrFail();
+        }
 
         $user = $employee->user;
         $tasks = $user ? $user->assignedTasks->unique('id') : collect();
@@ -38,19 +50,140 @@ class EmployeeController extends Controller
         $projects = $user ? $user->projects : collect();
         $works = $employee->works;
 
-        // Turniket attendance
+        // Turniket davomat ma'lumotlari va kunlik soddalashtirilgan hisobot
         $turniketProfile = null;
         $turniketLogs = [];
         $turniketLeaves = [];
+        $dailyAttendance = [];
+
         if (!empty($employee->turniket_id)) {
             $turniketProfileRes = $turniketService->getEmployee($employee->turniket_id);
             $turniketProfile = $turniketProfileRes['data'] ?? null;
 
-            $turniketLogsRes = $turniketService->getAttendance(['employee_no' => $employee->turniket_id, 'limit' => 20]);
+            $turniketLogsRes = $turniketService->getAttendance(['employee_no' => $employee->turniket_id, 'limit' => 100]);
             $turniketLogs = $turniketLogsRes['data'] ?? [];
 
             $turniketLeavesRes = $turniketService->getLeaves(['employee_filter' => $employee->turniket_id]);
             $turniketLeaves = $turniketLeavesRes['data'] ?? [];
+
+            // Kunlar bo'yicha guruhlash (Y-m-d)
+            $groupedByDay = [];
+            foreach ($turniketLogs as $log) {
+                if (empty($log['event_time'])) continue;
+                $dateStr = substr($log['event_time'], 0, 10);
+                if (!isset($groupedByDay[$dateStr])) {
+                    $groupedByDay[$dateStr] = [
+                        'entries' => [],
+                        'exits'   => [],
+                        'devices' => [],
+                    ];
+                }
+                if (($log['direction'] ?? '') === 'entry') {
+                    $groupedByDay[$dateStr]['entries'][] = $log['event_time'];
+                } else {
+                    $groupedByDay[$dateStr]['exits'][] = $log['event_time'];
+                }
+                if (!empty($log['device_name'])) {
+                    $groupedByDay[$dateStr]['devices'][$log['device_name']] = true;
+                }
+            }
+
+            // Bugungi kun holatini qo'shish
+            $todayStr = Carbon::today()->format('Y-m-d');
+            $stToday = $turniketProfile['status_today'] ?? null;
+            if (!empty($stToday['first_entry_time']) && !isset($groupedByDay[$todayStr])) {
+                $groupedByDay[$todayStr] = [
+                    'entries' => [$stToday['first_entry_time']],
+                    'exits'   => [],
+                    'devices' => ['Турникет' => true],
+                ];
+            }
+
+            // Rasmiy sabablar va ta'tillarni sanalar bo'yicha indekslash
+            $leaveDays = [];
+            foreach ($turniketLeaves as $lv) {
+                $start = !empty($lv['start_date']) ? Carbon::parse($lv['start_date']) : null;
+                $end = !empty($lv['end_date']) ? Carbon::parse($lv['end_date']) : $start;
+                if ($start && $end) {
+                    $cur = $start->copy();
+                    while ($cur->lte($end)) {
+                        $leaveDays[$cur->format('Y-m-d')] = $lv;
+                        $cur->addDay();
+                    }
+                }
+            }
+
+            // Agar ta'til bo'lib, o'sha kuni turniketdan o'tmagan bo'lsa ham ro'yxatga qo'shish
+            foreach ($leaveDays as $lDate => $lvData) {
+                if (!isset($groupedByDay[$lDate])) {
+                    $groupedByDay[$lDate] = [
+                        'entries' => [],
+                        'exits'   => [],
+                        'devices' => ['Расмий таътил' => true],
+                    ];
+                }
+            }
+
+            // Sanalarni yangisidan eskisiga qarab saralash
+            krsort($groupedByDay);
+
+            foreach ($groupedByDay as $date => $dayData) {
+                $cDate = Carbon::parse($date);
+                $isToday = $cDate->isToday();
+                $firstEntry = !empty($dayData['entries']) ? min($dayData['entries']) : null;
+                $lastExit = !empty($dayData['exits']) ? max($dayData['exits']) : null;
+
+                $hasLeave = isset($leaveDays[$date]);
+                $leaveInfo = $leaveDays[$date] ?? null;
+
+                $statusKey = 'absent';
+                $statusLabel = 'Келмаган';
+                $badgeClass = 'bg-danger text-white';
+                $lateMinutes = 0;
+
+                if ($firstEntry) {
+                    $entryTimeOnly = substr($firstEntry, 11, 8); // e.g. 09:15:00
+                    if ($entryTimeOnly > '09:00:00') {
+                        $diffMin = (int) round((strtotime($entryTimeOnly) - strtotime('09:00:00')) / 60);
+                        $lateMinutes = max(1, $diffMin);
+                        if ($hasLeave) {
+                            $statusKey = 'excused_late';
+                            $statusLabel = "Сабабли кечиккан (+{$lateMinutes} дақ)";
+                            $badgeClass = 'bg-warning text-dark';
+                        } else {
+                            $statusKey = 'late';
+                            $statusLabel = "Кечиккан (+{$lateMinutes} дақ)";
+                            $badgeClass = 'bg-warning text-dark';
+                        }
+                    } else {
+                        $statusKey = 'on_time';
+                        $statusLabel = 'Вақтида келган';
+                        $badgeClass = 'bg-success text-white';
+                    }
+                } elseif ($hasLeave) {
+                    $statusKey = 'leave';
+                    $statusLabel = ($leaveInfo['type_label'] ?? 'Сабабли') . (!empty($leaveInfo['reason']) ? ': ' . mb_substr($leaveInfo['reason'], 0, 30) : '');
+                    $badgeClass = 'bg-primary text-white';
+                }
+
+                $deviceNames = !empty($dayData['devices']) ? implode(', ', array_keys($dayData['devices'])) : 'Турникет';
+
+                $dailyAttendance[] = [
+                    'date'           => $date,
+                    'day_name'       => $cDate->format('d.m.Y'),
+                    'day_title'      => ($isToday ? 'Бугун, ' : '') . $cDate->format('d.m.Y'),
+                    'is_today'       => $isToday,
+                    'first_entry'    => $firstEntry ? Carbon::parse($firstEntry)->timezone('Asia/Tashkent')->format('H:i:s') : null,
+                    'last_exit'      => $lastExit ? Carbon::parse($lastExit)->timezone('Asia/Tashkent')->format('H:i:s') : null,
+                    'status_key'     => $statusKey,
+                    'status_label'   => $statusLabel,
+                    'badge_class'    => $badgeClass,
+                    'late_minutes'   => $lateMinutes,
+                    'has_leave'      => $hasLeave,
+                    'leave_info'     => $leaveInfo,
+                    'device_name'    => $deviceNames,
+                ];
+            }
         }
 
         // Stats calculation
@@ -100,6 +233,7 @@ class EmployeeController extends Controller
             'turniketProfile',
             'turniketLogs',
             'turniketLeaves',
+            'dailyAttendance',
             'birthdayInfo'
         ));
     }

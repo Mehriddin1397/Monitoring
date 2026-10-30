@@ -112,7 +112,7 @@
                                     <span class="badge bg-success-subtle text-success border border-success-subtle" title="Келганлар">
                                         🔵 {{ $summary['arrived_count'] ?? 0 }} келган
                                     </span>
-                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle" title="Кечикканлар">
+                                    <span class="badge bg-amber-subtle text-amber-dark border border-warning" title="Кечикканлар">
                                         🟠 {{ $summary['late_count'] ?? 0 }} кечиккан
                                     </span>
                                     <span class="badge bg-danger-subtle text-danger border border-danger-subtle" title="Келмаганлар">
@@ -165,7 +165,7 @@
                             <div>
                                 <span class="text-muted small fw-bold text-uppercase letter-spacing-1">И-индекс ва Лойиҳалар</span>
                                 <div class="d-flex align-items-baseline gap-2 mt-1 mb-1">
-                                    <h2 class="fw-black text-warning mb-0">{{ number_format($summary['total_score'] ?? 0, 1) }}</h2>
+                                    <h2 class="fw-black text-amber-dark mb-0">{{ number_format($summary['total_score'] ?? 0, 1) }}</h2>
                                     <span class="text-muted small fw-semibold">жами балл</span>
                                 </div>
                                 <div class="d-flex flex-wrap gap-1">
@@ -412,8 +412,8 @@
 
                                         <!-- I-index & Projects -->
                                         <div class="d-flex align-items-center justify-content-between small">
-                                            <span class="text-muted"><i class="feather-award me-1 text-warning"></i> И-индекс:</span>
-                                            <span class="fw-bold text-warning">⭐ {{ number_format($iIndex['score'] ?? 0, 1) }} <small class="text-muted">({{ $iIndex['articles_count'] ?? 0 }} мақола)</small></span>
+                                            <span class="text-muted"><i class="feather-award me-1 text-amber-dark"></i> И-индекс:</span>
+                                            <span class="fw-bold text-amber-dark">⭐ {{ number_format($iIndex['score'] ?? 0, 1) }} <small class="text-muted">({{ $iIndex['articles_count'] ?? 0 }} мақола)</small></span>
                                         </div>
 
                                         <!-- Birthday -->
@@ -504,7 +504,7 @@
 
                                     <td class="text-center">
                                         @if($hasExcuse)
-                                            <span class="badge bg-primary rounded-pill px-2 py-1" title="{{ $att['excuse_reason'] ?? 'Сабабли' }}">
+                                            <span class="badge bg-amber-subtle text-amber-dark border border-warning rounded-pill px-2 py-1" title="{{ $att['excuse_reason'] ?? 'Сабабли' }}">
                                                 🟡 Сабабли
                                             </span>
                                         @elseif($isInside)
@@ -512,7 +512,7 @@
                                                 🟢 Бинода {{ !empty($att['entry_time']) ? '(' . substr($att['entry_time'], 11, 5) . ')' : '' }}
                                             </span>
                                         @elseif($isLate)
-                                            <span class="badge bg-warning text-dark rounded-pill px-2 py-1">
+                                            <span class="badge bg-amber-subtle text-amber-dark border border-warning rounded-pill px-2 py-1">
                                                 🟠 Кечиккан (+{{ $att['late_minutes'] ?? 0 }}м)
                                             </span>
                                         @elseif($isArrived)
@@ -541,7 +541,7 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <div class="fw-bold text-warning fs-6">
+                                        <div class="fw-bold text-amber-dark fs-6">
                                             ⭐ {{ number_format($iIndex['score'] ?? 0, 1) }}
                                         </div>
                                         <div class="small text-muted">{{ $iIndex['articles_count'] ?? 0 }} мақола</div>
@@ -955,6 +955,10 @@
     .bg-purple { background-color: #8b5cf6 !important; }
     .bg-purple-subtle { background-color: rgba(139, 92, 246, 0.12) !important; }
     .text-purple { color: #8b5cf6 !important; }
+
+    .text-amber { color: #d97706 !important; }
+    .text-amber-dark { color: #b45309 !important; }
+    .bg-amber-subtle { background-color: #fef3c7 !important; color: #92400e !important; }
 
     .filter-chip {
         font-size: 12px;
