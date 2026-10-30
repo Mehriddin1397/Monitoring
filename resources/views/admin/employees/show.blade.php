@@ -14,7 +14,7 @@
                     <img src="{{ $employee->avatar_url }}" alt="{{ $employee->full_name }}" 
                          class="rounded-circle border border-3 border-white shadow-lg object-fit-cover" 
                          style="width: 100px; height: 100px; background-color: #f1f5f9;"
-                         onerror="this.onerror=null; this.src='/assets/images/avatar/default.png';">
+                         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 128 128\'%3E%3Cdefs%3E%3ClinearGradient id=\'g\' x1=\'0%25\' y1=\'0%25\' x2=\'100%25\' y2=\'100%25\'%3E%3Cstop offset=\'0%25\' stop-color=\'%234f46e5\'/%3E%3Cstop offset=\'100%25\' stop-color=\'%237c3aed\'/%3E%3C/defs%3E%3Crect width=\'128\' height=\'128\' rx=\'64\' fill=\'url(%23g)\'/%3E%3Cpath d=\'M64 62a22 22 0 1 0 0-44 22 22 0 0 0 0 44zm0 12c-23 0-42 15-42 34v6h84v-6c0-19-19-34-42-34z\' fill=\'%23ffffff\' opacity=\'0.9\'/%3E%3C/svg%3E';">
                     
                     @php
                         $stToday = $turniketProfile['status_today'] ?? null;

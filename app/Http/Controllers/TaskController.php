@@ -790,6 +790,31 @@ class TaskController extends Controller
             'departments' => array_keys($departments),
         ];
 
+        // Prepare department rankings for ApexCharts
+        $deptMap = [];
+        foreach ($xodimlar as $item) {
+            $dep = $item['department'] ?: 'Бошқарув';
+            if (!isset($deptMap[$dep])) {
+                $deptMap[$dep] = [
+                    'name' => $dep,
+                    'employees_count' => 0,
+                    'completed_tasks' => 0,
+                    'total_tasks' => 0,
+                    'i_index_score' => 0,
+                    'inside_count' => 0,
+                ];
+            }
+            $deptMap[$dep]['employees_count']++;
+            $deptMap[$dep]['completed_tasks'] += $item['tasks']['completed'] ?? 0;
+            $deptMap[$dep]['total_tasks'] += $item['tasks']['total'] ?? 0;
+            $deptMap[$dep]['i_index_score'] += $item['i_index']['score'] ?? 0;
+            if (!empty($item['attendance']['is_inside'])) {
+                $deptMap[$dep]['inside_count']++;
+            }
+        }
+        usort($deptMap, fn($a, $b) => $b['total_tasks'] <=> $a['total_tasks']);
+        $summary['dept_stats'] = array_slice($deptMap, 0, 8);
+
         return view('pages.monitoring', compact('summary', 'xodimlar'));
     }
 
