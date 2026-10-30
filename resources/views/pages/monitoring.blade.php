@@ -35,7 +35,7 @@
                             <span class="live-dot me-1"></span> ОНЛАЙН
                         </span>
                     </div>
-                    <p class="text-white-50 mb-0 small">
+                    <p class="mb-0 small" style="color: #cbd5e1;">
                         Турникет давомати, Топшириқлар ижроси, И-индекс, Лойиҳалар ва ходимларнинг шахсий 360° досьелари
                     </p>
                 </div>
@@ -45,9 +45,9 @@
             <div class="d-flex flex-wrap align-items-center gap-2">
                 <!-- Live Tashkent Clock -->
                 <div class="px-3 py-2 rounded-pill bg-white bg-opacity-10 border border-white border-opacity-15 text-white d-flex align-items-center gap-2 shadow-sm">
-                    <i class="feather-clock text-info"></i>
+                    <i class="feather-clock" style="color: #38bdf8;"></i>
                     <span id="liveClock" class="fw-bold font-monospace fs-13">--:--:--</span>
-                    <span class="text-white-50 small">| Asia/Tashkent</span>
+                    <span class="small" style="color: #cbd5e1;">| Asia/Tashkent</span>
                 </div>
 
                 <!-- Toggle Charts Button -->
@@ -81,9 +81,9 @@
                     <div class="card-body p-3 p-md-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="text-muted small fw-bold text-uppercase letter-spacing-1">Жами ходимлар</span>
+                                <span class="kpi-label d-block mb-1">Жами ходимлар</span>
                                 <h2 class="fw-black text-dark mb-1 mt-1">{{ $summary['total_employees'] ?? count($xodimlar) }} <span class="fs-6 fw-normal text-muted">нафар</span></h2>
-                                <span class="badge bg-indigo-subtle text-indigo rounded-pill px-2 py-1 small">
+                                <span class="badge bg-indigo-subtle text-indigo rounded-pill px-2 py-1 small fw-semibold">
                                     🏢 {{ count($summary['departments'] ?? []) }} та бўлим бўйича
                                 </span>
                             </div>
@@ -103,19 +103,19 @@
                     <div class="card-body p-3 p-md-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="text-muted small fw-bold text-uppercase letter-spacing-1">Бугунги давомат</span>
+                                <span class="kpi-label d-block mb-1">Бугунги давомат</span>
                                 <div class="d-flex align-items-baseline gap-2 mt-1 mb-1">
                                     <h2 class="fw-black text-success mb-0">{{ $summary['inside_count'] ?? 0 }}</h2>
-                                    <span class="text-muted small fw-semibold">бинода ҳозир</span>
+                                    <span class="text-secondary small fw-semibold">бинода ҳозир</span>
                                 </div>
                                 <div class="d-flex flex-wrap gap-1">
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle" title="Келганлар">
-                                        🔵 {{ $summary['arrived_count'] ?? 0 }} келган
+                                    <span class="badge status-badge-inside" title="Бинода ҳозир">
+                                        🟢 {{ $summary['inside_count'] ?? 0 }} бинода
                                     </span>
-                                    <span class="badge bg-amber-subtle text-amber-dark border border-warning" title="Кечикканлар">
+                                    <span class="badge status-badge-late" title="Кечикканлар">
                                         🟠 {{ $summary['late_count'] ?? 0 }} кечиккан
                                     </span>
-                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle" title="Келмаганлар">
+                                    <span class="badge status-badge-absent" title="Келмаганлар">
                                         🔴 {{ $summary['absent_count'] ?? 0 }} келмаган
                                     </span>
                                 </div>
@@ -136,15 +136,15 @@
                     <div class="card-body p-3 p-md-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="text-muted small fw-bold text-uppercase letter-spacing-1">Топшириқлар ижроси</span>
+                                <span class="kpi-label d-block mb-1">Топшириқлар ижроси</span>
                                 <div class="d-flex align-items-baseline gap-2 mt-1 mb-1">
                                     <h2 class="fw-black text-purple mb-0">{{ $summary['total'] ?? 0 }}</h2>
                                     <span class="badge bg-purple-subtle text-purple border border-purple-subtle fw-bold">{{ $summary['percent'] ?? 0 }}% бажарилди</span>
                                 </div>
                                 <div class="d-flex flex-wrap gap-1">
-                                    <span class="badge bg-success-subtle text-success">✅ {{ $summary['completed'] ?? 0 }} бажарилди</span>
-                                    <span class="badge bg-primary-subtle text-primary">⏳ {{ $summary['in_process'] ?? 0 }} жараёнда</span>
-                                    <span class="badge bg-danger-subtle text-danger">⚠️ {{ $summary['not_completed'] ?? 0 }} ўтган</span>
+                                    <span class="badge status-badge-inside">✅ {{ $summary['completed'] ?? 0 }} бажарилди</span>
+                                    <span class="badge badge-blue-crisp">⏳ {{ $summary['in_process'] ?? 0 }} жараёнда</span>
+                                    <span class="badge status-badge-absent">⚠️ {{ $summary['not_completed'] ?? 0 }} ўтган</span>
                                 </div>
                             </div>
                             <div class="stat-icon-wrap rounded-4 d-flex align-items-center justify-content-center"
@@ -163,15 +163,15 @@
                     <div class="card-body p-3 p-md-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="text-muted small fw-bold text-uppercase letter-spacing-1">И-индекс ва Лойиҳалар</span>
+                                <span class="kpi-label d-block mb-1">И-индекс ва Лойиҳалар</span>
                                 <div class="d-flex align-items-baseline gap-2 mt-1 mb-1">
                                     <h2 class="fw-black text-amber-dark mb-0">{{ number_format($summary['total_score'] ?? 0, 1) }}</h2>
-                                    <span class="text-muted small fw-semibold">жами балл</span>
+                                    <span class="text-secondary small fw-semibold">жами балл</span>
                                 </div>
                                 <div class="d-flex flex-wrap gap-1">
-                                    <span class="badge bg-warning-subtle text-dark">📄 {{ $summary['total_articles'] ?? 0 }} мақола</span>
-                                    <span class="badge bg-primary-subtle text-primary">🚀 {{ $summary['total_projects'] ?? 0 }} лойиҳа</span>
-                                    <span class="badge bg-info-subtle text-info">✍️ {{ $summary['total_works'] ?? 0 }} ижод</span>
+                                    <span class="badge badge-amber-crisp">📄 {{ $summary['total_articles'] ?? 0 }} мақола</span>
+                                    <span class="badge badge-blue-crisp">🚀 {{ $summary['total_projects'] ?? 0 }} лойиҳа</span>
+                                    <span class="badge badge-sky-crisp">✍️ {{ $summary['total_works'] ?? 0 }} ижод</span>
                                 </div>
                             </div>
                             <div class="stat-icon-wrap rounded-4 d-flex align-items-center justify-content-center"
@@ -332,7 +332,7 @@
                                 <span class="badge bg-white bg-opacity-20 text-white border border-white border-opacity-15 font-monospace" style="font-size: 11px;">
                                     #{{ $index + 1 }} {{ !empty($item['turniket_id']) ? '• ID: ' . $item['turniket_id'] : '' }}
                                 </span>
-                                <span class="text-white-50 small text-truncate" style="max-width: 140px;" title="{{ $item['department'] }}">
+                                <span class="small text-truncate" style="max-width: 140px; color: #cbd5e1; font-weight: 500;" title="{{ $item['department'] }}">
                                     {{ $item['department'] }}
                                 </span>
                             </div>
@@ -363,9 +363,9 @@
                                     </h6>
 
                                     <!-- Position & Rank -->
-                                    <p class="text-muted small mb-2 text-truncate" title="{{ $item['position'] }}">
+                                    <p class="text-secondary small mb-2 text-truncate" title="{{ $item['position'] }}">
                                         @if(!empty($item['rank']))
-                                            <span class="badge bg-light text-dark border py-0 px-1 me-1" style="font-size: 10px;">{{ $item['rank'] }}</span>
+                                            <span class="badge bg-light text-secondary border border-secondary-subtle py-0 px-1 me-1" style="font-size: 10px; font-weight: 600;">{{ $item['rank'] }}</span>
                                         @endif
                                         {{ $item['position'] }}
                                     </p>
@@ -373,27 +373,27 @@
                                     <!-- Attendance Badge -->
                                     <div class="mb-3">
                                         @if($hasExcuse)
-                                            <span class="badge bg-primary rounded-pill px-3 py-1 text-white shadow-sm" title="{{ $att['excuse_reason'] ?? 'Сабабли' }}">
+                                            <span class="badge status-badge-excused rounded-pill px-3 py-1 shadow-sm" title="{{ $att['excuse_reason'] ?? 'Сабабли' }}">
                                                 🟡 Сабабли
                                             </span>
                                         @elseif($isInside)
-                                            <span class="badge bg-success rounded-pill px-3 py-1 text-white shadow-sm">
+                                            <span class="badge status-badge-inside rounded-pill px-3 py-1 shadow-sm">
                                                 🟢 Бинода {{ !empty($att['entry_time']) ? '(' . substr($att['entry_time'], 11, 5) . ')' : '' }}
                                             </span>
                                         @elseif($isLate)
-                                            <span class="badge bg-warning text-dark rounded-pill px-3 py-1 shadow-sm">
+                                            <span class="badge status-badge-late rounded-pill px-3 py-1 shadow-sm">
                                                 🟠 Кечиккан (+{{ $att['late_minutes'] ?? 0 }} дақ)
                                             </span>
                                         @elseif($isArrived)
-                                            <span class="badge bg-info text-white rounded-pill px-3 py-1 shadow-sm">
+                                            <span class="badge status-badge-arrived rounded-pill px-3 py-1 shadow-sm">
                                                 🔵 Келган {{ !empty($att['entry_time']) ? '(' . substr($att['entry_time'], 11, 5) . ')' : '' }}
                                             </span>
                                         @elseif($isAbsent)
-                                            <span class="badge bg-danger text-white rounded-pill px-3 py-1 shadow-sm">
+                                            <span class="badge status-badge-absent rounded-pill px-3 py-1 shadow-sm">
                                                 🔴 Келмаган
                                             </span>
                                         @else
-                                            <span class="badge bg-secondary text-white rounded-pill px-3 py-1 shadow-sm">
+                                            <span class="badge status-badge-unknown rounded-pill px-3 py-1 shadow-sm">
                                                 —
                                             </span>
                                         @endif
@@ -403,7 +403,7 @@
                                     <div class="p-2 bg-light rounded-3 mb-3 text-start">
                                         <!-- Tasks -->
                                         <div class="d-flex align-items-center justify-content-between mb-1 small">
-                                            <span class="text-muted"><i class="feather-check-square me-1 text-purple"></i> Топшириқ:</span>
+                                            <span class="text-secondary fw-semibold"><i class="feather-check-square me-1 text-purple"></i> Топшириқ:</span>
                                             <span class="fw-bold text-dark">{{ $tasks['completed'] ?? 0 }} / {{ $tasks['total'] ?? 0 }} <small class="text-muted">({{ $tasks['percent'] ?? 0 }}%)</small></span>
                                         </div>
                                         <div class="progress mb-2" style="height: 5px;">
@@ -412,15 +412,15 @@
 
                                         <!-- I-index & Projects -->
                                         <div class="d-flex align-items-center justify-content-between small">
-                                            <span class="text-muted"><i class="feather-award me-1 text-amber-dark"></i> И-индекс:</span>
+                                            <span class="text-secondary fw-semibold"><i class="feather-award me-1 text-amber-dark"></i> И-индекс:</span>
                                             <span class="fw-bold text-amber-dark">⭐ {{ number_format($iIndex['score'] ?? 0, 1) }} <small class="text-muted">({{ $iIndex['articles_count'] ?? 0 }} мақола)</small></span>
                                         </div>
 
                                         <!-- Birthday -->
                                         @if(!empty($bday))
                                             <div class="d-flex align-items-center justify-content-between small mt-1 pt-1 border-top">
-                                                <span class="text-muted"><i class="feather-gift me-1 text-danger"></i> Туғилган кун:</span>
-                                                <span class="badge bg-white text-dark border">{{ $bday['badge'] ?? $bday['formatted'] }}</span>
+                                                <span class="text-secondary fw-semibold"><i class="feather-gift me-1 text-danger"></i> Туғилган кун:</span>
+                                                <span class="badge badge-rose-crisp">{{ $bday['badge'] ?? $bday['formatted'] }}</span>
                                             </div>
                                         @endif
                                     </div>
@@ -504,27 +504,27 @@
 
                                     <td class="text-center">
                                         @if($hasExcuse)
-                                            <span class="badge bg-amber-subtle text-amber-dark border border-warning rounded-pill px-2 py-1" title="{{ $att['excuse_reason'] ?? 'Сабабли' }}">
+                                            <span class="badge status-badge-excused rounded-pill px-2 py-1" title="{{ $att['excuse_reason'] ?? 'Сабабли' }}">
                                                 🟡 Сабабли
                                             </span>
                                         @elseif($isInside)
-                                            <span class="badge bg-success rounded-pill px-2 py-1">
+                                            <span class="badge status-badge-inside rounded-pill px-2 py-1">
                                                 🟢 Бинода {{ !empty($att['entry_time']) ? '(' . substr($att['entry_time'], 11, 5) . ')' : '' }}
                                             </span>
                                         @elseif($isLate)
-                                            <span class="badge bg-amber-subtle text-amber-dark border border-warning rounded-pill px-2 py-1">
+                                            <span class="badge status-badge-late rounded-pill px-2 py-1">
                                                 🟠 Кечиккан (+{{ $att['late_minutes'] ?? 0 }}м)
                                             </span>
                                         @elseif($isArrived)
-                                            <span class="badge bg-info text-white rounded-pill px-2 py-1">
-                                                🔵 Келган
+                                            <span class="badge status-badge-arrived rounded-pill px-2 py-1">
+                                                🔵 Келган {{ !empty($att['entry_time']) ? '(' . substr($att['entry_time'], 11, 5) . ')' : '' }}
                                             </span>
                                         @elseif($isAbsent)
-                                            <span class="badge bg-danger rounded-pill px-2 py-1">
+                                            <span class="badge status-badge-absent rounded-pill px-2 py-1">
                                                 🔴 Келмаган
                                             </span>
                                         @else
-                                            <span class="badge bg-secondary rounded-pill px-2 py-1">
+                                            <span class="badge status-badge-unknown rounded-pill px-2 py-1">
                                                 —
                                             </span>
                                         @endif
@@ -532,8 +532,8 @@
 
                                     <td>
                                         <div class="d-flex align-items-center justify-content-between mb-1 small">
-                                            <span class="fw-bold">{{ $tasks['completed'] ?? 0 }} / {{ $tasks['total'] ?? 0 }}</span>
-                                            <span class="text-muted">{{ $tasks['percent'] ?? 0 }}%</span>
+                                            <span class="fw-bold text-dark">{{ $tasks['completed'] ?? 0 }} / {{ $tasks['total'] ?? 0 }}</span>
+                                            <span class="text-muted fw-semibold">{{ $tasks['percent'] ?? 0 }}%</span>
                                         </div>
                                         <div class="progress" style="height: 5px;">
                                             <div class="progress-bar bg-purple" style="width: {{ $tasks['percent'] ?? 0 }}%"></div>
@@ -544,18 +544,18 @@
                                         <div class="fw-bold text-amber-dark fs-6">
                                             ⭐ {{ number_format($iIndex['score'] ?? 0, 1) }}
                                         </div>
-                                        <div class="small text-muted">{{ $iIndex['articles_count'] ?? 0 }} мақола</div>
+                                        <div class="small text-muted fw-semibold">{{ $iIndex['articles_count'] ?? 0 }} мақола</div>
                                     </td>
 
                                     <td class="text-center">
-                                        <span class="badge bg-primary-subtle text-primary">🚀 {{ $item['projects_count'] ?? 0 }}</span>
-                                        <span class="badge bg-info-subtle text-info">✍️ {{ $item['works_count'] ?? 0 }}</span>
+                                        <span class="badge badge-blue-crisp">🚀 {{ $item['projects_count'] ?? 0 }}</span>
+                                        <span class="badge badge-sky-crisp">✍️ {{ $item['works_count'] ?? 0 }}</span>
                                     </td>
 
                                     <td class="text-center">
                                         @if(!empty($bday))
-                                            <div class="small fw-semibold">{{ $bday['formatted'] ?? '' }}</div>
-                                            <span class="badge bg-light text-dark border">{{ $bday['badge'] ?? '' }}</span>
+                                            <div class="small fw-semibold text-dark">{{ $bday['formatted'] ?? '' }}</div>
+                                            <span class="badge badge-rose-crisp">{{ $bday['badge'] ?? '' }}</span>
                                         @else
                                             <span class="text-muted small">—</span>
                                         @endif
@@ -959,6 +959,76 @@
     .text-amber { color: #d97706 !important; }
     .text-amber-dark { color: #b45309 !important; }
     .bg-amber-subtle { background-color: #fef3c7 !important; color: #92400e !important; }
+
+    /* Crisp High-Contrast Badges */
+    .status-badge-inside {
+        background-color: #dcfce7 !important;
+        color: #166534 !important;
+        border: 1px solid #86efac !important;
+        font-weight: 600 !important;
+    }
+    .status-badge-arrived {
+        background-color: #e0f2fe !important;
+        color: #0369a1 !important;
+        border: 1px solid #7dd3fc !important;
+        font-weight: 600 !important;
+    }
+    .status-badge-late {
+        background-color: #ffedd5 !important;
+        color: #9a3412 !important;
+        border: 1px solid #fed7aa !important;
+        font-weight: 600 !important;
+    }
+    .status-badge-excused {
+        background-color: #fef9c3 !important;
+        color: #854d0e !important;
+        border: 1px solid #fde047 !important;
+        font-weight: 600 !important;
+    }
+    .status-badge-absent {
+        background-color: #fee2e2 !important;
+        color: #991b1b !important;
+        border: 1px solid #fca5a5 !important;
+        font-weight: 600 !important;
+    }
+    .status-badge-unknown {
+        background-color: #f1f5f9 !important;
+        color: #475569 !important;
+        border: 1px solid #cbd5e1 !important;
+        font-weight: 600 !important;
+    }
+
+    .badge-blue-crisp {
+        background-color: #dbeafe !important;
+        color: #1d4ed8 !important;
+        border: 1px solid #bfdbfe !important;
+        font-weight: 600 !important;
+    }
+    .badge-sky-crisp {
+        background-color: #e0f2fe !important;
+        color: #0369a1 !important;
+        border: 1px solid #bae6fd !important;
+        font-weight: 600 !important;
+    }
+    .badge-amber-crisp {
+        background-color: #fef3c7 !important;
+        color: #92400e !important;
+        border: 1px solid #fde68a !important;
+        font-weight: 600 !important;
+    }
+    .badge-rose-crisp {
+        background-color: #ffe4e6 !important;
+        color: #9f1239 !important;
+        border: 1px solid #fecdd3 !important;
+        font-weight: 600 !important;
+    }
+    .kpi-label {
+        color: #475569 !important;
+        font-weight: 700 !important;
+        font-size: 11px !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+    }
 
     .filter-chip {
         font-size: 12px;

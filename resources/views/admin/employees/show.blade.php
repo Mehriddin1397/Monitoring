@@ -384,29 +384,43 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="table-light">
                                     <tr class="fs-12 text-uppercase text-muted">
-                                        <th style="width: 50px;">#</th>
-                                        <th>Мақола номи</th>
-                                        <th>Нашр этилган жой</th>
-                                        <th>Баҳо (Таъриф / Тасниф / Таклиф)</th>
-                                        <th>Умумий балл</th>
-                                        <th>Ҳолати</th>
-                                        <th>Файл</th>
+                                        <th style="width: 50px;" class="text-center">#</th>
+                                        <th style="min-width: 260px; max-width: 440px;">Мақола номи</th>
+                                        <th style="min-width: 180px; max-width: 280px;">Нашр этилган жой</th>
+                                        <th style="width: 140px;" class="text-center">Баҳо (Таъриф / Тасниф / Таклиф)</th>
+                                        <th style="width: 120px;" class="text-center">Умумий балл</th>
+                                        <th style="width: 120px;" class="text-center">Ҳолати</th>
+                                        <th style="width: 90px;" class="text-center">Файл</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($articles as $idx => $art)
                                         <tr>
-                                            <td class="text-muted fs-12">{{ $idx + 1 }}</td>
+                                            <td class="text-muted fs-12 text-center">{{ $idx + 1 }}</td>
                                             <td>
-                                                <div class="fw-bold text-dark fs-14">{!! strip_tags($art->title) !!}</div>
-                                                <small class="text-muted">{{ $art->created_at->format('d.m.Y') }}</small>
+                                                @php
+                                                    $cleanArtTitle = trim(preg_replace('/\s+/u', ' ', strip_tags($art->title)));
+                                                    $isArtLong = mb_strlen($cleanArtTitle) > 120;
+                                                @endphp
+                                                <div class="fw-semibold text-dark fs-13 lh-base mb-1" style="max-width: 440px; word-break: break-word; overflow-wrap: anywhere;">
+                                                    @if($isArtLong)
+                                                        <span id="art_short_{{ $art->id }}">{{ mb_substr($cleanArtTitle, 0, 120) }}...</span>
+                                                        <span id="art_full_{{ $art->id }}" class="d-none">{{ $cleanArtTitle }}</span>
+                                                        <a href="javascript:void(0);" onclick="toggleArtText({{ $art->id }})" id="art_toggle_{{ $art->id }}" class="text-primary text-decoration-none ms-1 small fw-bold">кўпроқ</a>
+                                                    @else
+                                                        {{ $cleanArtTitle }}
+                                                    @endif
+                                                </div>
+                                                <small class="text-muted"><i class="feather-calendar me-1"></i>{{ $art->created_at->format('d.m.Y') }}</small>
                                             </td>
                                             <td>
-                                                <span class="text-muted fs-13">{{ $art->publish_place ?? '-' }}</span>
+                                                <div class="text-dark fs-13 lh-sm" style="max-width: 280px; word-break: break-word; overflow-wrap: anywhere;">
+                                                    {{ $art->publish_place ?? '-' }}
+                                                </div>
                                             </td>
-                                            <td>
+                                            <td class="text-center">
                                                 @if($art->articleScore)
-                                                    <span class="font-monospace fs-12 text-dark">
+                                                    <span class="font-monospace fs-12 text-dark fw-bold">
                                                         {{ $art->articleScore->definitions ?? 0 }} / 
                                                         {{ $art->articleScore->classifications ?? 0 }} / 
                                                         {{ $art->articleScore->suggestions ?? 0 }}
@@ -415,25 +429,25 @@
                                                     <span class="text-muted fs-12">Баҳоланмаган</span>
                                                 @endif
                                             </td>
-                                            <td>
+                                            <td class="text-center">
                                                 @if($art->articleScore && $art->articleScore->total_score > 0)
-                                                    <span class="badge bg-success fs-13 px-2 py-1 font-monospace">
+                                                    <span class="badge bg-amber-subtle text-amber-dark border border-warning fs-13 px-2 py-1 font-monospace fw-bold">
                                                         ⭐ {{ $art->articleScore->total_score }} балл
                                                     </span>
                                                 @else
-                                                    <span class="badge bg-light text-muted">0 балл</span>
+                                                    <span class="badge bg-light text-muted border">0 балл</span>
                                                 @endif
                                             </td>
-                                            <td>
+                                            <td class="text-center">
                                                 @if($art->status === 'tasdiqlandi')
-                                                    <span class="badge bg-soft-success text-success px-2 py-1">Тасдиқланган</span>
+                                                    <span class="badge rounded-pill px-2 py-1" style="background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">Тасдиқланган</span>
                                                 @elseif($art->status === 'rad_etildi')
-                                                    <span class="badge bg-soft-danger text-danger px-2 py-1">Рад этилган</span>
+                                                    <span class="badge rounded-pill px-2 py-1" style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;">Рад этилган</span>
                                                 @else
-                                                    <span class="badge bg-soft-warning text-warning px-2 py-1">Кутилмоқда</span>
+                                                    <span class="badge rounded-pill px-2 py-1" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;">Кутилмоқда</span>
                                                 @endif
                                             </td>
-                                            <td>
+                                            <td class="text-center">
                                                 @if($art->article_pdf)
                                                     <a href="{{ asset($art->article_pdf) }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12">
                                                         <i class="feather-file me-1"></i> PDF
@@ -665,16 +679,41 @@
                     <div class="tab-pane fade p-3" id="tab-projects" role="tabpanel">
                         <div class="row g-3">
                             @forelse($projects as $proj)
-                                <div class="col-12 col-md-6">
-                                    <div class="card border shadow-none p-3 h-100">
-                                        <h6 class="fw-bold text-dark fs-15 mb-2">{!! strip_tags($proj->name) !!}</h6>
-                                        <div class="fs-13 text-muted mb-2">
-                                            <strong>Манба:</strong> {{ $proj->manba ?? '-' }}
+                                <div class="col-12 col-lg-6">
+                                    <div class="card border rounded-3 shadow-none p-3 h-100" style="word-break: break-word; overflow-wrap: anywhere; background: #ffffff;">
+                                        @php
+                                            $cleanProjName = trim(preg_replace('/\s+/u', ' ', strip_tags($proj->name)));
+                                            $cleanIzoh = trim(preg_replace('/\s+/u', ' ', strip_tags($proj->izoh ?? '')));
+                                            $cleanManba = trim(preg_replace('/\s+/u', ' ', strip_tags($proj->manba ?? '')));
+                                            $isIzohLong = mb_strlen($cleanIzoh) > 130;
+                                        @endphp
+                                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                            <h6 class="fw-bold text-dark fs-15 mb-0 lh-base" style="word-break: break-word; overflow-wrap: anywhere;">
+                                                <i class="feather-folder text-primary me-1"></i>{{ $cleanProjName }}
+                                            </h6>
+                                            <span class="badge bg-light text-dark border font-monospace flex-shrink-0" style="font-size: 11px;">#{{ $proj->id }}</span>
                                         </div>
-                                        <div class="fs-13 text-muted mb-3">
-                                            <strong>Изоҳ:</strong> {{ $proj->izoh ?? '-' }}
-                                        </div>
-                                        <div class="d-flex gap-2">
+
+                                        @if(!empty($cleanManba))
+                                            <div class="fs-13 text-muted mb-2" style="word-break: break-word; overflow-wrap: anywhere;">
+                                                <strong class="text-dark">Манба:</strong> {{ $cleanManba }}
+                                            </div>
+                                        @endif
+
+                                        @if(!empty($cleanIzoh))
+                                            <div class="fs-13 text-muted mb-3 lh-base" style="word-break: break-word; overflow-wrap: anywhere;">
+                                                <strong class="text-dark">Изоҳ:</strong>
+                                                @if($isIzohLong)
+                                                    <span id="proj_short_{{ $proj->id }}">{{ mb_substr($cleanIzoh, 0, 130) }}...</span>
+                                                    <span id="proj_full_{{ $proj->id }}" class="d-none">{{ $cleanIzoh }}</span>
+                                                    <a href="javascript:void(0);" onclick="toggleProjText({{ $proj->id }})" id="proj_toggle_{{ $proj->id }}" class="text-primary text-decoration-none ms-1 small fw-bold">кўпроқ</a>
+                                                @else
+                                                    {{ $cleanIzoh }}
+                                                @endif
+                                            </div>
+                                        @endif
+
+                                        <div class="d-flex flex-wrap gap-2 mt-auto pt-2 border-top">
                                             @if($proj->file_buyruq)
                                                 <a href="{{ asset($proj->file_buyruq) }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12">
                                                     <i class="feather-file-text me-1"></i> Буйруқ файли
@@ -701,16 +740,16 @@
                     <div class="tab-pane fade p-3" id="tab-works" role="tabpanel">
                         <div class="row g-3">
                             @forelse($works as $work)
-                                <div class="col-12 col-md-6">
-                                    <div class="card border shadow-none p-3 h-100">
+                                <div class="col-12 col-lg-6">
+                                    <div class="card border rounded-3 shadow-none p-3 h-100" style="word-break: break-word; overflow-wrap: anywhere; background: #ffffff;">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <span class="badge bg-soft-warning text-warning text-uppercase fs-11">
+                                            <span class="badge bg-amber-subtle text-amber-dark border border-warning text-uppercase fs-11">
                                                 {{ $work->type ?? 'Ижод' }}
                                             </span>
                                             <small class="text-muted">{{ $work->created_at->format('d.m.Y') }}</small>
                                         </div>
-                                        <h5 class="fw-bold text-dark fs-16 mb-2">{{ $work->title }}</h5>
-                                        <p class="fs-13 text-muted mb-0">{!! nl2br(e($work->excerpt ?? \Illuminate\Support\Str::limit($work->content, 180))) !!}</p>
+                                        <h5 class="fw-bold text-dark fs-15 mb-2 lh-base" style="word-break: break-word; overflow-wrap: anywhere;">{{ $work->title }}</h5>
+                                        <p class="fs-13 text-muted mb-0 lh-base" style="word-break: break-word; overflow-wrap: anywhere;">{!! nl2br(e($work->excerpt ?? \Illuminate\Support\Str::limit(strip_tags($work->content), 180))) !!}</p>
                                     </div>
                                 </div>
                             @empty
@@ -868,6 +907,36 @@ function toggleTaskText(taskId) {
     const shortEl = document.getElementById('task_short_' + taskId);
     const fullEl = document.getElementById('task_full_' + taskId);
     const toggleEl = document.getElementById('task_toggle_' + taskId);
+    if (!shortEl || !fullEl) return;
+    if (fullEl.classList.contains('d-none')) {
+        fullEl.classList.remove('d-none');
+        shortEl.classList.add('d-none');
+        if (toggleEl) toggleEl.textContent = 'камроқ';
+    } else {
+        fullEl.classList.add('d-none');
+        shortEl.classList.remove('d-none');
+        if (toggleEl) toggleEl.textContent = 'кўпроқ';
+    }
+}
+function toggleArtText(artId) {
+    const shortEl = document.getElementById('art_short_' + artId);
+    const fullEl = document.getElementById('art_full_' + artId);
+    const toggleEl = document.getElementById('art_toggle_' + artId);
+    if (!shortEl || !fullEl) return;
+    if (fullEl.classList.contains('d-none')) {
+        fullEl.classList.remove('d-none');
+        shortEl.classList.add('d-none');
+        if (toggleEl) toggleEl.textContent = 'камроқ';
+    } else {
+        fullEl.classList.add('d-none');
+        shortEl.classList.remove('d-none');
+        if (toggleEl) toggleEl.textContent = 'кўпроқ';
+    }
+}
+function toggleProjText(projId) {
+    const shortEl = document.getElementById('proj_short_' + projId);
+    const fullEl = document.getElementById('proj_full_' + projId);
+    const toggleEl = document.getElementById('proj_toggle_' + projId);
     if (!shortEl || !fullEl) return;
     if (fullEl.classList.contains('d-none')) {
         fullEl.classList.remove('d-none');
