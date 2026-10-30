@@ -60,9 +60,9 @@ class CctvController extends Controller
             return true;
         });
 
-        // Pre-fetch embed URLs for filtered cameras
+        // Use internal HTTPS player route to eliminate mixed content issues
         foreach ($filteredCameras as &$cam) {
-            $cam['embed_url'] = $this->cctvService->getEmbedUrl($cam['id'], $quality);
+            $cam['embed_url'] = route('cctv.player', ['id' => $cam['id'], 'quality' => $quality]);
         }
         unset($cam);
 
@@ -75,7 +75,7 @@ class CctvController extends Controller
             foreach ($cameras as $cam) {
                 if ($cam['id'] == $activeCameraId) {
                     $activeCamera = $cam;
-                    $activeCamera['embed_url'] = $this->cctvService->getEmbedUrl($cam['id'], $quality);
+                    $activeCamera['embed_url'] = route('cctv.player', ['id' => $cam['id'], 'quality' => $quality]);
                     break;
                 }
             }
@@ -118,7 +118,32 @@ class CctvController extends Controller
             'success'   => true,
             'camera'    => $camera,
             'embed'     => $embed,
-            'embed_url' => $embed['embed_url'] ?? null,
+            'embed_url' => route('cctv.player', ['id' => $id, 'quality' => $quality]),
+        ]);
+    }
+
+    /**
+     * Standalone HTTPS Camera Player (Plays WebRTC / HLS through Same-Origin Proxy)
+     */
+    public function player(Request $request, $id)
+    {
+        $quality = $request->input('quality', 'sub');
+        $camera = $this->cctvService->getCamera($id);
+
+        if (!$camera) {
+            abort(404, 'Kamera topilmadi');
+        }
+
+        $embed = $this->cctvService->generateEmbed($id, 72, $quality);
+        $token = $embed['token'] ?? '';
+        $streamName = "camera_{$id}_{$quality}";
+
+        return view('admin.cctv.player', [
+            'camera'     => $camera,
+            'token'      => $token,
+            'streamName' => $streamName,
+            'quality'    => $quality,
+            'rawEmbed'   => $embed,
         ]);
     }
 
@@ -131,7 +156,7 @@ class CctvController extends Controller
         $cameras = $this->cctvService->getCameras($request->has('refresh'));
 
         foreach ($cameras as &$cam) {
-            $cam['embed_url'] = $this->cctvService->getEmbedUrl($cam['id'], $quality);
+            $cam['embed_url'] = route('cctv.player', ['id' => $cam['id'], 'quality' => $quality]);
         }
         unset($cam);
 
@@ -169,7 +194,7 @@ class CctvController extends Controller
         }
 
         if ($activeCamera) {
-            $activeCamera['embed_url'] = $this->cctvService->getEmbedUrl($activeCamera['id'], $quality);
+            $activeCamera['embed_url'] = route('cctv.player', ['id' => $activeCamera['id'], 'quality' => $quality]);
         }
 
         return view('admin.cctv.ptz', [

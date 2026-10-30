@@ -93,12 +93,22 @@ class TurniketService
         return $this->get('/api/v1/dashboard/metrics');
     }
 
+    public function getDashboardMetrics(): array
+    {
+        return $this->getMetrics();
+    }
+
     /**
      * 3. Today's arrived employees
      */
     public function getArrived(): array
     {
         return $this->get('/api/v1/dashboard/arrived');
+    }
+
+    public function getArrivedEmployees(): array
+    {
+        return $this->getArrived();
     }
 
     /**
@@ -109,6 +119,11 @@ class TurniketService
         return $this->get('/api/v1/dashboard/absent');
     }
 
+    public function getAbsentEmployees(): array
+    {
+        return $this->getAbsent();
+    }
+
     /**
      * 5. Today's late employees
      */
@@ -117,12 +132,22 @@ class TurniketService
         return $this->get('/api/v1/dashboard/late');
     }
 
+    public function getLateEmployees(): array
+    {
+        return $this->getLate();
+    }
+
     /**
      * 6. Employees currently inside building
      */
     public function getInside(): array
     {
         return $this->get('/api/v1/dashboard/inside');
+    }
+
+    public function getInsideEmployees(): array
+    {
+        return $this->getInside();
     }
 
     /**

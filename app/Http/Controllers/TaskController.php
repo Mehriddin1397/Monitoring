@@ -491,7 +491,7 @@ class TaskController extends Controller
         $absentMap = [];
 
         try {
-            $insideRes = $turniketService->getInsideEmployees();
+            $insideRes = $turniketService->getInside();
             if (!empty($insideRes['data'])) {
                 foreach ($insideRes['data'] as $item) {
                     $no = (string)($item['employee_no'] ?? '');
@@ -501,7 +501,7 @@ class TaskController extends Controller
                 }
             }
 
-            $lateRes = $turniketService->getLateEmployees();
+            $lateRes = $turniketService->getLate();
             if (!empty($lateRes['data'])) {
                 foreach ($lateRes['data'] as $item) {
                     $no = (string)($item['employee_no'] ?? '');
@@ -511,7 +511,7 @@ class TaskController extends Controller
                 }
             }
 
-            $arrivedRes = $turniketService->getArrivedEmployees();
+            $arrivedRes = $turniketService->getArrived();
             if (!empty($arrivedRes['data'])) {
                 foreach ($arrivedRes['data'] as $item) {
                     $no = (string)($item['employee_no'] ?? '');
@@ -521,7 +521,7 @@ class TaskController extends Controller
                 }
             }
 
-            $absentRes = $turniketService->getAbsentEmployees();
+            $absentRes = $turniketService->getAbsent();
             if (!empty($absentRes['data'])) {
                 foreach ($absentRes['data'] as $item) {
                     $no = (string)($item['employee_no'] ?? '');

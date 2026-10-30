@@ -123,6 +123,7 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
         Route::get('/cctv/wall', [\App\Http\Controllers\CctvController::class, 'wall'])->name('cctv.wall');
         Route::get('/cctv/ptz', [\App\Http\Controllers\CctvController::class, 'ptz'])->name('cctv.ptz');
         Route::get('/cctv/stream/{id}', [\App\Http\Controllers\CctvController::class, 'stream'])->name('cctv.stream');
+        Route::get('/cctv/player/{id}', [\App\Http\Controllers\CctvController::class, 'player'])->name('cctv.player');
         Route::match(['GET', 'POST', 'DELETE'], '/cctv/{id}/ptz/{action}/{subId?}', [\App\Http\Controllers\CctvController::class, 'ptzAction'])->name('cctv.ptz.action');
     });
 
@@ -139,6 +140,13 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
         Route::get('/live-stats', [\App\Http\Controllers\TurniketController::class, 'liveStats'])->name('live_stats');
     });
 
+});
+
+// Direct convenience routes for CCTV
+Route::middleware(['auth', 'last.activity', 'ip.restrict', 'cctv.access'])->group(function () {
+    Route::get('/cctv', fn() => redirect()->route('cctv.index'));
+    Route::get('/cctv/wall', fn() => redirect()->route('cctv.wall'));
+    Route::get('/cctv/ptz', fn() => redirect()->route('cctv.ptz'));
 });
 
 
