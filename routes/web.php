@@ -39,6 +39,7 @@ Route::get('/brith', [\App\Http\Controllers\PageController::class, 'brith'])->na
 
 Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\PageController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
     Route::resource('tasks', \App\Http\Controllers\TaskController::class)->except(['show']);
 
     Route::resource('users', \App\Http\Controllers\UserController::class);

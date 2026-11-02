@@ -146,31 +146,56 @@
 {{--                    </a>--}}
 {{--                </div>--}}
                 <div class="dropdown nxl-h-item">
-                    <a href="javascript:void(0);" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside">
-                        <img src="{{ asset('assets/images/8214212.png') }}" alt="user-image" class="img-fluid user-avtar me-0" />
+                    <a href="javascript:void(0);" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside" class="d-flex align-items-center" title="Шахсий профиль">
+                        <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}" class="img-fluid user-avtar me-0 rounded-circle object-fit-cover shadow-sm" style="width: 40px; height: 40px; border: 2px solid #3b82f6;" onerror="this.onerror=null; this.src='{{ asset('assets/images/8214212.png') }}';" />
                     </a>
-                    <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-user-dropdown">
-                        <div class="dropdown-header">
-                            <div class="d-flex align-items-center">
-                                <img src="{{ asset('assets/images/logoo.jfif') }}" alt="user-image" class="img-fluid user-avtar" />
-                                <div class="ms-2" style="max-width: 180px;">
-                                    <h6 class="text-dark mb-0 text-break" style="white-space: normal; word-break: break-word;">
-                                        {{ Auth::user()->name }}
-                                        <span class="badge bg-soft-success text-success ms-1">PRO</span>
-                                    </h6>
-                                    <span class="fs-12 fw-medium text-muted text-break" style="white-space: normal; word-break: break-word;">
-                        {{ Auth::user()->email }}
-                    </span>
-                                </div>
+                    <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown nxl-user-dropdown p-0 shadow-lg border-0 rounded-4 overflow-hidden" style="min-width: 320px;">
+                        <!-- Header banner / profile hero -->
+                        <div class="p-3 text-white text-center position-relative" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);">
+                            <div class="position-relative d-inline-block mb-2">
+                                <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}" class="rounded-circle object-fit-cover shadow border border-3 border-white" style="width: 76px; height: 76px;" onerror="this.onerror=null; this.src='{{ asset('assets/images/8214212.png') }}';" />
+                                <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-success p-1 border border-2 border-white" title="Тизимда фаол">
+                                    <span class="visually-hidden">Online</span>
+                                </span>
+                            </div>
+                            <h6 class="text-white fw-bold mb-0 fs-15 text-break">{{ Auth::user()->name }}</h6>
+                            <small class="text-white-50 fs-12">{{ Auth::user()->email }}</small>
+                            <div class="mt-2">
+                                <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-1 fs-11 text-uppercase fw-semibold">
+                                    {{ Auth::user()->role }}
+                                </span>
                             </div>
                         </div>
 
-                        <div class="dropdown-divider"></div>
+                        <!-- Profile Info: Tug'ilgan kun & I-index -->
+                        <div class="p-3 bg-light border-bottom">
+                            <div class="d-flex align-items-center justify-content-between py-1 border-bottom border-light-subtle">
+                                <span class="text-muted fs-12 d-flex align-items-center gap-1.5">
+                                    <i class="feather-gift text-warning fs-14"></i> Туғилган куни:
+                                </span>
+                                <span class="fw-bold text-dark fs-12">
+                                    {{ Auth::user()->formatted_birth_date }}
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between pt-2">
+                                <span class="text-muted fs-12 d-flex align-items-center gap-1.5">
+                                    <i class="feather-trending-up text-success fs-14"></i> И-индекс баҳоси:
+                                </span>
+                                <span class="badge bg-soft-success text-success fw-bold fs-12 px-2.5 py-1">
+                                    {{ Auth::user()->i_index_score }} балл
+                                </span>
+                            </div>
+                        </div>
 
-                        <a href="#" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="feather-log-out"></i>
-                            <span>Logout</span>
-                        </a>
+                        <!-- Action links -->
+                        <div class="p-2.5 d-flex flex-column gap-1.5 bg-white">
+                            <a href="{{ route('profile') }}" class="btn btn-sm btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-1 rounded-pill fw-semibold">
+                                <i class="feather-user"></i> Шахсий профилга кириш
+                            </a>
+                            <a href="#" class="btn btn-sm btn-danger w-100 d-flex align-items-center justify-content-center gap-1 text-white rounded-pill fw-semibold" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="feather-log-out"></i> Тизимдан чиқиш
+                            </a>
+                        </div>
 
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf
