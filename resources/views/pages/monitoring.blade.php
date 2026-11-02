@@ -58,10 +58,12 @@
                     <span id="toggleChartText">📊 Диаграммалар</span>
                 </button>
 
+                @if(auth()->user()->role !== 'boshliq')
                 <!-- Sync Turniket Photos -->
                 <button type="button" id="btnSyncTurniket" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center gap-1 fw-semibold" onclick="syncTurniketPhotos()">
                     <i class="feather-refresh-cw"></i> 🔄 Турникет расмларини янгилаш
                 </button>
+                @endif
 
                 <!-- Print -->
                 <button type="button" onclick="window.print()" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm" title="Чоп этиш">

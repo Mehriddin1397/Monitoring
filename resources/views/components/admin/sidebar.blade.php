@@ -148,7 +148,7 @@
                 {{-- 3. ХАВФСИЗЛИК ВА МОНИТОРИНГ (АДМИН ВА КАДР УЧУН)         --}}
                 {{-- ======================================================== --}}
                 @auth
-                    @if (in_array(auth()->user()->role, ['admin', 'kadr']))
+                    @if (in_array(auth()->user()->role, ['admin', 'kadr', 'boshliq']))
                         <li class="nxl-item nxl-caption">
                             <label>Мониторинг</label>
                         </li>

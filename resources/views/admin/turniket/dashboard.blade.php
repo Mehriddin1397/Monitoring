@@ -324,7 +324,9 @@
                                         <th>Кечикиш дақиқаси</th>
                                         <th>Қурилма</th>
                                         <th>Ҳолати</th>
-                                        <th class="text-end" style="width: 140px;">Амал</th>
+                                        @if(auth()->user()->role !== 'boshliq')
+                                            <th class="text-end" style="width: 140px;">Амал</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -378,16 +380,18 @@
                                                     </span>
                                                 @endif
                                             </td>
-                                            <td class="text-end">
-                                                <button type="button" class="btn btn-sm btn-outline-warning py-1 px-2 fs-12" 
-                                                        onclick="openExcuseModal('{{ $item['employee_no'] }}', 'late_excuse')">
-                                                    <i class="feather-edit-2 me-1"></i> Сабаб ёзиш
-                                                </button>
-                                            </td>
+                                            @if(auth()->user()->role !== 'boshliq')
+                                                <td class="text-end">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning py-1 px-2 fs-12" 
+                                                            onclick="openExcuseModal('{{ $item['employee_no'] }}', 'late_excuse')">
+                                                        <i class="feather-edit-2 me-1"></i> Сабаб ёзиш
+                                                    </button>
+                                                </td>
+                                            @endif
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="text-center py-4 text-muted">
+                                            <td colspan="{{ auth()->user()->role === 'boshliq' ? 7 : 8 }}" class="text-center py-4 text-muted">
                                                 <i class="feather-smile fs-32 d-block mb-2 text-success"></i>
                                                 Бугун кечиккан ходимлар мавжуд эмас!
                                             </td>
@@ -478,7 +482,9 @@
                                         <th>Бўлим</th>
                                         <th>Сабаби</th>
                                         <th>Ҳолати</th>
-                                        <th class="text-end" style="width: 140px;">Амал</th>
+                                        @if(auth()->user()->role !== 'boshliq')
+                                            <th class="text-end" style="width: 140px;">Амал</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -522,16 +528,18 @@
                                                     <i class="feather-x me-1"></i>Келмаган
                                                 </span>
                                             </td>
-                                            <td class="text-end">
-                                                <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12" 
-                                                        onclick="openExcuseModal('{{ $item['employee_no'] }}', 'business_trip')">
-                                                    <i class="feather-plus-circle me-1"></i> Сабаб ёзиш
-                                                </button>
-                                            </td>
+                                            @if(auth()->user()->role !== 'boshliq')
+                                                <td class="text-end">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12" 
+                                                            onclick="openExcuseModal('{{ $item['employee_no'] }}', 'business_trip')">
+                                                        <i class="feather-plus-circle me-1"></i> Сабаб ёзиш
+                                                    </button>
+                                                </td>
+                                            @endif
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center py-4 text-muted">
+                                            <td colspan="{{ auth()->user()->role === 'boshliq' ? 6 : 7 }}" class="text-center py-4 text-muted">
                                                 <i class="feather-check-circle fs-32 d-block mb-2 text-success"></i>
                                                 Барча ходимлар ишга келган!
                                             </td>
@@ -647,6 +655,7 @@
 }
 </style>
 
+@if(auth()->user()->role !== 'boshliq')
 <!-- ======================================================== -->
 <!-- MODAL: Сабаб / Таътил киритиш                            -->
 <!-- ======================================================== -->
@@ -748,6 +757,8 @@ function closeExcuseModal() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeExcuseModal();
 });
+</script>
+@endif
 
 // Auto-poll metrics every 15 seconds to keep dashboard fresh
 document.addEventListener('DOMContentLoaded', function() {

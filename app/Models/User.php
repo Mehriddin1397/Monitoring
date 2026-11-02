@@ -67,6 +67,16 @@ class User extends Authenticatable
 
     public function canViewCctv(): bool
     {
+        return in_array($this->role, ['admin', 'kadr', 'boshliq']);
+    }
+
+    public function canViewTurniket(): bool
+    {
+        return in_array($this->role, ['admin', 'kadr', 'boshliq']);
+    }
+
+    public function canManageTurniket(): bool
+    {
         return in_array($this->role, ['admin', 'kadr']);
     }
 

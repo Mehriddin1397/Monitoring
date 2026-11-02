@@ -243,6 +243,10 @@ class EmployeeController extends Controller
      */
     public function syncTurniket(EmployeeSyncService $syncService)
     {
+        if (auth()->user()->role === 'boshliq') {
+            abort(403, 'Бошлиқ роли учун турникет маълумотларини синхронлаш чекланган.');
+        }
+
         $res = $syncService->syncTurniketPhotos();
         return back()->with($res['success'] ? 'success' : 'error', $res['message']);
     }

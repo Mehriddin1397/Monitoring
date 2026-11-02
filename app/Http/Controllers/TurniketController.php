@@ -213,6 +213,10 @@ class TurniketController extends Controller
      */
     public function storeLeave(Request $request)
     {
+        if (auth()->user()->role === 'boshliq') {
+            abort(403, 'Бошлиқ роли учун маълумот киритиш ёки ўзгартириш чекланган.');
+        }
+
         $validated = $request->validate([
             'employee_no' => 'required|string',
             'reason'      => 'required|string|max:500',
@@ -240,6 +244,10 @@ class TurniketController extends Controller
      */
     public function destroyLeave($id, Request $request)
     {
+        if (auth()->user()->role === 'boshliq') {
+            abort(403, 'Бошлиқ роли учун маълумотни ўчириш чекланган.');
+        }
+
         $res = $this->turniketService->deleteLeave($id);
 
         if ($request->ajax() || $request->wantsJson()) {

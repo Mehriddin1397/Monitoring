@@ -16,8 +16,13 @@ class TurniketAccessMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !in_array(Auth::user()->role, ['admin', 'kadr'])) {
-            abort(403, 'Ушбу бўлим фақат администратор ва кадрлар бўлими ходими учун мўлжалланган.');
+        if (!Auth::check() || !in_array(Auth::user()->role, ['admin', 'kadr', 'boshliq'])) {
+            abort(403, 'Ушбу бўлим фақат администратор, кадрлар бўлими ходими ва раҳбар (бошлиқ) учун мўлжалланган.');
+        }
+
+        // Бошлиқ роли фақат маълумотларни кўришга (Read-only) рухсат этилган
+        if (Auth::user()->role === 'boshliq' && !$request->isMethodSafe()) {
+            abort(403, 'Бошлиқ роли учун маълумотларни ўзгартириш чекланган. Фақат кўриш мумкин.');
         }
 
         return $next($request);

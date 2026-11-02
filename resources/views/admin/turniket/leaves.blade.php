@@ -25,9 +25,11 @@
             </div>
 
             <div class="d-flex align-items-center gap-2 flex-wrap">
+                @if(auth()->user()->role !== 'boshliq')
                 <button type="button" class="btn btn-sm btn-primary" onclick="openExcuseModal('', '')">
                     <i class="feather-plus-circle me-1"></i> Янги сабаб киритиш
                 </button>
+                @endif
                 <a href="{{ route('admin.turniket.dashboard') }}" class="btn btn-sm btn-outline-light">
                     <i class="feather-grid me-1"></i> Панел
                 </a>
@@ -113,7 +115,9 @@
                                 <th>Изоҳ / Сабаб матни</th>
                                 <th>Ҳужжат рақами</th>
                                 <th>Ҳолати</th>
-                                <th class="text-end" style="width: 80px;">Амал</th>
+                                @if(auth()->user()->role !== 'boshliq')
+                                    <th class="text-end" style="width: 80px;">Амал</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -186,6 +190,7 @@
                                             <span class="badge bg-light text-muted fs-11">Тугаган</span>
                                         @endif
                                     </td>
+                                    @if(auth()->user()->role !== 'boshliq')
                                     <td class="text-end">
                                         <form action="{{ route('admin.turniket.leaves.destroy', $leave['id']) }}" method="POST" 
                                               onsubmit="return confirm('Ҳақиқатан ҳам ушбу сабабни ўчириб, ходимни сабабсиз ҳолатига қайтармоқчимисиз?');">
@@ -196,10 +201,11 @@
                                             </button>
                                         </form>
                                     </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-5 text-muted">
+                                    <td colspan="{{ auth()->user()->role === 'boshliq' ? 8 : 9 }}" class="text-center py-5 text-muted">
                                         <i class="feather-inbox fs-40 d-block mb-2 text-muted"></i>
                                         Ҳозирча бирорта ҳам сабабли ёки таътил ёзуви топилмади.
                                     </td>
@@ -217,6 +223,7 @@
 <!-- ======================================================== -->
 <!-- MODAL: Сабаб / Таътил киритиш                            -->
 <!-- ======================================================== -->
+@if(auth()->user()->role !== 'boshliq')
 <div id="excuseCustomOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999999; align-items:center; justify-content:center;">
     <div class="card border-0 shadow-lg" style="width: 540px; max-width: 95%; max-height: 90vh; overflow-y: auto;">
         <div class="card-header bg-dark text-white p-3 d-flex align-items-center justify-content-between">
@@ -317,4 +324,5 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeExcuseModal();
 });
 </script>
+@endif
 @endsection

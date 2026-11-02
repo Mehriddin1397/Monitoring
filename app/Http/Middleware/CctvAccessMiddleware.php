@@ -16,8 +16,8 @@ class CctvAccessMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !in_array(Auth::user()->role, ['admin', 'kadr'])) {
-            abort(403, 'Ushbu bo‘lim faqat administrator va kadrlar bo‘limi xodimi uchun mo‘ljallangan.');
+        if (!Auth::check() || !in_array(Auth::user()->role, ['admin', 'kadr', 'boshliq'])) {
+            abort(403, 'Ushbu bo‘lim faqat administrator, kadrlar bo‘limi va rahbar (boshliq) uchun mo‘ljallangan.');
         }
 
         return $next($request);
