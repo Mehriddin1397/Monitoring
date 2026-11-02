@@ -199,11 +199,11 @@
                     @endif
 
                     {{-- ======================================================== --}}
-                    {{-- 4. АДМИНИСТРАЦИЯ (ФАҚАТ АДМИНИСТРАТОР УЧУН)              --}}
+                    {{-- 4. СТАТИСТИКА ВА ТАҲЛИЛ (АДМИН ВА БОШЛИҚ УЧУН)           --}}
                     {{-- ======================================================== --}}
-                    @if (auth()->user()->role === 'admin')
+                    @if (in_array(auth()->user()->role, ['admin', 'boshliq']))
                         <li class="nxl-item nxl-caption">
-                            <label>Администрация</label>
+                            <label>Статистика ва таҳлил</label>
                         </li>
 
                         {{-- Ходимлар статистикаси --}}
@@ -217,9 +217,18 @@
                                     <a class="nxl-link" href="{{ route('monitoring.diagramma') }}">Диаграмма ва таҳлил</a>
                                 </li>
                                 <li class="nxl-item {{ request()->routeIs('monitoring.umumiy') ? 'active' : '' }}">
-                                    <a class="nxl-link" href="{{ route('monitoring.umumiy') }}">Жадвал кўриниши</a>
+                                    <a class="nxl-link" href="{{ route('monitoring.umumiy') }}">Умумий мониторинг</a>
                                 </li>
                             </ul>
+                        </li>
+                    @endif
+
+                    {{-- ======================================================== --}}
+                    {{-- 5. АДМИНИСТРАЦИЯ (ФАҚАТ АДМИНИСТРАТОР УЧУН)              --}}
+                    {{-- ======================================================== --}}
+                    @if (auth()->user()->role === 'admin')
+                        <li class="nxl-item nxl-caption">
+                            <label>Администрация</label>
                         </li>
 
                         {{-- Ходимлар (Фойдаланувчилар) --}}

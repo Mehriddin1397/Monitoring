@@ -24,7 +24,7 @@
                         <i class="feather-pie-chart me-1"></i> Диаграммалар
                     </a>
                     <a href="{{ route('monitoring.umumiy') }}" class="btn btn-sm btn-outline-light rounded-pill px-3 border-0 text-white">
-                        <i class="feather-table me-1"></i> Жадвал кўриниши
+                        <i class="feather-users me-1"></i> Умумий мониторинг
                     </a>
                 </div>
 
