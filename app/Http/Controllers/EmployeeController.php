@@ -241,13 +241,14 @@ class EmployeeController extends Controller
     /**
      * Turniket rasmlari va ID raqamlarini sinxronlash
      */
-    public function syncTurniket(EmployeeSyncService $syncService)
+    public function syncTurniket(Request $request, EmployeeSyncService $syncService)
     {
-        if (auth()->user()->role === 'boshliq') {
-            abort(403, 'Бошлиқ роли учун турникет маълумотларини синхронлаш чекланган.');
+        $res = $syncService->syncTurniketPhotos();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json($res);
         }
 
-        $res = $syncService->syncTurniketPhotos();
         return back()->with($res['success'] ? 'success' : 'error', $res['message']);
     }
 

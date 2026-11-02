@@ -58,12 +58,10 @@
                     <span id="toggleChartText">📊 Диаграммалар</span>
                 </button>
 
-                @if(auth()->user()->role !== 'boshliq')
                 <!-- Sync Turniket Photos -->
                 <button type="button" id="btnSyncTurniket" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm d-flex align-items-center gap-1 fw-semibold" onclick="syncTurniketPhotos()">
                     <i class="feather-refresh-cw"></i> 🔄 Турникет расмларини янгилаш
                 </button>
-                @endif
 
                 <!-- Print -->
                 <button type="button" onclick="window.print()" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm" title="Чоп этиш">
@@ -747,12 +745,21 @@
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
                 'Content-Type': 'application/json',
             }
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
+        .then(async res => {
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return res.json().then(data => ({ ok: res.ok, status: res.status, data }));
+            } else {
+                const text = await res.text();
+                throw new Error('Сервер кутилмаган форматда жавоб қайтарди (' + res.status + ')');
+            }
+        })
+        .then(({ ok, status, data }) => {
+            if (ok && data.success) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         icon: 'success',
