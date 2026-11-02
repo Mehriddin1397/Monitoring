@@ -392,7 +392,7 @@
                                                 <span class="badge bg-light text-dark border fs-10">{{ $grp['name'] }}</span>
                                             @endforeach
                                         @endif
-                                        @if (!empty($cam['is_ptz']) || in_array($cam['id'], [1, 4, 10]))
+                                        @if (($cam['ip_address'] ?? '') === '192.168.0.6')
                                             <a href="{{ route('cctv.ptz', ['camera' => $cam['id']]) }}" 
                                                class="btn btn-warning btn-xs text-dark fw-bold px-2" title="PTZ Burish & Zoom">
                                                 <i class="feather-compass me-1"></i>PTZ

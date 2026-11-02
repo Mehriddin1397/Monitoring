@@ -175,21 +175,22 @@ class CctvController extends Controller
         $quality = $request->input('quality', 'sub');
         $cameras = $this->cctvService->getCameras();
 
-        // Cameras that support PTZ (specifically Camera 1, Camera 10, Camera 4, or any with is_ptz)
-        $ptzCameras = array_filter($cameras, function ($c) {
-            return !empty($c['is_ptz']) || in_array($c['id'], [1, 4, 10]);
-        });
+        // Faqat 192.168.0.6 IP manziliga ega PTZ kamera
+        $ptzCameras = array_values(array_filter($cameras, function ($c) {
+            return ($c['ip_address'] ?? '') === '192.168.0.6';
+        }));
 
         if (empty($ptzCameras)) {
-            $ptzCameras = $cameras;
+            $ptzCameras = array_values(array_filter($cameras, fn($c) => !empty($c['is_ptz'])));
         }
 
-        $activeCameraId = $request->input('camera', (!empty($ptzCameras) ? reset($ptzCameras)['id'] : 1));
-        $activeCamera = null;
-        foreach ($cameras as $c) {
-            if ($c['id'] == $activeCameraId) {
-                $activeCamera = $c;
-                break;
+        $activeCamera = !empty($ptzCameras) ? $ptzCameras[0] : null;
+        if ($request->filled('camera') && !empty($ptzCameras)) {
+            foreach ($ptzCameras as $c) {
+                if ($c['id'] == $request->input('camera')) {
+                    $activeCamera = $c;
+                    break;
+                }
             }
         }
 
@@ -211,6 +212,14 @@ class CctvController extends Controller
      */
     public function ptzAction(Request $request, $id, $action, $subId = null)
     {
+        $camera = $this->cctvService->getCamera($id);
+        if (!$camera || ($camera['ip_address'] ?? '') !== '192.168.0.6') {
+            return response()->json([
+                'success' => false,
+                'error'   => 'Faqat 192.168.0.6 IP li kamera uchun PTZ boshqaruvi ruxsat etilgan.'
+            ], 403);
+        }
+
         $method = $request->method();
         $data = $request->all();
         $endpoint = $action . ($subId ? "/{$subId}" : "");
