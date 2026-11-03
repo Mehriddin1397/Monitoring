@@ -1015,6 +1015,17 @@
     cursor: pointer;
 }
 
+/* Modal backdrop va qorong'ulashish muammosini to'g'rilash */
+.modal {
+    z-index: 10550 !important;
+}
+.modal-backdrop {
+    z-index: 10540 !important;
+}
+.modal-dialog {
+    z-index: 10560 !important;
+}
+
 @media (max-width: 768px) {
     .chat-wrapper {
         margin: 0;
@@ -1262,6 +1273,14 @@ async function pollChatUpdates() {
 
 // Enter bosilganda yuborish, Shift+Enter bosilganda yangi qator
 document.addEventListener('DOMContentLoaded', function() {
+    // Modal oynalarni to'g'ridan-to'g'ri body ga ko'chirish (hiralashish va orqa fon bloklanishini bartaraf qilish)
+    ['newDirectModal', 'newGroupModal', 'groupInfoModal'].forEach(function(modalId) {
+        const modalEl = document.getElementById(modalId);
+        if (modalEl && modalEl.parentElement !== document.body) {
+            document.body.appendChild(modalEl);
+        }
+    });
+
     scrollToBottom();
 
     const input = document.getElementById('chatMessageInput');
