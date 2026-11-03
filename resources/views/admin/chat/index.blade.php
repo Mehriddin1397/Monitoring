@@ -80,7 +80,8 @@
                                 <h6 class="chat-item-name text-truncate">{{ $chat->getDisplayName() }}</h6>
                                 <span class="chat-item-time">
                                     @if($chat->last_message_at)
-                                        {{ $chat->last_message_at->isToday() ? $chat->last_message_at->format('H:i') : ($chat->last_message_at->isYesterday() ? 'Kecha' : $chat->last_message_at->format('d.m')) }}
+                                        @php $chatTime = $chat->last_message_at->timezone('Asia/Tashkent'); @endphp
+                                        {{ $chatTime->isToday() ? $chatTime->format('H:i') : ($chatTime->isYesterday() ? 'Kecha' : $chatTime->format('d.m')) }}
                                     @endif
                                 </span>
                             </div>
@@ -147,7 +148,18 @@
                                 </div>
                                 <div class="chat-item-info min-w-0">
                                     <div class="chat-item-name text-truncate">{{ $u->full_name ?: $u->name }}</div>
-                                    <small class="text-muted fs-11 text-truncate d-block">{{ $u->position ?: 'Xodim' }}</small>
+                                    <small class="text-muted fs-11 text-truncate d-block">
+                                        <span class="user-status-text" data-user-text-id="{{ $u->id }}">
+                                            @if($u->isOnline())
+                                                <span class="text-success fw-semibold">onlayn</span>
+                                            @else
+                                                <span>{{ $u->getLastSeenText() }}</span>
+                                            @endif
+                                        </span>
+                                        @if($u->position)
+                                            · {{ $u->position }}
+                                        @endif
+                                    </small>
                                 </div>
                                 <button type="submit" class="btn btn-xs btn-outline-primary rounded-pill px-2.5 py-1 flex-shrink-0">
                                     Yozish
@@ -249,7 +261,8 @@
                         @php $lastDate = null; @endphp
                         @foreach($messages as $msg)
                             @php
-                                $msgDate = $msg->created_at->format('Y-m-d');
+                                $msgTime = $msg->created_at->timezone('Asia/Tashkent');
+                                $msgDate = $msgTime->format('Y-m-d');
                                 $isMe = $msg->user_id === Auth::id();
                             @endphp
 
@@ -257,12 +270,12 @@
                                 @php $lastDate = $msgDate; @endphp
                                 <div class="chat-day-divider">
                                     <span>
-                                        @if($msg->created_at->isToday())
+                                        @if($msgTime->isToday())
                                             Bugun
-                                        @elseif($msg->created_at->isYesterday())
+                                        @elseif($msgTime->isYesterday())
                                             Kecha
                                         @else
-                                            {{ $msg->created_at->format('d.m.Y') }}
+                                            {{ $msgTime->format('d.m.Y') }}
                                         @endif
                                     </span>
                                 </div>
@@ -329,7 +342,7 @@
 
                                         {{-- Message metadata with genuine read status --}}
                                         <div class="message-meta">
-                                            <span class="message-time">{{ $msg->created_at->format('H:i') }}</span>
+                                            <span class="message-time">{{ $msgTime->format('H:i') }}</span>
                                             @if($isMe)
                                                 <span class="message-status {{ $msg->is_read ? 'text-primary' : 'text-muted' }}" 
                                                       id="msgStatus_{{ $msg->id }}" 
@@ -430,10 +443,16 @@
                                 <div class="min-w-0">
                                     <div class="fw-bold text-dark fs-13 text-truncate">{{ $u->full_name ?: $u->name }}</div>
                                     <small class="text-muted fs-11 text-truncate d-block">
-                                        @if($u->isOnline())
-                                            <span class="text-success fw-semibold">onlayn</span> · 
+                                        <span class="user-status-text" data-user-text-id="{{ $u->id }}">
+                                            @if($u->isOnline())
+                                                <span class="text-success fw-semibold">onlayn</span>
+                                            @else
+                                                <span>{{ $u->getLastSeenText() }}</span>
+                                            @endif
+                                        </span>
+                                        @if($u->position)
+                                            · {{ $u->position }}
                                         @endif
-                                        {{ $u->position ?: 'Xodim' }}
                                     </small>
                                 </div>
                             </div>
@@ -524,12 +543,16 @@
                                         <div class="fw-bold text-dark fs-13 text-truncate">{{ $p->user ? ($p->user->full_name ?: $p->user->name) : 'Xodim' }}</div>
                                         <small class="text-muted fs-11 text-truncate d-block">
                                             @if($p->user)
-                                                @if($p->user->isOnline())
-                                                    <span class="text-success fw-semibold">onlayn</span> · 
-                                                @else
-                                                    <span>{{ $p->user->getLastSeenText() }}</span> · 
+                                                <span class="user-status-text" data-user-text-id="{{ $p->user->id }}">
+                                                    @if($p->user->isOnline())
+                                                        <span class="text-success fw-semibold">onlayn</span>
+                                                    @else
+                                                        <span>{{ $p->user->getLastSeenText() }}</span>
+                                                    @endif
+                                                </span>
+                                                @if($p->user->position)
+                                                    · {{ $p->user->position }}
                                                 @endif
-                                                {{ $p->user->position ?: 'Xodim' }}
                                             @endif
                                         </small>
                                     </div>
@@ -1577,8 +1600,27 @@ async function pollChatUpdates() {
             }
         }
 
-        // 3. Barcha foydalanuvchilarning onlayn / oflayn yashil indikatorlarini yangilash
-        if (data.online_user_ids && Array.isArray(data.online_user_ids)) {
+        // 3. Barcha foydalanuvchilarning onlayn / oflayn yashil indikatorlari va matnlarini yangilash
+        if (data.users_status && typeof data.users_status === 'object') {
+            for (const [uid, uInfo] of Object.entries(data.users_status)) {
+                // Nuqta (indicator)
+                document.querySelectorAll(`[data-user-status-id="${uid}"]`).forEach(el => {
+                    if (uInfo.is_online) {
+                        el.classList.add('online');
+                    } else {
+                        el.classList.remove('online');
+                    }
+                });
+                // Matn (status text)
+                document.querySelectorAll(`[data-user-text-id="${uid}"]`).forEach(el => {
+                    if (uInfo.is_online) {
+                        el.innerHTML = '<span class="text-success fw-semibold">onlayn</span>';
+                    } else {
+                        el.innerHTML = `<span>${escapeHtml(uInfo.text)}</span>`;
+                    }
+                });
+            }
+        } else if (data.online_user_ids && Array.isArray(data.online_user_ids)) {
             const onlineSet = new Set(data.online_user_ids.map(id => String(id)));
             document.querySelectorAll('[data-user-status-id]').forEach(indicator => {
                 const uid = indicator.getAttribute('data-user-status-id');

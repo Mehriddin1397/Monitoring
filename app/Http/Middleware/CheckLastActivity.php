@@ -18,8 +18,8 @@ class CheckLastActivity
     {
         if (Auth::check()) {
             $user = Auth::user();
-            if (!$user->last_activity || now()->diffInSeconds($user->last_activity) >= 60) {
-                $user->updateQuietly(['last_activity' => now()]);
+            if (!$user->last_activity || abs(now()->diffInSeconds(\Carbon\Carbon::parse($user->last_activity))) >= 60) {
+                $user->updateLastActivity();
             }
 
             $last = session('last_activity');

@@ -244,7 +244,7 @@ class ChatController extends Controller
                 'file_name' => $message->file_name,
                 'file_size' => $message->formatted_file_size,
                 'is_image' => $message->isImage(),
-                'created_at' => $message->created_at->format('H:i'),
+                'created_at' => $message->created_at->timezone('Asia/Tashkent')->format('H:i'),
                 'created_at_timestamp' => $message->created_at->timestamp,
                 'is_read' => false,
                 'is_me' => true,
@@ -263,7 +263,7 @@ class ChatController extends Controller
         }
 
         // Joriy foydalanuvchining so'nggi faolligini yangilash
-        $user->updateQuietly(['last_activity' => now()]);
+        $user->updateLastActivity();
 
         $activeChatId = (int) $request->active_chat_id;
         $lastMessageId = (int) $request->last_message_id;
@@ -288,7 +288,7 @@ class ChatController extends Controller
             }
 
             // Faol chatning onlayn / oflayn holati
-            $activeChat = Chat::with(['participants.user'])->find($activeChatId);
+            $activeChat = Chat::with(['participants.user', 'users'])->find($activeChatId);
             if ($activeChat) {
                 if ($activeChat->isDirect()) {
                     $otherUser = $activeChat->getOtherUser($user);
@@ -298,7 +298,7 @@ class ChatController extends Controller
                             'type' => 'direct',
                             'user_id' => $otherUser->id,
                             'is_online' => $isOnline,
-                            'status_text' => $isOnline ? 'onlayn' : $otherUser->getLastSeenText(),
+                            'status_text' => $otherUser->getLastSeenText(),
                         ];
                     }
                 } else {
@@ -337,7 +337,7 @@ class ChatController extends Controller
                     'file_name' => $msg->file_name,
                     'file_size' => $msg->formatted_file_size,
                     'is_image' => $msg->isImage(),
-                    'created_at' => $msg->created_at->format('H:i'),
+                    'created_at' => $msg->created_at->timezone('Asia/Tashkent')->format('H:i'),
                     'created_at_timestamp' => $msg->created_at->timestamp,
                     'is_me' => false,
                 ];
@@ -362,6 +362,16 @@ class ChatController extends Controller
         $threshold = now()->subSeconds(120);
         $onlineUserIds = User::where('last_activity', '>=', $threshold)->pluck('id')->toArray();
 
+        // Barcha xodimlarning so'nggi ko'rilgan holati
+        $userStatuses = [];
+        $allUsersData = User::select('id', 'last_activity', 'updated_at')->get();
+        foreach ($allUsersData as $u) {
+            $userStatuses[$u->id] = [
+                'is_online' => $u->isOnline(),
+                'text' => $u->getLastSeenText(),
+            ];
+        }
+
         return response()->json([
             'new_messages' => $newMessages,
             'unread_counts' => $unreadCounts,
@@ -369,6 +379,7 @@ class ChatController extends Controller
             'other_last_read_timestamp' => $otherLastReadTimestamp,
             'chat_status' => $chatStatus,
             'online_user_ids' => $onlineUserIds,
+            'users_status' => $userStatuses,
         ]);
     }
 

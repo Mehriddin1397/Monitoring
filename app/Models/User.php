@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password', 'role','auth_code',
         'full_name','position','degree','tel_number','is_scientific',
+        'last_activity',
     ];
 
     /**
@@ -41,6 +42,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_activity' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -181,16 +183,27 @@ class User extends Authenticatable
     }
 
     /**
+     * Foydalanuvchi faolligini yangilash
+     */
+    public function updateLastActivity(): void
+    {
+        $this->last_activity = now();
+        $this->saveQuietly();
+    }
+
+    /**
      * Foydalanuvchi hozir onlaynmi (so'nggi 2 daqiqa ichida faol bo'lgan)
      */
     public function isOnline(): bool
     {
-        if (empty($this->last_activity)) {
+        $time = $this->last_activity ?: $this->updated_at;
+        if (empty($time)) {
             return false;
         }
 
         try {
-            return now()->diffInSeconds($this->last_activity) <= 120;
+            $last = \Carbon\Carbon::parse($time);
+            return abs(now()->diffInSeconds($last)) <= 120;
         } catch (\Throwable $e) {
             return false;
         }
@@ -205,12 +218,13 @@ class User extends Authenticatable
             return 'onlayn';
         }
 
-        if (empty($this->last_activity)) {
+        $time = $this->last_activity ?: $this->updated_at;
+        if (empty($time)) {
             return 'yaqinda bo\'lgan';
         }
 
         try {
-            $last = \Carbon\Carbon::parse($this->last_activity)->timezone('Asia/Tashkent');
+            $last = \Carbon\Carbon::parse($time)->timezone('Asia/Tashkent');
 
             if ($last->isToday()) {
                 return 'oxirgi marta bugun ' . $last->format('H:i') . ' da bo\'lgan';

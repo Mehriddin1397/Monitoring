@@ -64,8 +64,31 @@ class Chat extends Model
      */
     public function getOtherUser(?User $viewer = null): ?User
     {
-        $viewerId = $viewer ? $viewer->id : auth()->id();
-        return $this->users->firstWhere('id', '!==', $viewerId) ?? $this->users->first();
+        $viewerId = (int) ($viewer ? $viewer->id : auth()->id());
+
+        // 1. users relation orqali
+        if ($this->relationLoaded('users') && $this->users->isNotEmpty()) {
+            $other = $this->users->first(fn($u) => (int) $u->id !== $viewerId);
+            if ($other) {
+                return $other;
+            }
+        }
+
+        // 2. participants relation orqali
+        if ($this->relationLoaded('participants') && $this->participants->isNotEmpty()) {
+            $p = $this->participants->first(fn($item) => (int) $item->user_id !== $viewerId);
+            if ($p && $p->user) {
+                return $p->user;
+            }
+        }
+
+        // 3. Database dan to'g'ridan-to'g'ri olish
+        $otherP = $this->participants()->where('user_id', '!=', $viewerId)->with('user')->first();
+        if ($otherP && $otherP->user) {
+            return $otherP->user;
+        }
+
+        return $this->users()->where('users.id', '!=', $viewerId)->first();
     }
 
     /**
