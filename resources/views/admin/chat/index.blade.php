@@ -19,7 +19,10 @@
                             <small class="text-muted fs-11">Institut ichki tarmog'i</small>
                         </div>
                     </div>
-                    <div class="d-flex gap-1.5">
+                    <div class="d-flex gap-1.5 align-items-center">
+                        <button type="button" class="btn btn-sm btn-soft-secondary rounded-circle p-2" onclick="testNotificationSound()" title="Ovozli signalni sinab ko'rish">
+                            <i class="feather-volume-2 text-primary" id="btnSoundIcon"></i>
+                        </button>
                         <button type="button" class="btn btn-sm btn-soft-primary rounded-circle p-2" data-bs-toggle="modal" data-bs-target="#newDirectModal" title="Yangi shaxsiy yozishma">
                             <i class="feather-user-plus"></i>
                         </button>
@@ -1336,6 +1339,64 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// ==================== NOTIFICATION CHIME AUDIO ====================
+function playNotificationSound() {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+
+        if (!window.__chatAudioCtx) {
+            window.__chatAudioCtx = new AudioCtx();
+        }
+        const ctx = window.__chatAudioCtx;
+        if (ctx.state === 'suspended') {
+            ctx.resume();
+        }
+
+        const now = ctx.currentTime;
+
+        // Tone 1: gentle low chime (587.33Hz)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(587.33, now);
+        gain1.gain.setValueAtTime(0.18, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.22);
+
+        // Tone 2: high bright bell (880.00Hz)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(880.00, now + 0.08);
+        gain2.gain.setValueAtTime(0.24, now + 0.08);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.08);
+        osc2.stop(now + 0.48);
+    } catch (e) {
+        console.warn('Audio play error:', e);
+    }
+}
+
+// Ovozni sinab ko'rish tugmasi
+function testNotificationSound() {
+    playNotificationSound();
+    const icon = document.getElementById('btnSoundIcon');
+    if (icon) {
+        icon.classList.remove('feather-volume-2');
+        icon.classList.add('feather-bell');
+        setTimeout(() => {
+            icon.classList.remove('feather-bell');
+            icon.classList.add('feather-volume-2');
+        }, 1200);
+    }
+}
+
 // Real-time yangilanishlarni so'rash (Polling har 3 soniyada)
 async function pollChatUpdates() {
     try {
@@ -1344,6 +1405,9 @@ async function pollChatUpdates() {
             headers: { 'Accept': 'application/json' }
         });
         const data = await response.json();
+
+        let previousTotalUnread = window.lastTotalUnread || 0;
+        let newTotalUnread = data.total_unread || 0;
 
         // 1. Yangi kelgan xabarlar bo'lsa qo'shish
         if (data.new_messages && data.new_messages.length > 0) {
@@ -1357,8 +1421,13 @@ async function pollChatUpdates() {
             });
             if (hasNew) {
                 scrollToBottom();
+                playNotificationSound(); // <-- Yangi xabar kelganda ovozli signal!
             }
+        } else if (newTotalUnread > previousTotalUnread) {
+            // Boshqa chatga yangi xabar kelgan bo'lsa ham signal berish
+            playNotificationSound();
         }
+        window.lastTotalUnread = newTotalUnread;
 
         // 2. O'qilganlik holatini (Checkmarks ✓ -> ✓✓) yangilash!
         if (data.other_last_read_timestamp && data.other_last_read_timestamp > 0) {

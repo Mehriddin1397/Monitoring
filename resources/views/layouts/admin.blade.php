@@ -209,6 +209,39 @@
 @auth
 <script>
     (function() {
+        let lastKnownUnread = null;
+
+        function playGlobalChatSound() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const now = ctx.currentTime;
+
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(587.33, now);
+                gain1.gain.setValueAtTime(0.18, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.22);
+
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(880.00, now + 0.08);
+                gain2.gain.setValueAtTime(0.24, now + 0.08);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start(now + 0.08);
+                osc2.stop(now + 0.48);
+            } catch (e) {}
+        }
+
         async function checkGlobalChatUnread() {
             try {
                 if (window.location.pathname.includes('/chat')) return;
@@ -218,6 +251,12 @@
                 });
                 const data = await res.json();
                 const total = data.total_unread || 0;
+
+                // Yangi xabar kelgan bo'lsa ovozli signal berish
+                if (lastKnownUnread !== null && total > lastKnownUnread) {
+                    playGlobalChatSound();
+                }
+                lastKnownUnread = total;
 
                 const headerBadge = document.getElementById('headerChatBadge');
                 if (headerBadge) {
