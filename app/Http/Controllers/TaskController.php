@@ -63,7 +63,7 @@ class TaskController extends Controller
         $categories = Category::forObjectType('tasks'); // View uchun qo'shildi
         $now = now();
 
-        if ($user->role === 'xodim') {
+        if ($user && !in_array($user->role, ['admin', 'boshliq'])) {
             $query = $user->assignedTasks()
                 ->with(['assignedUsers', 'creator', 'categories', 'files'])
                 ->where('status', 'bajarildi');
@@ -86,7 +86,7 @@ class TaskController extends Controller
         $now = now();
         $statuses = ['yangi', 'bajarilmoqda'];
 
-        if ($user->role === 'xodim') {
+        if ($user && !in_array($user->role, ['admin', 'boshliq'])) {
             $query = $user->assignedTasks()
                 ->with(['assignedUsers', 'creator', 'categories', 'files'])
                 ->whereIn('status', $statuses);
@@ -134,7 +134,7 @@ class TaskController extends Controller
             $statuses = [$status];
         }
 
-        if ($user->role === 'xodim') {
+        if ($user && !in_array($user->role, ['admin', 'boshliq'])) {
             $query = $user->assignedTasks()
                 ->with(['assignedUsers', 'creator', 'categories', 'files'])
                 ->whereIn('status', $statuses);
@@ -168,7 +168,7 @@ class TaskController extends Controller
         $now = now();
         $whereStatus = ['bajarilmadi'];
 
-        if ($user->role === 'xodim') {
+        if ($user && !in_array($user->role, ['admin', 'boshliq'])) {
             $query = $user->assignedTasks()
                 ->with(['assignedUsers', 'creator', 'categories', 'files'])
                 ->whereIn('status', $whereStatus);
@@ -409,18 +409,23 @@ class TaskController extends Controller
     public function search(Request $request)
     {
         $search = $request->input('query');
-        $users = User::all();
+        $user = auth()->user();
 
+        if ($user && !in_array($user->role, ['admin', 'boshliq'])) {
+            $query = $user->assignedTasks()->with('assignedUsers');
+            $users = collect([$user]);
+        } else {
+            $query = Task::with('assignedUsers');
+            $users = User::all();
+        }
 
-        $tasks = Task::with('assignedUsers')
-            ->when($search, function ($query, $search) {
+        $tasks = $query->when($search, function ($query, $search) {
                 $query->where('title', 'like', "%$search%")
                     ->orWhereHas('assignedUsers', function ($q) use ($search) {
                         $q->where('name', 'like', "%$search%");
                     });
             })
             ->get();
-
 
         return view('admin.project.search', compact('tasks','search', 'users'));
     }
@@ -1111,7 +1116,7 @@ class TaskController extends Controller
         $now = now();
 
         // Asosiy so'rov
-        if ($user->role === 'xodim') {
+        if ($user && !in_array($user->role, ['admin', 'boshliq'])) {
             $query = $user->assignedTasks()->with(['assignedUsers', 'creator', 'categories', 'files']);
         } else {
             $query = \App\Models\Task::with(['assignedUsers', 'creator', 'categories', 'files']);
