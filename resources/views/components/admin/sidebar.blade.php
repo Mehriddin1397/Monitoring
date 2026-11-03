@@ -51,6 +51,15 @@
                         </a>
                     </li>
 
+                    {{-- Ички мулоқот ва ҳужжатлар (Chat) --}}
+                    <li class="nxl-item nxl-hasmenu {{ request()->routeIs('chat.*') ? 'active' : '' }}">
+                        <a href="{{ route('chat.index') }}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-message-circle"></i></span>
+                            <span class="nxl-mtext">Мулоқот ва ҳужжатлар</span>
+                            <span class="badge bg-primary rounded-pill ms-auto px-2 fs-10" id="sidebarChatBadge" style="display: none;">0</span>
+                        </a>
+                    </li>
+
                     {{-- Ҳисобот (Админ ва Бошлиқ учун) --}}
                     @if (in_array(auth()->user()->role, ['admin', 'boshliq']))
                         <li class="nxl-item nxl-hasmenu {{ request()->routeIs('monitoring.hisobot') ? 'active' : '' }}">

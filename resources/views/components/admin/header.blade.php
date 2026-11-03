@@ -138,6 +138,13 @@
                     </div>
                 </div>
 
+                <div class="nxl-h-item d-none d-sm-flex">
+                    <a href="{{ route('chat.index') }}" class="nxl-head-link me-0 position-relative d-flex align-items-center justify-content-center" title="Мулоқот ва ҳужжат алмашиш">
+                        <i class="feather-message-square fs-18"></i>
+                        <span class="badge bg-primary rounded-pill position-absolute d-none" id="headerChatBadge" style="top: 2px; right: -2px; font-size: 10px; padding: 2px 5px; line-height: 1; border: 1.5px solid #fff;">0</span>
+                    </a>
+                </div>
+
                 @if(Auth::check() && Auth::user()->role === 'admin')
                     @php
                         $tomorrowDate = \Carbon\Carbon::now('Asia/Tashkent')->addDay();

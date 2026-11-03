@@ -142,6 +142,18 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
         Route::get('/live-stats', [\App\Http\Controllers\TurniketController::class, 'liveStats'])->name('live_stats');
     });
 
+    // Ichki muloqot va hujjat almashish (Chat)
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ChatController::class, 'index'])->name('index');
+        Route::post('/direct', [\App\Http\Controllers\ChatController::class, 'startDirect'])->name('start_direct');
+        Route::post('/group', [\App\Http\Controllers\ChatController::class, 'createGroup'])->name('create_group');
+        Route::post('/{chat}/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('send');
+        Route::get('/poll', [\App\Http\Controllers\ChatController::class, 'poll'])->name('poll');
+        Route::get('/download/{message}', [\App\Http\Controllers\ChatController::class, 'download'])->name('download');
+        Route::post('/{chat}/add-members', [\App\Http\Controllers\ChatController::class, 'addMembers'])->name('add_members');
+        Route::post('/{chat}/leave', [\App\Http\Controllers\ChatController::class, 'leaveGroup'])->name('leave');
+    });
+
 });
 
 // Direct convenience routes for CCTV

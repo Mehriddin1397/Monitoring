@@ -205,6 +205,45 @@
         });
     });
 </script>
+
+@auth
+<script>
+    (function() {
+        async function checkGlobalChatUnread() {
+            try {
+                if (window.location.pathname.includes('/chat')) return;
+
+                const res = await fetch('{{ route("chat.poll") }}', {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                const total = data.total_unread || 0;
+
+                const headerBadge = document.getElementById('headerChatBadge');
+                if (headerBadge) {
+                    headerBadge.innerText = total;
+                    if (total > 0) {
+                        headerBadge.classList.remove('d-none');
+                    } else {
+                        headerBadge.classList.add('d-none');
+                    }
+                }
+
+                const sidebarBadge = document.getElementById('sidebarChatBadge');
+                if (sidebarBadge) {
+                    sidebarBadge.innerText = total;
+                    sidebarBadge.style.display = total > 0 ? 'inline-block' : 'none';
+                }
+            } catch (e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkGlobalChatUnread();
+            setInterval(checkGlobalChatUnread, 15000);
+        });
+    })();
+</script>
+@endauth
 <!--! END: Theme Customizer !-->
     @yield('scripts')
     @stack('scripts')
