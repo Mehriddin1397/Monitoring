@@ -65,31 +65,49 @@
         /* ================= EXECUTIVE ROYAL PORTRAIT FRAME ======= */
         /* ======================================================== */
         .portrait-frame-container {
-            width: clamp(260px, 25vw, 360px);
+            width: clamp(340px, 30vw, 560px);
             aspect-ratio: 3 / 4;
             position: relative;
             flex-shrink: 0;
+            filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.95));
+        }
+
+        .portrait-frame-container::before {
+            content: '';
+            position: absolute;
+            inset: -15px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.45) 0%, rgba(212, 175, 55, 0) 72%);
+            border-radius: 36px;
+            filter: blur(25px);
+            z-index: -1;
+            animation: framePulseGlow 4s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes framePulseGlow {
+            0% { transform: scale(0.96); opacity: 0.45; }
+            100% { transform: scale(1.05); opacity: 0.85; }
         }
 
         /* 1. MALE EXECUTIVE FRAME: Handcrafted Gold & Steel Baguette */
         .portrait-frame-male {
             width: 100%;
             height: 100%;
-            border-radius: 20px;
-            padding: 10px;
+            border-radius: 28px;
+            padding: 14px;
             background: linear-gradient(145deg, #ffd700 0%, #8b7500 25%, #1a2920 50%, #d4af37 75%, #ffd700 100%);
             box-shadow:
-                0 30px 80px rgba(0, 0, 0, 0.9),
-                0 0 55px rgba(212, 175, 55, 0.45),
-                0 0 35px rgba(16, 185, 129, 0.25);
+                0 30px 90px rgba(0, 0, 0, 0.95),
+                0 0 65px rgba(212, 175, 55, 0.5),
+                0 0 45px rgba(16, 185, 129, 0.3);
             position: relative;
         }
         .portrait-frame-male-inner {
             width: 100%;
             height: 100%;
-            border-radius: 14px;
+            border-radius: 18px;
             overflow: hidden;
-            border: 2px solid #ffd700;
+            border: 3px solid #ffd700;
             background: #000;
             position: relative;
         }
@@ -98,21 +116,21 @@
         .portrait-frame-female {
             width: 100%;
             height: 100%;
-            border-radius: 20px;
-            padding: 10px;
+            border-radius: 28px;
+            padding: 14px;
             background: linear-gradient(145deg, #ffd700 0%, #fda4af 30%, #fb7185 55%, #ffd700 80%, #f43f5e 100%);
             box-shadow:
-                0 30px 80px rgba(0, 0, 0, 0.9),
-                0 0 60px rgba(251, 113, 133, 0.5),
-                0 0 35px rgba(212, 175, 55, 0.35);
+                0 30px 90px rgba(0, 0, 0, 0.95),
+                0 0 70px rgba(251, 113, 133, 0.55),
+                0 0 45px rgba(212, 175, 55, 0.4);
             position: relative;
         }
         .portrait-frame-female-inner {
             width: 100%;
             height: 100%;
-            border-radius: 14px;
+            border-radius: 18px;
             overflow: hidden;
-            border: 2px solid #fda4af;
+            border: 3px solid #fda4af;
             background: #000;
             position: relative;
         }
@@ -120,15 +138,15 @@
         /* Decorative Gold Corner Pieces */
         .frame-corner {
             position: absolute;
-            width: 22px;
-            height: 22px;
+            width: 32px;
+            height: 32px;
             pointer-events: none;
             z-index: 10;
         }
-        .frame-corner-tl { top: 5px; left: 5px; border-top: 3px solid #ffd700; border-left: 3px solid #ffd700; border-top-left-radius: 8px; }
-        .frame-corner-tr { top: 5px; right: 5px; border-top: 3px solid #ffd700; border-right: 3px solid #ffd700; border-top-right-radius: 8px; }
-        .frame-corner-bl { bottom: 5px; left: 5px; border-bottom: 3px solid #ffd700; border-left: 3px solid #ffd700; border-bottom-left-radius: 8px; }
-        .frame-corner-br { bottom: 5px; right: 5px; border-bottom: 3px solid #ffd700; border-right: 3px solid #ffd700; border-bottom-right-radius: 8px; }
+        .frame-corner-tl { top: 6px; left: 6px; border-top: 4px solid #ffd700; border-left: 4px solid #ffd700; border-top-left-radius: 12px; }
+        .frame-corner-tr { top: 6px; right: 6px; border-top: 4px solid #ffd700; border-right: 4px solid #ffd700; border-top-right-radius: 12px; }
+        .frame-corner-bl { bottom: 6px; left: 6px; border-bottom: 4px solid #ffd700; border-left: 4px solid #ffd700; border-bottom-left-radius: 12px; }
+        .frame-corner-br { bottom: 6px; right: 6px; border-bottom: 4px solid #ffd700; border-right: 4px solid #ffd700; border-bottom-right-radius: 12px; }
 
         /* ======================================================== */
         /* ================= STATIC LOGO (NO SPIN!) =============== */
@@ -250,13 +268,25 @@
 <body class="font-sans text-white theme-{{ $firstGender }}" id="app-body">
 
 {{-- ======================================================== --}}
+{{-- ================= BACKGROUND IMAGE & VIGNETTE LAYER ==== --}}
+{{-- ======================================================== --}}
+
+{{-- 1. Custom / Template Background Image with smooth transition --}}
+<div id="bg-custom-image" class="fixed inset-0 z-0 bg-cover bg-center transition-all duration-1000 scale-105 pointer-events-none"
+     style="{{ !empty($firstEmployee->bg_image) ? "background-image: url('" . asset('storage/' . $firstEmployee->bg_image) . "'); opacity: 1;" : "opacity: 0;" }}">
+</div>
+
+{{-- 2. Ambient Vignette Overlay -- keeps contrast crisp & deep for big screen --}}
+<div id="bg-overlay" class="fixed inset-0 z-0 bg-gradient-to-t from-black/92 via-black/65 to-black/85 pointer-events-none transition-opacity duration-1000"></div>
+
+{{-- ======================================================== --}}
 {{-- ================= BACKGROUND GRAPHICS LAYER ============ --}}
 {{-- ======================================================== --}}
 
 {{-- 1. MALE BACKGROUND: MILITARY VEHICLE / TACTICAL SHIELDS / RADAR --}}
 <div id="bg-graphics-male" class="{{ $firstGender === 'male' ? '' : 'hidden' }} fixed inset-0 pointer-events-none z-0 overflow-hidden">
     {{-- Military Radar Web --}}
-    <svg class="absolute -top-20 -left-20 w-[550px] h-[550px] opacity-20 text-emerald-400" viewBox="0 0 200 200" fill="none" stroke="currentColor">
+    <svg class="absolute -top-20 -left-20 w-[600px] h-[600px] opacity-20 text-emerald-400" viewBox="0 0 200 200" fill="none" stroke="currentColor">
         <circle cx="100" cy="100" r="90" stroke-width="0.5" stroke-dasharray="3 3"/>
         <circle cx="100" cy="100" r="70" stroke-width="0.8"/>
         <circle cx="100" cy="100" r="45" stroke-width="0.5"/>
@@ -268,7 +298,7 @@
 
     {{-- Military Armored Vehicle / Tank / Drone Silhouette --}}
     <div class="absolute bottom-6 right-6 opacity-25 text-emerald-300">
-        <svg class="w-[320px] sm:w-[480px] lg:w-[600px] h-auto" viewBox="0 0 600 240" fill="currentColor">
+        <svg class="w-[380px] sm:w-[540px] lg:w-[680px] h-auto" viewBox="0 0 600 240" fill="currentColor">
             {{-- Modern Armored Vehicle Silhouette --}}
             <path d="M 50 180 L 110 180 L 130 140 L 260 140 L 300 110 L 420 110 L 470 140 L 550 150 L 560 180 L 580 190 L 580 210 L 40 210 L 40 190 Z" opacity="0.7"/>
             {{-- Gun Cannon Barrel --}}
@@ -292,14 +322,14 @@
 
     {{-- Defense Shield & Sword Crest watermark --}}
     <div class="absolute top-1/4 right-1/4 opacity-10 text-gold pointer-events-none">
-        <span class="material-symbols-outlined text-[320px]">shield</span>
+        <span class="material-symbols-outlined text-[360px]">shield</span>
     </div>
 </div>
 
 {{-- 2. FEMALE BACKGROUND: LUXURY ROSES & SPRING FLORAL --}}
 <div id="bg-graphics-female" class="{{ $firstGender === 'female' ? '' : 'hidden' }} fixed inset-0 pointer-events-none z-0 overflow-hidden">
     {{-- Top-Left Blooming Roses Garland --}}
-    <svg class="absolute -top-10 -left-10 w-[280px] sm:w-[400px] h-auto opacity-40 text-rose-400" viewBox="0 0 300 300" fill="currentColor">
+    <svg class="absolute -top-10 -left-10 w-[320px] sm:w-[460px] h-auto opacity-40 text-rose-400" viewBox="0 0 300 300" fill="currentColor">
         {{-- Rose 1 --}}
         <circle cx="90" cy="90" r="50" fill="url(#roseGrad)" opacity="0.8"/>
         <path d="M 60 70 Q 90 40 120 70 Q 140 100 110 120 Q 70 130 60 90 Z" fill="#fda4af" opacity="0.6"/>
@@ -312,7 +342,7 @@
     </svg>
 
     {{-- Bottom-Right Luxury Floral Bouquet --}}
-    <svg class="absolute -bottom-10 -right-10 w-[300px] sm:w-[450px] h-auto opacity-40 text-rose-400" viewBox="0 0 300 300" fill="currentColor">
+    <svg class="absolute -bottom-10 -right-10 w-[340px] sm:w-[500px] h-auto opacity-40 text-rose-400" viewBox="0 0 300 300" fill="currentColor">
         <circle cx="210" cy="210" r="60" fill="url(#roseGrad)" opacity="0.85"/>
         <path d="M 180 190 Q 210 160 240 190 Q 260 220 230 240 Q 190 250 180 210 Z" fill="#fda4af" opacity="0.6"/>
         {{-- Golden vines --}}
@@ -322,7 +352,7 @@
 
     {{-- Floral Heart Silhouette watermark --}}
     <div class="absolute top-1/3 right-1/4 opacity-10 text-rose-300 pointer-events-none">
-        <span class="material-symbols-outlined text-[300px]">local_florist</span>
+        <span class="material-symbols-outlined text-[340px]">local_florist</span>
     </div>
 
     {{-- SVG Gradients for Roses --}}
@@ -340,15 +370,15 @@
 
 {{-- ===== FIXED STATIC INSTITUT HEADER (NO SPIN!) ===== --}}
 <header class="fixed top-0 left-0 right-0 z-30 p-4 sm:p-6 flex justify-end">
-    <div class="flex items-center gap-3 sm:gap-4 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-2xl">
+    <div class="flex items-center gap-3 sm:gap-4 bg-black/60 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/15 shadow-2xl">
         <div class="static-logo-box shrink-0">
             <img src="{{ asset('assets/images/1111222.png') }}"
                  alt="Logo"
-                 class="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover"/>
+                 class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"/>
         </div>
         <div class="text-left hidden sm:block">
-            <p class="font-serif text-xs text-white/80 leading-tight">Ўзбекистон Республикаси</p>
-            <p class="font-serif text-sm font-bold gold-shimmer leading-tight">Криминология тадқиқот институти</p>
+            <p class="font-serif text-xs sm:text-sm text-white/80 leading-tight">Ўзбекистон Республикаси</p>
+            <p class="font-serif text-sm sm:text-base font-bold gold-shimmer leading-tight">Криминология тадқиқот институти</p>
         </div>
     </div>
 </header>
@@ -364,8 +394,8 @@
         {{-- ================= SCENE A: CELEBRATION HERO ============ --}}
         {{-- ======================================================== --}}
         <section id="scene-a" class="scene-stage">
-            <div class="w-full max-w-6xl mx-auto pt-16 pb-20">
-                <div class="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8 sm:gap-12 lg:gap-16 items-center">
+            <div class="w-full max-w-[95vw] 2xl:max-w-[1780px] mx-auto pt-8 pb-16 px-4 sm:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-10 sm:gap-14 lg:gap-20 xl:gap-24 items-center">
 
                     {{-- EXECUTIVE PORTRAIT BAGUETTE (3:4 PROPORTION, STATIC, NO SPIN!) --}}
                     <div class="flex justify-center lg:justify-start">
@@ -386,55 +416,55 @@
                             </div>
 
                             {{-- Emblem Badge on Frame --}}
-                            <div id="frame-badge-top" class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-black border border-gold text-gold text-[11px] font-serif uppercase tracking-widest flex items-center gap-1.5 shadow-xl z-20">
-                                <span class="material-symbols-outlined text-xs" id="badge-icon-el">military_tech</span>
+                            <div id="frame-badge-top" class="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-1.5 rounded-full bg-black/90 border-2 border-gold text-gold text-xs sm:text-sm md:text-base font-serif uppercase tracking-widest flex items-center gap-2 shadow-2xl z-20 whitespace-nowrap">
+                                <span class="material-symbols-outlined text-sm sm:text-base" id="badge-icon-el">military_tech</span>
                                 <span id="badge-title-el">Шараф</span>
                             </div>
                         </div>
                     </div>
 
                     {{-- TEXT & COMPOSITION AREA --}}
-                    <div class="text-center lg:text-left space-y-4 md:space-y-6">
+                    <div class="text-center lg:text-left space-y-4 md:space-y-7">
 
                         {{-- Gender-specific category tag --}}
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/60 border border-white/20 shadow-lg">
-                            <span class="material-symbols-outlined text-gold text-lg" id="tag-icon">military_tech</span>
-                            <span class="text-xs uppercase tracking-[0.25em] text-white/90 font-serif" id="tag-text">
+                        <div class="inline-flex items-center gap-2.5 px-6 py-2 rounded-full bg-black/70 border border-white/20 shadow-xl">
+                            <span class="material-symbols-outlined text-gold text-xl sm:text-2xl" id="tag-icon">military_tech</span>
+                            <span class="text-xs sm:text-sm md:text-base uppercase tracking-[0.25em] text-white/95 font-serif font-bold" id="tag-text">
                                 {{ $firstGender === 'female' ? 'Гўзаллик ва латофат' : 'Мардлик ва садоқат' }}
                             </span>
                         </div>
 
                         {{-- Salutation --}}
-                        <p class="font-serif italic text-xl sm:text-2xl text-white/85" id="salutation-text">
+                        <p class="font-serif italic text-2xl sm:text-3xl lg:text-4xl xl:text-[40px] text-white/95 leading-normal" id="salutation-text">
                             {{ $firstGender === 'female' ? 'Муҳтарама ва мунис ҳамкасбимиз,' : 'Ҳурматли ва муҳтарам ҳамкасбимиз,' }}
                         </p>
 
                         {{-- Full Name --}}
-                        <h1 class="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
+                        <h1 class="font-display font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[92px] text-white leading-tight">
                             <span id="featured-name" class="{{ $firstGender === 'female' ? 'rose-shimmer' : 'gold-shimmer' }}">{{ $firstEmployee->full_name }}</span>
                         </h1>
 
                         {{-- Position --}}
-                        <p class="font-serif text-sm sm:text-base md:text-lg text-white/75 italic" id="featured-role">
+                        <p class="font-serif text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-[32px] text-white/85 italic leading-relaxed" id="featured-role">
                             {{ $firstEmployee->position }}
                         </p>
 
                         {{-- Divider --}}
-                        <div class="flex items-center justify-center lg:justify-start gap-4 py-2">
-                            <span class="h-px w-16 bg-gradient-to-r from-transparent to-white/40"></span>
-                            <span class="material-symbols-outlined text-gold text-2xl" id="divider-icon">stars</span>
-                            <span class="h-px w-16 bg-gradient-to-l from-transparent to-white/40"></span>
+                        <div class="flex items-center justify-center lg:justify-start gap-5 py-2">
+                            <span class="h-0.5 w-24 sm:w-36 bg-gradient-to-r from-transparent to-white/50"></span>
+                            <span class="material-symbols-outlined text-gold text-3xl sm:text-4xl" id="divider-icon">stars</span>
+                            <span class="h-0.5 w-24 sm:w-36 bg-gradient-to-l from-transparent to-white/50"></span>
                         </div>
 
                         {{-- Congratulations Heading --}}
-                        <h2 class="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-white">
+                        <h2 class="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight">
                             Туғилган кунингиз <span id="congrat-highlight" class="{{ $firstGender === 'female' ? 'rose-shimmer' : 'gold-shimmer' }}">муборак бўлсин!</span>
                         </h2>
 
                         {{-- Date Badge --}}
-                        <div class="pt-2 flex items-center justify-center lg:justify-start gap-2 text-white/60">
-                            <span class="material-symbols-outlined text-sm">calendar_month</span>
-                            <span class="font-serif italic text-xs sm:text-sm tracking-wider">{{ $todayDateCy }}</span>
+                        <div class="pt-2 flex items-center justify-center lg:justify-start gap-2.5 text-white/75">
+                            <span class="material-symbols-outlined text-lg sm:text-xl text-gold">calendar_month</span>
+                            <span class="font-serif italic text-sm sm:text-base md:text-lg tracking-wider">{{ $todayDateCy }}</span>
                         </div>
                     </div>
                 </div>
@@ -445,21 +475,21 @@
         {{-- ================= SCENE B: WISH & BLESSINGS ============ --}}
         {{-- ======================================================== --}}
         <section id="scene-b" class="scene-stage scene-stage-hidden">
-            <div class="w-full max-w-4xl mx-auto pt-16 pb-20 text-center space-y-8">
+            <div class="w-full max-w-5xl 2xl:max-w-6xl mx-auto pt-8 pb-16 text-center space-y-8 md:space-y-12">
 
                 {{-- Emblem / Symbol --}}
-                <div class="inline-flex p-4 rounded-full bg-white/5 border border-white/10 shadow-2xl" id="wish-symbol-box">
-                    <span class="material-symbols-outlined text-5xl text-gold" id="wish-symbol-icon">auto_awesome</span>
+                <div class="inline-flex p-5 sm:p-6 rounded-full bg-white/5 border border-white/15 shadow-2xl" id="wish-symbol-box">
+                    <span class="material-symbols-outlined text-6xl sm:text-7xl lg:text-8xl text-gold" id="wish-symbol-icon">auto_awesome</span>
                 </div>
 
                 {{-- Sub-heading --}}
-                <p class="text-xs uppercase tracking-[0.35em] text-white/75 font-serif" id="wish-subheading">
+                <p class="text-sm sm:text-base lg:text-xl uppercase tracking-[0.35em] text-white/80 font-serif font-bold" id="wish-subheading">
                     Институт жамоаси номидан эзгу тилаклар
                 </p>
 
                 {{-- The Wish Card --}}
-                <div class="p-8 sm:p-12 rounded-3xl bg-black/70 border border-white/15 backdrop-blur-xl shadow-2xl">
-                    <h2 class="font-display font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white leading-relaxed" id="featured-wish">
+                <div class="p-10 sm:p-14 md:p-20 rounded-3xl bg-black/75 border border-white/20 backdrop-blur-2xl shadow-2xl">
+                    <h2 class="font-display font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-white leading-relaxed sm:leading-relaxed" id="featured-wish">
                         @if(!empty($firstEmployee->custom_wish))
                             {!! nl2br(e($firstEmployee->custom_wish)) !!}
                         @else
@@ -471,12 +501,12 @@
                 </div>
 
                 {{-- Sign-off --}}
-                <div class="flex items-center justify-center gap-4 pt-4">
-                    <span class="h-px w-16 bg-gradient-to-r from-transparent to-white/40"></span>
-                    <span class="font-serif italic text-white/80 text-xs sm:text-sm tracking-[0.2em] uppercase">
+                <div class="flex items-center justify-center gap-5 pt-4">
+                    <span class="h-0.5 w-24 sm:w-36 bg-gradient-to-r from-transparent to-white/50"></span>
+                    <span class="font-serif italic text-white/90 text-sm sm:text-base lg:text-lg tracking-[0.25em] uppercase">
                         Криминология тадқиқот институти жамоаси
                     </span>
-                    <span class="h-px w-16 bg-gradient-to-l from-transparent to-white/40"></span>
+                    <span class="h-0.5 w-24 sm:w-36 bg-gradient-to-l from-transparent to-white/50"></span>
                 </div>
             </div>
         </section>
@@ -526,6 +556,7 @@
             name: "{{ addslashes($employee->full_name) }}",
             role: "{{ addslashes($employee->position) }}",
             img: "{{ $employee->photo ? asset('storage/' . $employee->photo) : 'https://ui-avatars.com/api/?name='.urlencode($employee->full_name).'&size=512&background=0a0a0f&color=d4af37&bold=true&format=png' }}",
+            bg_image: "{{ $employee->bg_image ? asset('storage/' . $employee->bg_image) : '' }}",
             gender: "{{ $employee->gender ?? 'male' }}",
             wish: "{{ addslashes($employee->custom_wish ?? '') }}"
         }@if(!$loop->last),@endif
@@ -630,6 +661,17 @@
 
         setTimeout(() => {
             applyGenderTheme(emp.gender);
+
+            // Handle custom background image
+            const bgImgEl = document.getElementById('bg-custom-image');
+            if (bgImgEl) {
+                if (emp.bg_image) {
+                    bgImgEl.style.backgroundImage = "url('" + emp.bg_image + "')";
+                    bgImgEl.style.opacity = '1';
+                } else {
+                    bgImgEl.style.opacity = '0';
+                }
+            }
 
             if (imgEl) imgEl.src = emp.img;
             if (nameEl) nameEl.textContent = emp.name;
@@ -739,6 +781,13 @@
         if (employees.length > 0) {
             const first = employees[0];
             applyGenderTheme(first.gender);
+
+            const bgImgEl = document.getElementById('bg-custom-image');
+            if (bgImgEl && first.bg_image) {
+                bgImgEl.style.backgroundImage = "url('" + first.bg_image + "')";
+                bgImgEl.style.opacity = '1';
+            }
+
             showScene('a');
             startCycle();
             burstFallingItems(first.gender, 25);

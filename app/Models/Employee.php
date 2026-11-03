@@ -17,7 +17,8 @@ class Employee extends Model
         'birth_date',
         'theme',
         'custom_wish',
-        'gender'
+        'gender',
+        'bg_image'
     ];
 
     public function user()

@@ -75,6 +75,13 @@
                         </select>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        <label class="form-label">Tabriknoma orqa fon rasmi (ixtiyoriy):</label>
+                        <input type="file" name="bg_image" class="form-control" accept="image/*">
+                        <small class="text-muted">Bo'sh qoldirilsa, shablonga mos animatsion fon chiqadi</small>
+                    </div>
+                </div>
                 <div class="col-md-12">
                     <div class="form-group mb-3">
                         <label class="form-label d-flex justify-content-between">

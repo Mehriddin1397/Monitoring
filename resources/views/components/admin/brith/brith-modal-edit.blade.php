@@ -102,6 +102,22 @@
                     </div>
                 </div>
 
+                <!-- Maxsus orqa fon rasmi -->
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        <label class="form-label fw-semibold">Tabriknoma orqa fon rasmi (ixtiyoriy):</label>
+                        <input type="file" name="bg_image" id="edit_bg_image" class="form-control" accept="image/*">
+                        <small class="text-muted">Bo'sh qoldirilsa, amaldagi fon saqlanadi</small>
+                    </div>
+                </div>
+
+                <!-- Joriy fon ko'rinishi -->
+                <div class="col-md-6 text-center d-flex align-items-center justify-content-center">
+                    <div id="edit_bg_preview" class="p-2 border rounded bg-light w-100" style="min-height: 90px; display: flex; align-items: center; justify-content: center;">
+                        <span class="text-muted small">Maxsus fon yuklanmagan (shablon foni faol)</span>
+                    </div>
+                </div>
+
                 <!-- Maxsus tabrik -->
                 <div class="col-md-12">
                     <div class="form-group mb-3">
@@ -155,6 +171,7 @@
         document.getElementById('edit_theme').value = emp.theme || 'random';
         document.getElementById('edit_custom_wish').value = emp.custom_wish || '';
         document.getElementById('edit_photo').value = '';
+        document.getElementById('edit_bg_image').value = '';
 
         // 4. Photo preview
         const photoPrev = document.getElementById('edit_photo_preview');
@@ -164,6 +181,16 @@
                 photoPrev.innerHTML = '<img src="' + imgSrc + '" alt="Photo" class="img-fluid rounded shadow-sm" style="max-height: 90px; object-fit: cover;">';
             } else {
                 photoPrev.innerHTML = '<span class="text-muted small">Rasm yuklanmagan</span>';
+            }
+        }
+
+        // 4b. Background preview
+        const bgPrev = document.getElementById('edit_bg_preview');
+        if (bgPrev) {
+            if (emp.bg_image) {
+                bgPrev.innerHTML = '<img src="' + emp.bg_image + '" alt="Background" class="img-fluid rounded shadow-sm" style="max-height: 80px; width: 100%; object-fit: cover;">';
+            } else {
+                bgPrev.innerHTML = '<span class="text-muted small">Maxsus fon yuklanmagan (shablon foni faol)</span>';
             }
         }
 
@@ -194,6 +221,7 @@
             theme: btn.getAttribute('data-theme'),
             custom_wish: btn.getAttribute('data-wish'),
             photo_url: btn.getAttribute('data-photo'),
+            bg_image: btn.getAttribute('data-bg-image'),
             turniket_photo: btn.getAttribute('data-turniket-photo')
         });
     });

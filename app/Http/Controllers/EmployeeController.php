@@ -261,7 +261,8 @@ class EmployeeController extends Controller
             'phone' => 'nullable|string|max:50',
             'position' => 'nullable|string|max:255',
             'birth_date' => 'nullable|date',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:10120',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:15360',
+            'bg_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:20480',
             'theme' => 'nullable|string|max:50',
             'custom_wish' => 'nullable|string',
             'gender' => 'nullable|string|in:male,female',
@@ -269,6 +270,10 @@ class EmployeeController extends Controller
 
         if ($request->hasFile('photo')) {
             $validated['photo'] = $request->file('photo')->store('employees', 'public');
+        }
+
+        if ($request->hasFile('bg_image')) {
+            $validated['bg_image'] = $request->file('bg_image')->store('employees/bg', 'public');
         }
 
         Employee::create($validated);
@@ -286,7 +291,8 @@ class EmployeeController extends Controller
             'phone' => 'nullable|string|max:50',
             'position' => 'nullable|string|max:255',
             'birth_date' => 'nullable|date',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:10120',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:15360',
+            'bg_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:20480',
             'theme' => 'nullable|string|max:50',
             'custom_wish' => 'nullable|string',
             'gender' => 'nullable|string|in:male,female',
@@ -294,11 +300,18 @@ class EmployeeController extends Controller
 
         // Agar yangi rasm yuklansa
         if ($request->hasFile('photo')) {
-            // Eskisini o'chirish
             if ($employee->photo) {
                 Storage::disk('public')->delete($employee->photo);
             }
             $validated['photo'] = $request->file('photo')->store('employees', 'public');
+        }
+
+        // Agar maxsus orqa fon rasmi yuklansa
+        if ($request->hasFile('bg_image')) {
+            if ($employee->bg_image) {
+                Storage::disk('public')->delete($employee->bg_image);
+            }
+            $validated['bg_image'] = $request->file('bg_image')->store('employees/bg', 'public');
         }
 
         $employee->update($validated);
@@ -309,9 +322,12 @@ class EmployeeController extends Controller
     // 7. DELETE: Xodimni o'chirish
     public function destroy(Employee $employee)
     {
-        // Xodimning rasmini xotiradan o'chirish
+        // Xodimning rasmlarini xotiradan o'chirish
         if ($employee->photo) {
             Storage::disk('public')->delete($employee->photo);
+        }
+        if ($employee->bg_image) {
+            Storage::disk('public')->delete($employee->bg_image);
         }
 
         $employee->delete();

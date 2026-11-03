@@ -170,6 +170,7 @@
                                                        data-theme="{{ $employee->theme }}"
                                                        data-wish="{{ $employee->custom_wish }}"
                                                        data-photo="{{ $employee->photo ? asset('storage/' . $employee->photo) : '' }}"
+                                                       data-bg-image="{{ $employee->bg_image ? asset('storage/' . $employee->bg_image) : '' }}"
                                                        data-turniket-photo="{{ $employee->turniket_photo }}"
                                                        title="Tahrirlash">
                                                         <i class="feather feather-edit-3"></i>
