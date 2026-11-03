@@ -3,13 +3,13 @@
 @section('title', 'Ichki muloqot va hujjat almashish')
 
 @section('content')
-<div class="nxl-content p-0">
+<div class="nxl-content p-0 m-0">
     <div class="chat-wrapper">
-        <!-- ==================== 1. SIDEBAR (CHATLAR VA FOYDALANUVCHILAR RO'YXATI) ==================== -->
+        <!-- ==================== 1. SIDEBAR (CHATLAR VA REAL-TIME XODIMLAR QIDIRUVI) ==================== -->
         <aside class="chat-sidebar">
             <!-- Sidebar Header -->
             <div class="chat-sidebar-header">
-                <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-2.5">
                     <div class="d-flex align-items-center gap-2">
                         <div class="chat-logo-icon">
                             <i class="feather-message-square"></i>
@@ -19,7 +19,7 @@
                             <small class="text-muted fs-11">Institut ichki tarmog'i</small>
                         </div>
                     </div>
-                    <div class="d-flex gap-1">
+                    <div class="d-flex gap-1.5">
                         <button type="button" class="btn btn-sm btn-soft-primary rounded-circle p-2" data-bs-toggle="modal" data-bs-target="#newDirectModal" title="Yangi shaxsiy yozishma">
                             <i class="feather-user-plus"></i>
                         </button>
@@ -29,21 +29,24 @@
                     </div>
                 </div>
 
-                <!-- Search box -->
+                <!-- Real-time Search Box -->
                 <div class="chat-search-box">
                     <i class="feather-search search-icon"></i>
-                    <input type="text" id="chatSearchInput" class="form-control" placeholder="Yozishma yoki xodimni qidirish..." autocomplete="off">
+                    <input type="text" id="chatSearchInput" class="form-control" placeholder="Xodimlarni qidirish (ism, familiya, lavozim)..." autocomplete="off">
+                    <button type="button" id="btnClearChatSearch" class="btn-clear-search d-none" onclick="clearSidebarSearch()" title="Tozalash">
+                        <i class="feather-x"></i>
+                    </button>
                 </div>
 
                 <!-- Filter Tabs -->
-                <div class="chat-filter-tabs">
+                <div class="chat-filter-tabs" id="chatFilterTabs">
                     <button type="button" class="chat-tab-btn active" data-filter="all">Barchasi</button>
                     <button type="button" class="chat-tab-btn" data-filter="direct">Shaxsiy</button>
                     <button type="button" class="chat-tab-btn" data-filter="group">Guruhlar</button>
                 </div>
             </div>
 
-            <!-- Chat List -->
+            <!-- Normal Chat List -->
             <div class="chat-list" id="chatListContainer">
                 @forelse($chats as $chat)
                     @php
@@ -103,7 +106,7 @@
                         </div>
                     </a>
                 @empty
-                    <div class="text-center py-5 px-3 text-muted">
+                    <div class="text-center py-5 px-3 text-muted" id="chatEmptyPlaceholder">
                         <div class="fs-40 mb-2">💬</div>
                         <h6 class="fs-14 fw-bold text-dark">Hozircha yozishmalar yo'q</h6>
                         <p class="fs-12 mb-3">Xodimlar bilan shaxsiy muloqot yoki umumiy guruh boshlang!</p>
@@ -112,6 +115,43 @@
                         </button>
                     </div>
                 @endforelse
+            </div>
+
+            <!-- Real-Time Search Results Panel (Qidiruv paytida chiqadi) -->
+            <div class="chat-search-results d-none" id="sidebarSearchResults">
+                <!-- Section 1: Matching existing chats -->
+                <div id="searchExistingSection" class="d-none">
+                    <div class="search-category-title">Mavjud suhbatlar</div>
+                    <div id="searchExistingList"></div>
+                </div>
+
+                <!-- Section 2: All Institute Employees (Global xodimlar qidiruvi) -->
+                <div id="searchGlobalSection">
+                    <div class="search-category-title">Institut xodimlari</div>
+                    <div id="searchGlobalList">
+                        @foreach($allUsers as $u)
+                            <form action="{{ route('chat.start_direct') }}" method="POST" class="search-user-item" 
+                                  data-search-text="{{ mb_strtolower($u->full_name . ' ' . $u->name . ' ' . $u->position . ' ' . $u->email) }}">
+                                @csrf
+                                <input type="hidden" name="user_id" value="{{ $u->id }}">
+                                <img src="{{ $u->avatar_url }}" alt="" class="chat-item-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                <div class="chat-item-info min-w-0">
+                                    <div class="chat-item-name text-truncate">{{ $u->full_name ?: $u->name }}</div>
+                                    <small class="text-muted fs-11 text-truncate d-block">{{ $u->position ?: 'Xodim' }}</small>
+                                </div>
+                                <button type="submit" class="btn btn-xs btn-outline-primary rounded-pill px-2.5 py-1 flex-shrink-0">
+                                    Yozish
+                                </button>
+                            </form>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- No results -->
+                <div id="searchNoResults" class="text-center py-4 text-muted d-none">
+                    <i class="feather-search fs-24 mb-2 d-block"></i>
+                    <span class="fs-13">Mos keluvchi xodim topilmadi</span>
+                </div>
             </div>
         </aside>
 
@@ -129,7 +169,7 @@
                             <img src="{{ $activeChat->getDisplayAvatar() }}" alt="" class="chat-main-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
                         @endif
                         <div class="min-w-0">
-                            <h5 class="fw-bold mb-0 text-truncate text-dark fs-16">{{ $activeChat->getDisplayName() }}</h5>
+                            <h5 class="fw-bold mb-0 text-truncate text-dark fs-15">{{ $activeChat->getDisplayName() }}</h5>
                             <small class="text-muted fs-12 d-block text-truncate">
                                 @if($activeChat->isGroup())
                                     <span class="text-primary fw-semibold"><i class="feather-users fs-11 me-1"></i>{{ $activeChat->participants->count() }} ta a'zo</span>
@@ -138,7 +178,7 @@
                                     @endif
                                 @else
                                     @php $otherUser = $activeChat->getOtherUser(); @endphp
-                                    <span>{{ $otherUser->position ?? 'Xodim' }}</span>
+                                    <span>{{ $otherUser->position ?? 'Institut xodimi' }}</span>
                                 @endif
                             </small>
                         </div>
@@ -154,7 +194,7 @@
                     </div>
                 </div>
 
-                <!-- Messages Container -->
+                <!-- Messages Container (Telegram Desktop uslubida) -->
                 <div class="chat-messages-scroll" id="messagesContainer">
                     <div class="messages-inner" id="messagesInner">
                         @php $lastDate = null; @endphp
@@ -184,7 +224,9 @@
                                     <span>{{ $msg->body }}</span>
                                 </div>
                             @else
-                                <div class="message-row {{ $isMe ? 'message-out' : 'message-in' }}" data-message-id="{{ $msg->id }}">
+                                <div class="message-row {{ $isMe ? 'message-out' : 'message-in' }}" 
+                                     data-message-id="{{ $msg->id }}"
+                                     data-timestamp="{{ $msg->created_at->timestamp }}">
                                     @if(!$isMe)
                                         <img src="{{ $msg->user ? $msg->user->avatar_url : asset('assets/images/8214212.png') }}" alt="" class="message-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
                                     @endif
@@ -236,11 +278,15 @@
                                             <div class="message-text">{!! nl2br(e($msg->body)) !!}</div>
                                         @endif
 
-                                        {{-- Message metadata --}}
+                                        {{-- Message metadata with genuine read status --}}
                                         <div class="message-meta">
                                             <span class="message-time">{{ $msg->created_at->format('H:i') }}</span>
                                             @if($isMe)
-                                                <span class="message-status text-primary">✓✓</span>
+                                                <span class="message-status {{ $msg->is_read ? 'text-primary' : 'text-muted' }}" 
+                                                      id="msgStatus_{{ $msg->id }}" 
+                                                      title="{{ $msg->is_read ? 'O\'qildi' : 'Yetkazildi' }}">
+                                                    {{ $msg->is_read ? '✓✓' : '✓' }}
+                                                </span>
                                             @endif
                                         </div>
                                     </div>
@@ -275,7 +321,7 @@
                         </button>
 
                         <div class="chat-textarea-box">
-                            <textarea id="chatMessageInput" rows="1" placeholder="Xabar yozing yoki fayl biriktiring... (Enter — yuborish)" autocomplete="off"></textarea>
+                            <textarea id="chatMessageInput" rows="1" placeholder="Xabar yozing yoki fayl biriktiring... (Enter — yuborish, Shift+Enter — yangi qator)" autocomplete="off"></textarea>
                         </div>
 
                         <button type="submit" class="btn-chat-send" id="btnSubmitMessage" title="Yuborish">
@@ -459,50 +505,48 @@
 @endif
 
 <style>
-/* ==================== TELEGRAM-LIKE CHAT STYLES ==================== */
+/* ==================== TELEGRAM-LIKE CHAT REFINED STYLES ==================== */
 .chat-wrapper {
     display: flex;
-    height: calc(100vh - 110px);
+    height: calc(100vh - 78px);
     background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     overflow: hidden;
-    margin: 15px;
-    border: 1px solid #e2e8f0;
+    margin: 0;
+    border-top: 1px solid #e2e8f0;
 }
 
 /* SIDEBAR */
 .chat-sidebar {
     width: 360px;
     min-width: 320px;
-    border-end: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
-    background: #f8fafc;
+    background: #ffffff;
 }
 
 .chat-sidebar-header {
-    padding: 18px 16px 12px;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #f1f5f9;
     background: #ffffff;
 }
 
 .chat-logo-icon {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    font-size: 17px;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.28);
 }
 
 .chat-search-box {
     position: relative;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .chat-search-box .search-icon {
@@ -514,12 +558,31 @@
     font-size: 14px;
 }
 
+.chat-search-box .btn-clear-search {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+}
+
+.chat-search-box .btn-clear-search:hover {
+    color: #ef4444;
+}
+
 .chat-search-box .form-control {
     padding-left: 38px;
+    padding-right: 32px;
     border-radius: 50px;
     background: #f1f5f9;
     border: 1px solid transparent;
     font-size: 13px;
+    height: 38px;
     transition: all 0.2s ease;
 }
 
@@ -531,7 +594,7 @@
 
 .chat-filter-tabs {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     background: #f1f5f9;
     padding: 3px;
     border-radius: 50px;
@@ -552,31 +615,31 @@
 
 .chat-tab-btn.active {
     background: #ffffff;
-    color: #1e293b;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    color: #0f172a;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
 }
 
 /* Chat List Items */
-.chat-list {
+.chat-list, .chat-search-results {
     flex: 1;
     overflow-y: auto;
-    padding: 8px;
+    padding: 6px;
 }
 
 .chat-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 12px;
+    padding: 9px 12px;
     border-radius: 12px;
     color: inherit;
     text-decoration: none;
-    margin-bottom: 4px;
-    transition: background 0.18s ease;
+    margin-bottom: 2px;
+    transition: background 0.15s ease;
 }
 
 .chat-item:hover {
-    background: #e2e8f0;
+    background: #f1f5f9;
 }
 
 .chat-item.active {
@@ -589,26 +652,14 @@
 }
 
 .chat-item-avatar {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
 }
 
 .chat-group-avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-}
-
-.chat-group-avatar-lg {
     width: 44px;
     height: 44px;
     border-radius: 50%;
@@ -617,7 +668,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 19px;
+}
+
+.chat-group-avatar-lg {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
 }
 
 .chat-item-info {
@@ -629,11 +692,11 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
 }
 
 .chat-item-name {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
     color: #1e293b;
     margin: 0;
@@ -652,15 +715,39 @@
 }
 
 .chat-item-last-msg {
-    font-size: 12.5px;
+    font-size: 12px;
     color: #64748b;
     line-height: 1.3;
 }
 
 .chat-unread-badge {
     font-size: 10px;
-    padding: 3px 7px;
-    background: #3b82f6 !important;
+    padding: 2.5px 6px;
+    background: #2563eb !important;
+}
+
+/* Search results styles */
+.search-category-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8;
+    padding: 8px 12px 4px;
+    letter-spacing: 0.5px;
+}
+
+.search-user-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+    margin-bottom: 2px;
+}
+
+.search-user-item:hover {
+    background: #f1f5f9;
 }
 
 /* MAIN CHAT AREA */
@@ -670,55 +757,58 @@
     flex-direction: column;
     background: #f1f5f9;
     position: relative;
+    min-width: 0;
 }
 
 .chat-main-header {
-    padding: 12px 20px;
+    padding: 10px 20px;
     background: #ffffff;
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     z-index: 2;
+    height: 62px;
 }
 
 .chat-main-avatar {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
 }
 
-/* Messages Scroll Area */
+/* Messages Scroll Area with Telegram wallpaper feel */
 .chat-messages-scroll {
     flex: 1;
     overflow-y: auto;
-    padding: 20px;
-    background-color: #e5edf5;
-    background-image: radial-gradient(rgba(148, 163, 184, 0.25) 1px, transparent 0);
-    background-size: 20px 20px;
+    padding: 16px 20px;
+    background-color: #e6edf5;
+    background-image: 
+        radial-gradient(rgba(148, 163, 184, 0.22) 1px, transparent 0);
+    background-size: 24px 24px;
 }
 
 .messages-inner {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    max-width: 900px;
+    gap: 8px;
+    max-width: 820px;
     margin: 0 auto;
 }
 
 /* Day Divider */
 .chat-day-divider {
     text-align: center;
-    margin: 12px 0;
+    margin: 10px 0;
 }
 .chat-day-divider span {
-    background: rgba(15, 23, 42, 0.55);
+    background: rgba(15, 23, 42, 0.52);
     color: #ffffff;
     font-size: 11px;
     font-weight: 600;
-    padding: 4px 12px;
+    padding: 3px 12px;
     border-radius: 50px;
     backdrop-filter: blur(4px);
 }
@@ -726,13 +816,13 @@
 /* System Message */
 .chat-system-msg {
     text-align: center;
-    margin: 8px 0;
+    margin: 6px 0;
 }
 .chat-system-msg span {
-    background: rgba(226, 232, 240, 0.85);
+    background: rgba(226, 232, 240, 0.9);
     color: #475569;
     font-size: 11.5px;
-    padding: 4px 14px;
+    padding: 3px 14px;
     border-radius: 50px;
 }
 
@@ -740,7 +830,7 @@
 .message-row {
     display: flex;
     gap: 8px;
-    max-width: 75%;
+    max-width: 72%;
 }
 
 .message-in {
@@ -762,34 +852,37 @@
 
 .message-bubble {
     position: relative;
-    padding: 8px 12px 6px;
-    border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 7px 12px 5px;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
     word-break: break-word;
 }
 
 .message-in .message-bubble {
     background: #ffffff;
     color: #0f172a;
-    border-bottom-left-radius: 4px;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 3px;
 }
 
+/* Outgoing message (Siz) - Telegram soft green/blue */
 .message-out .message-bubble {
-    background: #dbeafe;
+    background: #eff6ff;
     color: #0f172a;
-    border-bottom-right-radius: 4px;
+    border: 1px solid #bfdbfe;
+    border-bottom-right-radius: 3px;
 }
 
 .message-sender-name {
     font-size: 11px;
     font-weight: 700;
-    color: #4f46e5;
+    color: #2563eb;
     margin-bottom: 2px;
 }
 
 .message-text {
-    font-size: 14px;
-    line-height: 1.45;
+    font-size: 13.5px;
+    line-height: 1.42;
 }
 
 .message-meta {
@@ -798,8 +891,15 @@
     justify-content: flex-end;
     gap: 4px;
     margin-top: 2px;
-    font-size: 10.5px;
+    font-size: 10px;
     color: #64748b;
+    user-select: none;
+}
+
+.message-status {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
 }
 
 /* Document Card */
@@ -808,15 +908,15 @@
     align-items: center;
     gap: 10px;
     background: rgba(0, 0, 0, 0.04);
-    padding: 8px 12px;
+    padding: 7px 12px;
     border-radius: 10px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     min-width: 220px;
     max-width: 320px;
 }
 
 .doc-icon {
-    font-size: 24px;
+    font-size: 22px;
 }
 
 .doc-info {
@@ -824,26 +924,26 @@
 }
 
 .doc-name {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     color: #1e293b;
 }
 
 .doc-meta {
-    font-size: 11px;
+    font-size: 10.5px;
     color: #64748b;
 }
 
 .btn-doc-download {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: #3b82f6;
+    background: #2563eb;
     color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 13px;
     text-decoration: none;
     transition: transform 0.15s ease;
 }
@@ -855,29 +955,29 @@
 
 /* Image Preview */
 .message-image-box {
-    margin-bottom: 4px;
-    border-radius: 10px;
+    margin-bottom: 3px;
+    border-radius: 8px;
     overflow: hidden;
 }
 
 .message-img-preview {
     max-width: 280px;
     max-height: 240px;
-    border-radius: 10px;
+    border-radius: 8px;
     object-fit: cover;
     display: block;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: opacity 0.15s;
 }
 
 .message-img-preview:hover {
     opacity: 0.95;
 }
 
-/* Input Area */
+/* Input Area (Telegram Docked Capsule) */
 .chat-input-area {
     background: #ffffff;
-    padding: 12px 18px;
+    padding: 10px 18px;
     border-top: 1px solid #e2e8f0;
 }
 
@@ -887,8 +987,8 @@
     justify-content: space-between;
     background: #eff6ff;
     border: 1px solid #bfdbfe;
-    border-radius: 12px;
-    padding: 8px 14px;
+    border-radius: 10px;
+    padding: 6px 12px;
     margin-bottom: 8px;
 }
 
@@ -907,8 +1007,8 @@
 }
 
 .btn-chat-action {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: #f1f5f9;
     border: none;
@@ -918,7 +1018,7 @@
     justify-content: center;
     font-size: 18px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     flex-shrink: 0;
 }
 
@@ -930,16 +1030,16 @@
 .chat-textarea-box {
     flex: 1;
     background: #f1f5f9;
-    border-radius: 24px;
-    padding: 6px 16px;
+    border-radius: 22px;
+    padding: 6px 14px;
     border: 1px solid transparent;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
 .chat-textarea-box:focus-within {
     background: #ffffff;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 #chatMessageInput {
@@ -948,18 +1048,18 @@
     background: transparent;
     outline: none;
     resize: none;
-    max-height: 120px;
-    font-size: 14px;
+    max-height: 110px;
+    font-size: 13.5px;
     line-height: 1.4;
-    padding-top: 4px;
-    color: #1e293b;
+    padding-top: 3px;
+    color: #0f172a;
 }
 
 .btn-chat-send {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     border: none;
     color: #ffffff;
     display: flex;
@@ -967,13 +1067,13 @@
     justify-content: center;
     font-size: 16px;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
     transition: transform 0.15s ease;
     flex-shrink: 0;
 }
 
 .btn-chat-send:hover {
-    transform: scale(1.05);
+    transform: scale(1.06);
 }
 
 .btn-chat-send:active {
@@ -992,16 +1092,16 @@
 }
 
 .empty-icon-cloud {
-    width: 80px;
-    height: 80px;
+    width: 76px;
+    height: 76px;
     border-radius: 50%;
     background: #e0f2fe;
     color: #0284c7;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 34px;
-    margin-bottom: 18px;
+    font-size: 32px;
+    margin-bottom: 16px;
 }
 
 .max-w-400 {
@@ -1015,7 +1115,7 @@
     cursor: pointer;
 }
 
-/* Modal backdrop va qorong'ulashish muammosini to'g'rilash */
+/* Modal backdrop fix */
 .modal {
     z-index: 10550 !important;
 }
@@ -1028,9 +1128,7 @@
 
 @media (max-width: 768px) {
     .chat-wrapper {
-        margin: 0;
-        height: calc(100vh - 70px);
-        border-radius: 0;
+        height: calc(100vh - 65px);
     }
     .chat-sidebar {
         width: 100%;
@@ -1161,6 +1259,9 @@ function appendMessageToUI(msg) {
     const row = document.createElement('div');
     row.className = `message-row ${msg.is_me ? 'message-out' : 'message-in'}`;
     row.setAttribute('data-message-id', msg.id);
+    if (msg.created_at_timestamp) {
+        row.setAttribute('data-timestamp', msg.created_at_timestamp);
+    }
 
     let avatarHTML = '';
     if (!msg.is_me) {
@@ -1203,7 +1304,14 @@ function appendMessageToUI(msg) {
         bodyHTML = `<div class="message-text">${escapeHtml(msg.body).replace(/\n/g, '<br>')}</div>`;
     }
 
-    const checkmarks = msg.is_me ? '<span class="message-status text-primary">✓✓</span>' : '';
+    let checkmarks = '';
+    if (msg.is_me) {
+        const isRead = msg.is_read || false;
+        const icon = isRead ? '✓✓' : '✓';
+        const colorClass = isRead ? 'text-primary' : 'text-muted';
+        const titleText = isRead ? "O'qildi" : "Yetkazildi";
+        checkmarks = `<span class="message-status ${colorClass}" id="msgStatus_${msg.id}" title="${titleText}">${icon}</span>`;
+    }
 
     row.innerHTML = `
         ${avatarHTML}
@@ -1237,7 +1345,7 @@ async function pollChatUpdates() {
         });
         const data = await response.json();
 
-        // 1. Yangi xabarlar bo'lsa qo'shish
+        // 1. Yangi kelgan xabarlar bo'lsa qo'shish
         if (data.new_messages && data.new_messages.length > 0) {
             let hasNew = false;
             data.new_messages.forEach(msg => {
@@ -1252,7 +1360,23 @@ async function pollChatUpdates() {
             }
         }
 
-        // 2. O'qilmaganlar sonini yangilash
+        // 2. O'qilganlik holatini (Checkmarks ✓ -> ✓✓) yangilash!
+        if (data.other_last_read_timestamp && data.other_last_read_timestamp > 0) {
+            const outgoingMessages = document.querySelectorAll('.message-out[data-timestamp]');
+            outgoingMessages.forEach(el => {
+                const ts = parseInt(el.getAttribute('data-timestamp') || '0');
+                const statusEl = el.querySelector('.message-status');
+                if (statusEl) {
+                    if (ts <= data.other_last_read_timestamp) {
+                        statusEl.className = 'message-status text-primary';
+                        statusEl.innerText = '✓✓';
+                        statusEl.title = "O'qildi";
+                    }
+                }
+            });
+        }
+
+        // 3. O'qilmaganlar sonini yangilash
         if (data.unread_counts) {
             for (const [cId, count] of Object.entries(data.unread_counts)) {
                 const badge = document.getElementById(`unreadBadge_${cId}`);
@@ -1271,9 +1395,88 @@ async function pollChatUpdates() {
     }
 }
 
+// ==================== REAL-TIME SIDEBAR SEARCH ====================
+function handleSidebarSearch(query) {
+    const clearBtn = document.getElementById('btnClearChatSearch');
+    const chatList = document.getElementById('chatListContainer');
+    const searchResults = document.getElementById('sidebarSearchResults');
+    const filterTabs = document.getElementById('chatFilterTabs');
+
+    query = query.toLowerCase().trim();
+
+    if (!query) {
+        if (clearBtn) clearBtn.classList.add('d-none');
+        if (chatList) chatList.classList.remove('d-none');
+        if (searchResults) searchResults.classList.add('d-none');
+        if (filterTabs) filterTabs.classList.remove('d-none');
+        return;
+    }
+
+    if (clearBtn) clearBtn.classList.remove('d-none');
+    if (chatList) chatList.classList.add('d-none');
+    if (searchResults) searchResults.classList.remove('d-none');
+    if (filterTabs) filterTabs.classList.add('d-none');
+
+    // 1. Mavjud chatlar ichidan qidirish
+    let matchingChats = 0;
+    const existingList = document.getElementById('searchExistingList');
+    const existingSection = document.getElementById('searchExistingSection');
+    if (existingList) existingList.innerHTML = '';
+
+    const allChatItems = document.querySelectorAll('#chatListContainer .chat-item');
+    allChatItems.forEach(item => {
+        const name = (item.getAttribute('data-name') || '').toLowerCase();
+        if (name.includes(query)) {
+            matchingChats++;
+            if (existingList) {
+                const clone = item.cloneNode(true);
+                clone.style.display = 'flex';
+                existingList.appendChild(clone);
+            }
+        }
+    });
+
+    if (existingSection) {
+        existingSection.classList.toggle('d-none', matchingChats === 0);
+    }
+
+    // 2. Barcha xodimlar ichidan qidirish (Global Employee search)
+    let matchingUsers = 0;
+    const allUserItems = document.querySelectorAll('.search-user-item');
+    allUserItems.forEach(item => {
+        const text = (item.getAttribute('data-search-text') || '').toLowerCase();
+        if (text.includes(query)) {
+            item.style.display = 'flex';
+            matchingUsers++;
+        } else {
+            item.style.display = 'none';
+        }
+    });
+
+    const globalSection = document.getElementById('searchGlobalSection');
+    if (globalSection) {
+        globalSection.classList.toggle('d-none', matchingUsers === 0);
+    }
+
+    // 3. Agar hech narsa topilmasa
+    const noResults = document.getElementById('searchNoResults');
+    if (noResults) {
+        noResults.classList.toggle('d-none', (matchingChats + matchingUsers) > 0);
+    }
+}
+
+function clearSidebarSearch() {
+    const input = document.getElementById('chatSearchInput');
+    if (input) {
+        input.value = '';
+        handleSidebarSearch('');
+        input.focus();
+    }
+}
+
 // Enter bosilganda yuborish, Shift+Enter bosilganda yangi qator
 document.addEventListener('DOMContentLoaded', function() {
-    // Modal oynalarni to'g'ridan-to'g'ri body ga ko'chirish (hiralashish va orqa fon bloklanishini bartaraf qilish)
+    // Modal oynalarni to'g'ridan-to'g'ri body ga ko'chirish
     ['newDirectModal', 'newGroupModal', 'groupInfoModal'].forEach(function(modalId) {
         const modalEl = document.getElementById(modalId);
         if (modalEl && modalEl.parentElement !== document.body) {
@@ -1299,7 +1502,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Polling start
+    // Real-time Sidebar Search
+    const searchInput = document.getElementById('chatSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            handleSidebarSearch(this.value);
+        });
+    }
+
+    // Polling start (har 3 soniyada)
     pollInterval = setInterval(pollChatUpdates, 3000);
 
     // Filter tabs
@@ -1320,23 +1531,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-
-    // Chat search
-    const searchInput = document.getElementById('chatSearchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            const items = document.querySelectorAll('.chat-item');
-            items.forEach(item => {
-                const name = item.getAttribute('data-name') || '';
-                if (!query || name.includes(query)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    }
 });
 
 // Modal ichida xodimlarni qidirish

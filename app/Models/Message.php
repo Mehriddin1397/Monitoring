@@ -68,4 +68,31 @@ class Message extends Model
         }
         return asset('storage/' . $this->file_path);
     }
+
+    /**
+     * Xabar boshqa ishtirokchilar tomonidan o'qilganmi?
+     * (Boshqa foydalanuvchining last_read_at >= created_at)
+     */
+    public function getIsReadAttribute(): bool
+    {
+        $chat = $this->chat;
+        if (!$chat) {
+            return false;
+        }
+
+        if ($chat->isDirect()) {
+            $otherParticipant = $chat->participants->firstWhere('user_id', '!=', $this->user_id);
+            if ($otherParticipant && $otherParticipant->last_read_at) {
+                return $otherParticipant->last_read_at->gte($this->created_at);
+            }
+            return false;
+        }
+
+        // Guruh chatida kamida bitta boshqa a'zo o'qigan bo'lsa
+        return $chat->participants
+            ->where('user_id', '!=', $this->user_id)
+            ->contains(function ($p) {
+                return $p->last_read_at && $p->last_read_at->gte($this->created_at);
+            });
+    }
 }

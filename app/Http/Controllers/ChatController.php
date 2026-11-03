@@ -245,6 +245,8 @@ class ChatController extends Controller
                 'file_size' => $message->formatted_file_size,
                 'is_image' => $message->isImage(),
                 'created_at' => $message->created_at->format('H:i'),
+                'created_at_timestamp' => $message->created_at->timestamp,
+                'is_read' => false,
                 'is_me' => true,
             ],
         ]);
@@ -260,12 +262,22 @@ class ChatController extends Controller
         $lastMessageId = (int) $request->last_message_id;
 
         $newMessages = [];
+        $otherLastReadTimestamp = 0;
 
         if ($activeChatId) {
             // O'qilgan vaqtni yangilash
             ChatParticipant::where('chat_id', $activeChatId)
                 ->where('user_id', $user->id)
                 ->update(['last_read_at' => now()]);
+
+            // Boshqa ishtirokchining o'qigan vaqtini olish
+            $maxOtherRead = ChatParticipant::where('chat_id', $activeChatId)
+                ->where('user_id', '!=', $user->id)
+                ->max('last_read_at');
+
+            if ($maxOtherRead) {
+                $otherLastReadTimestamp = \Carbon\Carbon::parse($maxOtherRead)->timestamp;
+            }
 
             $messagesQuery = Message::where('chat_id', $activeChatId)
                 ->with('user')
@@ -291,6 +303,7 @@ class ChatController extends Controller
                     'file_size' => $msg->formatted_file_size,
                     'is_image' => $msg->isImage(),
                     'created_at' => $msg->created_at->format('H:i'),
+                    'created_at_timestamp' => $msg->created_at->timestamp,
                     'is_me' => false,
                 ];
             }
@@ -314,6 +327,7 @@ class ChatController extends Controller
             'new_messages' => $newMessages,
             'unread_counts' => $unreadCounts,
             'total_unread' => $totalUnread,
+            'other_last_read_timestamp' => $otherLastReadTimestamp,
         ]);
     }
 
