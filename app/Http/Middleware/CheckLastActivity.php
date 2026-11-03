@@ -17,6 +17,11 @@ class CheckLastActivity
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check()) {
+            $user = Auth::user();
+            if (!$user->last_activity || now()->diffInSeconds($user->last_activity) >= 60) {
+                $user->updateQuietly(['last_activity' => now()]);
+            }
+
             $last = session('last_activity');
 
             if ($last && now()->diffInMinutes($last) >= 1) {

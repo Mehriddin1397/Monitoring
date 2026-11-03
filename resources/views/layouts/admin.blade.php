@@ -12,9 +12,15 @@
     <!--! BEGIN: Apps Title-->
     <title>@yield('title') </title>
     <!--! END:  Apps Title-->
-    <!--! BEGIN: Favicon-->
+    <!--! BEGIN: Favicon & PWA Manifest-->
     <link rel="shortcut icon" type="image/x-icon" href="{{asset('assets/images/logo.svg')}}" />
-    <!--! END: Favicon-->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Smart-Ijro">
+    <!--! END: Favicon & PWA Manifest-->
     <!--! BEGIN: Bootstrap CSS-->
     <link rel="stylesheet" type="text/css" href="/admin/assets/css/bootstrap.min.css" />
     <!--! END: Bootstrap CSS-->
@@ -242,6 +248,53 @@
             } catch (e) {}
         }
 
+        // Service Worker registratsiyasi
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    window.swRegistration = reg;
+                }).catch(function(err) {
+                    console.warn('SW registration failed:', err);
+                });
+            });
+        }
+
+        // Tizim bildirishnoma ruxsatini olish
+        window.requestChatNotificationPermission = async function() {
+            if (!("Notification" in window)) return false;
+            if (Notification.permission === "granted") return true;
+            if (Notification.permission !== "denied") {
+                const res = await Notification.requestPermission();
+                return res === "granted";
+            }
+            return false;
+        };
+
+        // Desktop Windows Toast bildirishnomasi
+        window.showDesktopNotification = function(title, body, url) {
+            if (!("Notification" in window) || Notification.permission !== "granted") return;
+            const options = {
+                body: body || 'Sizga yangi xabar keldi',
+                icon: '{{ asset("assets/images/logo.svg") }}',
+                badge: '{{ asset("assets/images/logo.svg") }}',
+                data: { url: url || '{{ route("chat.index") }}' }
+            };
+
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.ready.then(function(reg) {
+                    reg.showNotification(title || 'Smart-Ijro — Muloqot', options);
+                });
+            } else {
+                try {
+                    const notif = new Notification(title || 'Smart-Ijro — Muloqot', options);
+                    notif.onclick = function() {
+                        window.focus();
+                        window.location.href = options.data.url;
+                    };
+                } catch (e) {}
+            }
+        };
+
         async function checkGlobalChatUnread() {
             try {
                 if (window.location.pathname.includes('/chat')) return;
@@ -252,9 +305,10 @@
                 const data = await res.json();
                 const total = data.total_unread || 0;
 
-                // Yangi xabar kelgan bo'lsa ovozli signal berish
+                // Yangi xabar kelgan bo'lsa ovozli signal berish va bildirishnoma chiqarish
                 if (lastKnownUnread !== null && total > lastKnownUnread) {
                     playGlobalChatSound();
+                    window.showDesktopNotification('Smart-Ijro — Muloqot', 'Sizda yangi o\'qilmagan xabarlar mavjud!', '{{ route("chat.index") }}');
                 }
                 lastKnownUnread = total;
 

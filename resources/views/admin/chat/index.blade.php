@@ -68,7 +68,11 @@
                                     <i class="feather-users"></i>
                                 </div>
                             @else
+                                @php $chatUser = $chat->getOtherUser(); @endphp
                                 <img src="{{ $chat->getDisplayAvatar() }}" alt="" class="chat-item-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                @if($chatUser)
+                                    <span class="user-status-indicator {{ $chatUser->isOnline() ? 'online' : '' }}" data-user-status-id="{{ $chatUser->id }}" title="{{ $chatUser->isOnline() ? 'Onlayn' : $chatUser->getLastSeenText() }}"></span>
+                                @endif
                             @endif
                         </div>
                         <div class="chat-item-info">
@@ -137,7 +141,10 @@
                                   data-search-text="{{ mb_strtolower($u->full_name . ' ' . $u->name . ' ' . $u->position . ' ' . $u->email) }}">
                                 @csrf
                                 <input type="hidden" name="user_id" value="{{ $u->id }}">
-                                <img src="{{ $u->avatar_url }}" alt="" class="chat-item-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                <div class="position-relative flex-shrink-0">
+                                    <img src="{{ $u->avatar_url }}" alt="" class="chat-item-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                    <span class="user-status-indicator {{ $u->isOnline() ? 'online' : '' }}" data-user-status-id="{{ $u->id }}"></span>
+                                </div>
                                 <div class="chat-item-info min-w-0">
                                     <div class="chat-item-name text-truncate">{{ $u->full_name ?: $u->name }}</div>
                                     <small class="text-muted fs-11 text-truncate d-block">{{ $u->position ?: 'Xodim' }}</small>
@@ -169,25 +176,64 @@
                                 <i class="feather-users"></i>
                             </div>
                         @else
-                            <img src="{{ $activeChat->getDisplayAvatar() }}" alt="" class="chat-main-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                            @php $otherUser = $activeChat->getOtherUser(); @endphp
+                            <div class="position-relative flex-shrink-0">
+                                <img src="{{ $activeChat->getDisplayAvatar() }}" alt="" class="chat-main-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                @if($otherUser)
+                                    <span class="user-status-indicator {{ $otherUser->isOnline() ? 'online' : '' }}" data-user-status-id="{{ $otherUser->id }}"></span>
+                                @endif
+                            </div>
                         @endif
                         <div class="min-w-0">
                             <h5 class="fw-bold mb-0 text-truncate text-dark fs-15">{{ $activeChat->getDisplayName() }}</h5>
-                            <small class="text-muted fs-12 d-block text-truncate">
+                            <div class="fs-12 d-block text-truncate" id="activeChatStatusContainer">
                                 @if($activeChat->isGroup())
-                                    <span class="text-primary fw-semibold"><i class="feather-users fs-11 me-1"></i>{{ $activeChat->participants->count() }} ta a'zo</span>
+                                    @php
+                                        $groupUsers = $activeChat->participants->map->user->filter();
+                                        $totalCount = $groupUsers->count();
+                                        $onlineCount = $groupUsers->filter->isOnline()->count();
+                                    @endphp
+                                    <span class="text-primary fw-semibold" id="activeChatGroupText">
+                                        <i class="feather-users fs-11 me-1"></i>{{ $totalCount }} ta a'zo{{ $onlineCount > 0 ? ", {$onlineCount} ta onlayn" : '' }}
+                                    </span>
                                     @if($activeChat->created_by === Auth::id())
                                         <span class="badge bg-soft-info text-info ms-1">Administrator</span>
                                     @endif
                                 @else
-                                    @php $otherUser = $activeChat->getOtherUser(); @endphp
-                                    <span>{{ $otherUser->position ?? 'Institut xodimi' }}</span>
+                                    @if($otherUser)
+                                        <span id="activeChatUserStatus">
+                                            @if($otherUser->isOnline())
+                                                <span class="text-success fw-semibold d-inline-flex align-items-center gap-1.5">
+                                                    <span class="online-status-dot pulse"></span> onlayn
+                                                </span>
+                                            @else
+                                                <span class="text-muted">
+                                                    {{ $otherUser->getLastSeenText() }}
+                                                </span>
+                                            @endif
+                                        </span>
+                                        @if($otherUser->position)
+                                            <span class="text-muted ms-1">· {{ $otherUser->position }}</span>
+                                        @endif
+                                    @endif
                                 @endif
-                            </small>
+                            </div>
                         </div>
                     </div>
 
                     <div class="d-flex align-items-center gap-2">
+                        <!-- PWA Install button -->
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 d-none align-items-center gap-1.5" id="btnPwaInstall" title="Ilovani o'rnatish">
+                            <i class="feather-download"></i>
+                            <span class="d-none d-md-inline fs-12">Ilovani o'rnatish</span>
+                        </button>
+
+                        <!-- Notification Permission toggle button -->
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 d-flex align-items-center gap-1.5" id="btnToggleNotifications" title="Bildirishnomalar holati" onclick="toggleDesktopNotifications()">
+                            <i class="feather-bell" id="btnNotifIcon"></i>
+                            <span class="d-none d-md-inline fs-12" id="btnNotifText">Bildirishnoma</span>
+                        </button>
+
                         @if($activeChat->isGroup())
                             <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1.5" data-bs-toggle="modal" data-bs-target="#groupInfoModal">
                                 <i class="feather-info"></i>
@@ -377,10 +423,18 @@
                             @csrf
                             <input type="hidden" name="user_id" value="{{ $u->id }}">
                             <div class="d-flex align-items-center gap-2.5 min-w-0">
-                                <img src="{{ $u->avatar_url }}" alt="" class="rounded-circle object-fit-cover shadow-sm" style="width: 40px; height: 40px;" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                <div class="position-relative flex-shrink-0">
+                                    <img src="{{ $u->avatar_url }}" alt="" class="rounded-circle object-fit-cover shadow-sm" style="width: 40px; height: 40px;" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                    <span class="user-status-indicator {{ $u->isOnline() ? 'online' : '' }}" data-user-status-id="{{ $u->id }}"></span>
+                                </div>
                                 <div class="min-w-0">
                                     <div class="fw-bold text-dark fs-13 text-truncate">{{ $u->full_name ?: $u->name }}</div>
-                                    <small class="text-muted fs-11 text-truncate d-block">{{ $u->position ?: 'Xodim' }}</small>
+                                    <small class="text-muted fs-11 text-truncate d-block">
+                                        @if($u->isOnline())
+                                            <span class="text-success fw-semibold">onlayn</span> · 
+                                        @endif
+                                        {{ $u->position ?: 'Xodim' }}
+                                    </small>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">
@@ -460,10 +514,24 @@
                         @foreach($activeChat->participants as $p)
                             <div class="list-group-item d-flex align-items-center justify-content-between p-2 border-0">
                                 <div class="d-flex align-items-center gap-2 min-w-0">
-                                    <img src="{{ $p->user ? $p->user->avatar_url : asset('assets/images/8214212.png') }}" alt="" class="rounded-circle object-fit-cover shadow-sm" style="width: 36px; height: 36px;" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                    <div class="position-relative flex-shrink-0">
+                                        <img src="{{ $p->user ? $p->user->avatar_url : asset('assets/images/8214212.png') }}" alt="" class="rounded-circle object-fit-cover shadow-sm" style="width: 36px; height: 36px;" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                        @if($p->user)
+                                            <span class="user-status-indicator {{ $p->user->isOnline() ? 'online' : '' }}" data-user-status-id="{{ $p->user->id }}"></span>
+                                        @endif
+                                    </div>
                                     <div class="min-w-0">
                                         <div class="fw-bold text-dark fs-13 text-truncate">{{ $p->user ? ($p->user->full_name ?: $p->user->name) : 'Xodim' }}</div>
-                                        <small class="text-muted fs-11">{{ $p->user ? $p->user->position : '' }}</small>
+                                        <small class="text-muted fs-11 text-truncate d-block">
+                                            @if($p->user)
+                                                @if($p->user->isOnline())
+                                                    <span class="text-success fw-semibold">onlayn</span> · 
+                                                @else
+                                                    <span>{{ $p->user->getLastSeenText() }}</span> · 
+                                                @endif
+                                                {{ $p->user->position ?: 'Xodim' }}
+                                            @endif
+                                        </small>
                                     </div>
                                 </div>
                                 @if($p->role === 'admin')
@@ -660,6 +728,50 @@
     border-radius: 50%;
     object-fit: cover;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+.user-status-indicator {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 12px;
+    height: 12px;
+    background-color: #94a3b8;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    display: none;
+    z-index: 2;
+    transition: transform 0.2s ease;
+}
+
+.user-status-indicator.online {
+    display: block;
+    background-color: #10b981;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3);
+}
+
+.online-status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+}
+
+.online-status-dot.pulse {
+    animation: pulseDotAnimation 2s infinite;
+}
+
+@keyframes pulseDotAnimation {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
 }
 
 .chat-group-avatar {
@@ -1417,6 +1529,16 @@ async function pollChatUpdates() {
                     appendMessageToUI(msg);
                     lastMessageId = msg.id;
                     hasNew = true;
+
+                    // Tab orqa fonda bo'lsa yoki oyna nofaol bo'lsa, desktop bildirishnoma chiqarish
+                    if (document.hidden && typeof window.showDesktopNotification === 'function') {
+                        const notifBody = msg.body || (msg.type === 'image' ? '📷 Rasm yubordi' : '📎 Fayl yubordi');
+                        window.showDesktopNotification(
+                            msg.user_name || 'Smart-Ijro — Muloqot',
+                            notifBody,
+                            `{{ route('chat.index') }}?chat_id=${msg.chat_id}`
+                        );
+                    }
                 }
             });
             if (hasNew) {
@@ -1426,10 +1548,49 @@ async function pollChatUpdates() {
         } else if (newTotalUnread > previousTotalUnread) {
             // Boshqa chatga yangi xabar kelgan bo'lsa ham signal berish
             playNotificationSound();
+            if (document.hidden && typeof window.showDesktopNotification === 'function') {
+                window.showDesktopNotification(
+                    'Smart-Ijro — Muloqot',
+                    'Sizda yangi xabarlar mavjud!',
+                    '{{ route("chat.index") }}'
+                );
+            }
         }
         window.lastTotalUnread = newTotalUnread;
 
-        // 2. O'qilganlik holatini (Checkmarks ✓ -> ✓✓) yangilash!
+        // 2. Onlayn / Oflayn holat va so'nggi faollikni yangilash (Online status & last seen)
+        if (data.chat_status) {
+            if (data.chat_status.type === 'direct') {
+                const statusEl = document.getElementById('activeChatUserStatus');
+                if (statusEl) {
+                    if (data.chat_status.is_online) {
+                        statusEl.innerHTML = `<span class="text-success fw-semibold d-inline-flex align-items-center gap-1.5"><span class="online-status-dot pulse"></span> onlayn</span>`;
+                    } else {
+                        statusEl.innerHTML = `<span class="text-muted">${data.chat_status.status_text}</span>`;
+                    }
+                }
+            } else if (data.chat_status.type === 'group') {
+                const groupEl = document.getElementById('activeChatGroupText');
+                if (groupEl) {
+                    groupEl.innerHTML = `<i class="feather-users fs-11 me-1"></i>${data.chat_status.status_text}`;
+                }
+            }
+        }
+
+        // 3. Barcha foydalanuvchilarning onlayn / oflayn yashil indikatorlarini yangilash
+        if (data.online_user_ids && Array.isArray(data.online_user_ids)) {
+            const onlineSet = new Set(data.online_user_ids.map(id => String(id)));
+            document.querySelectorAll('[data-user-status-id]').forEach(indicator => {
+                const uid = indicator.getAttribute('data-user-status-id');
+                if (onlineSet.has(uid)) {
+                    indicator.classList.add('online');
+                } else {
+                    indicator.classList.remove('online');
+                }
+            });
+        }
+
+        // 4. O'qilganlik holatini (Checkmarks ✓ -> ✓✓) yangilash!
         if (data.other_last_read_timestamp && data.other_last_read_timestamp > 0) {
             const outgoingMessages = document.querySelectorAll('.message-out[data-timestamp]');
             outgoingMessages.forEach(el => {
@@ -1445,7 +1606,7 @@ async function pollChatUpdates() {
             });
         }
 
-        // 3. O'qilmaganlar sonini yangilash
+        // 5. O'qilmaganlar sonini yangilash
         if (data.unread_counts) {
             for (const [cId, count] of Object.entries(data.unread_counts)) {
                 const badge = document.getElementById(`unreadBadge_${cId}`);
@@ -1461,6 +1622,85 @@ async function pollChatUpdates() {
         }
     } catch (e) {
         // Silent catch for network hiccups
+    }
+}
+
+// ==================== PWA VA DESKTOP BILDIRISHNOMALAR ====================
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const btn = document.getElementById('btnPwaInstall');
+    if (btn) {
+        btn.classList.remove('d-none');
+        btn.classList.add('d-flex');
+    }
+});
+
+function initPwaAndNotifications() {
+    const btnPwa = document.getElementById('btnPwaInstall');
+    if (btnPwa) {
+        btnPwa.addEventListener('click', async () => {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            const choice = await deferredInstallPrompt.userChoice;
+            if (choice.outcome === 'accepted') {
+                btnPwa.classList.remove('d-flex');
+                btnPwa.classList.add('d-none');
+            }
+            deferredInstallPrompt = null;
+        });
+    }
+
+    updateNotificationButtonUI();
+}
+
+function updateNotificationButtonUI() {
+    const btn = document.getElementById('btnToggleNotifications');
+    const icon = document.getElementById('btnNotifIcon');
+    const text = document.getElementById('btnNotifText');
+    if (!btn || !icon || !text) return;
+
+    if (!("Notification" in window)) {
+        btn.style.display = 'none';
+        return;
+    }
+
+    if (Notification.permission === 'granted') {
+        icon.className = 'feather-bell text-success';
+        text.innerText = 'Yoqilgan';
+        btn.classList.remove('btn-outline-secondary', 'btn-outline-danger');
+        btn.classList.add('btn-outline-success');
+    } else if (Notification.permission === 'denied') {
+        icon.className = 'feather-bell-off text-danger';
+        text.innerText = 'Taqiqlangan';
+        btn.classList.remove('btn-outline-secondary', 'btn-outline-success');
+        btn.classList.add('btn-outline-danger');
+    } else {
+        icon.className = 'feather-bell text-secondary';
+        text.innerText = 'Bildirishnoma';
+        btn.classList.remove('btn-outline-success', 'btn-outline-danger');
+        btn.classList.add('btn-outline-secondary');
+    }
+}
+
+async function toggleDesktopNotifications() {
+    if (!("Notification" in window)) {
+        alert("Brouzeringiz bildirishnomalarni qo'llab-quvvatlamaydi!");
+        return;
+    }
+    if (Notification.permission === 'granted') {
+        if (typeof window.showDesktopNotification === 'function') {
+            window.showDesktopNotification('Smart-Ijro — Muloqot', 'Bildirishnomalar yoqilgan! Yangi xabarlar ekranga chiqadi.', '{{ route("chat.index") }}');
+        }
+        return;
+    }
+    const permission = await Notification.requestPermission();
+    updateNotificationButtonUI();
+    if (permission === 'granted') {
+        if (typeof window.showDesktopNotification === 'function') {
+            window.showDesktopNotification('Smart-Ijro — Muloqot', 'Bildirishnomalar muvaffaqiyatli yoqildi!', '{{ route("chat.index") }}');
+        }
     }
 }
 
@@ -1581,6 +1821,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Polling start (har 3 soniyada)
     pollInterval = setInterval(pollChatUpdates, 3000);
+
+    // PWA va Bildirishnomalarni ishga tushirish
+    initPwaAndNotifications();
 
     // Filter tabs
     const tabBtns = document.querySelectorAll('.chat-tab-btn');

@@ -258,11 +258,19 @@ class ChatController extends Controller
     public function poll(Request $request)
     {
         $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        // Joriy foydalanuvchining so'nggi faolligini yangilash
+        $user->updateQuietly(['last_activity' => now()]);
+
         $activeChatId = (int) $request->active_chat_id;
         $lastMessageId = (int) $request->last_message_id;
 
         $newMessages = [];
         $otherLastReadTimestamp = 0;
+        $chatStatus = null;
 
         if ($activeChatId) {
             // O'qilgan vaqtni yangilash
@@ -277,6 +285,33 @@ class ChatController extends Controller
 
             if ($maxOtherRead) {
                 $otherLastReadTimestamp = \Carbon\Carbon::parse($maxOtherRead)->timestamp;
+            }
+
+            // Faol chatning onlayn / oflayn holati
+            $activeChat = Chat::with(['participants.user'])->find($activeChatId);
+            if ($activeChat) {
+                if ($activeChat->isDirect()) {
+                    $otherUser = $activeChat->getOtherUser($user);
+                    if ($otherUser) {
+                        $isOnline = $otherUser->isOnline();
+                        $chatStatus = [
+                            'type' => 'direct',
+                            'user_id' => $otherUser->id,
+                            'is_online' => $isOnline,
+                            'status_text' => $isOnline ? 'onlayn' : $otherUser->getLastSeenText(),
+                        ];
+                    }
+                } else {
+                    $groupUsers = $activeChat->participants->map->user->filter();
+                    $totalCount = $groupUsers->count();
+                    $onlineCount = $groupUsers->filter->isOnline()->count();
+                    $chatStatus = [
+                        'type' => 'group',
+                        'total_count' => $totalCount,
+                        'online_count' => $onlineCount,
+                        'status_text' => "{$totalCount} ta a'zo" . ($onlineCount > 0 ? ", {$onlineCount} ta onlayn" : ''),
+                    ];
+                }
             }
 
             $messagesQuery = Message::where('chat_id', $activeChatId)
@@ -323,11 +358,17 @@ class ChatController extends Controller
             $totalUnread += $unread;
         }
 
+        // Hozirda onlayn bo'lgan barcha xodimlar ID ro'yxati (oxirgi 2 daqiqada faol)
+        $threshold = now()->subSeconds(120);
+        $onlineUserIds = User::where('last_activity', '>=', $threshold)->pluck('id')->toArray();
+
         return response()->json([
             'new_messages' => $newMessages,
             'unread_counts' => $unreadCounts,
             'total_unread' => $totalUnread,
             'other_last_read_timestamp' => $otherLastReadTimestamp,
+            'chat_status' => $chatStatus,
+            'online_user_ids' => $onlineUserIds,
         ]);
     }
 

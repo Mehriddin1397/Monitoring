@@ -180,4 +180,50 @@ class User extends Authenticatable
         return round((float) $score, 2);
     }
 
+    /**
+     * Foydalanuvchi hozir onlaynmi (so'nggi 2 daqiqa ichida faol bo'lgan)
+     */
+    public function isOnline(): bool
+    {
+        if (empty($this->last_activity)) {
+            return false;
+        }
+
+        try {
+            return now()->diffInSeconds($this->last_activity) <= 120;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Oxirgi marta qachon kirgani matni (Telegram uslubida)
+     */
+    public function getLastSeenText(): string
+    {
+        if ($this->isOnline()) {
+            return 'onlayn';
+        }
+
+        if (empty($this->last_activity)) {
+            return 'yaqinda bo\'lgan';
+        }
+
+        try {
+            $last = \Carbon\Carbon::parse($this->last_activity)->timezone('Asia/Tashkent');
+
+            if ($last->isToday()) {
+                return 'oxirgi marta bugun ' . $last->format('H:i') . ' da bo\'lgan';
+            }
+
+            if ($last->isYesterday()) {
+                return 'oxirgi marta kecha ' . $last->format('H:i') . ' da bo\'lgan';
+            }
+
+            return 'oxirgi marta ' . $last->format('d.m.Y H:i') . ' da bo\'lgan';
+        } catch (\Throwable $e) {
+            return 'yaqinda bo\'lgan';
+        }
+    }
+
 }

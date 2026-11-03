@@ -1,0 +1,25 @@
+{
+  "name": "Smart-Ijro — Muloqot va Nazorat",
+  "short_name": "Smart-Ijro",
+  "description": "Smart-Ijro monitoring va ichki tezkor xodimlar muloqot tizimi",
+  "start_url": "/admin/chat",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/images/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/1111222.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
