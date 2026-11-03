@@ -250,6 +250,81 @@
             box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 45px rgba(168, 85, 247, 0.15);
         }
 
+        /* === POEM / SHER AUTO-SCROLL & KINETIC MOTION STYLES === */
+        .poem-scroll-box {
+            position: relative;
+            background: linear-gradient(180deg, rgba(22, 14, 38, 0.92) 0%, rgba(11, 7, 20, 0.98) 100%) !important;
+            border: 1px solid rgba(168, 85, 247, 0.38) !important;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), inset 0 0 40px rgba(168, 85, 247, 0.08) !important;
+            overflow: hidden;
+        }
+
+        .poem-scroll-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 38px;
+            background: linear-gradient(to bottom, rgba(22, 14, 38, 0.98), transparent) !important;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .poem-scroll-box::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: linear-gradient(to top, rgba(11, 7, 20, 0.98), transparent) !important;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .poem-scroll-inner {
+            height: clamp(400px, 56vh, 660px);
+            overflow-y: scroll;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 2.2rem 2.8rem;
+            scroll-behavior: auto;
+        }
+
+        .poem-scroll-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+        .poem-content-text {
+            font-family: 'Cormorant Garamond', 'PT Serif', serif;
+            font-size: clamp(1.45rem, 2.1vw, 2.25rem);
+            line-height: 2.2;
+            letter-spacing: 0.025em;
+            color: #f5edff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+            white-space: pre-line;
+            font-style: italic;
+            transition: transform 0.5s ease;
+        }
+
+        @keyframes poemKineticDrift {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .poem-kinetic-drift {
+            animation: poemKineticDrift 6s ease-in-out infinite;
+        }
+
         /* === LATEST NEWS === */
         .news-card {
             background: linear-gradient(145deg, rgba(15, 23, 42, 0.88) 0%, rgba(7, 11, 20, 0.96) 100%);
@@ -599,44 +674,79 @@
             @foreach($employeeWorks as $idx => $work)
                 <div class="work-slide {{ $idx === 0 ? '' : 'hidden' }}" id="work-slide-{{ $idx }}">
 
-                    @if($work->layout_theme === 'lyric')
-                        {{-- ============ VARIANT 1: LYRIC POETRY ============ --}}
-                        <div class="lyric-card rounded-3xl p-6 sm:p-10 md:p-14 relative overflow-hidden border border-purple-500/30">
-                            {{-- Watermark feather --}}
+                    @if($work->layout_theme === 'lyric' || $work->type === 'poem')
+                        {{-- ============ VARIANT 1: LYRIC POETRY / SHER (ШЕЪР) ============ --}}
+                        <div class="lyric-card rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden border border-purple-500/40">
+                            {{-- Watermark feather in background --}}
                             <div class="absolute -right-8 -bottom-8 opacity-10 pointer-events-none">
-                                <span class="material-symbols-outlined text-[280px] text-purple-400">history_edu</span>
+                                <span class="material-symbols-outlined text-[320px] text-purple-400">history_edu</span>
                             </div>
 
-                            <div class="text-center max-w-5xl mx-auto space-y-6">
-                                {{-- Author Badge --}}
-                                <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-purple-900/50 border border-purple-500/40">
-                                    @if($work->employee && $work->employee->photo)
-                                        <img src="{{ asset('storage/' . $work->employee->photo) }}"
-                                             alt="{{ $work->employee->full_name }}"
-                                             class="w-12 h-12 rounded-full object-cover border border-purple-300"/>
-                                    @endif
-                                    <div class="text-left">
-                                        <p class="text-base font-bold text-white leading-tight">{{ $work->employee->full_name ?? 'Институт ходими' }}</p>
-                                        <p class="text-xs text-purple-300 italic">{{ $work->employee->position ?? '' }}</p>
+                            <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[340px_1fr] gap-8 md:gap-12 items-start relative z-10">
+                                {{-- Left: Author Large Profile Photo & Details --}}
+                                <div class="text-center lg:text-left space-y-4">
+                                    <div class="relative inline-block mx-auto lg:mx-0">
+                                        <div class="w-40 h-40 md:w-52 md:h-52 xl:w-64 xl:h-64 rounded-3xl overflow-hidden border-2 border-purple-400 shadow-2xl shadow-purple-950/80 bg-black relative group">
+                                            @if($work->employee && $work->employee->photo)
+                                                <img src="{{ asset('storage/' . $work->employee->photo) }}"
+                                                     alt="{{ $work->employee->full_name }}"
+                                                     class="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                                                     onerror="this.onerror=null; this.src='{{ $work->employee->avatar_url ?? asset('assets/images/1111222.png') }}';"/>
+                                            @elseif($work->employee && $work->employee->avatar_url)
+                                                <img src="{{ $work->employee->avatar_url }}"
+                                                     alt="{{ $work->employee->full_name }}"
+                                                     class="w-full h-full object-cover"
+                                                     onerror="this.onerror=null; this.src='{{ asset('assets/images/1111222.png') }}';"/>
+                                            @else
+                                                <img src="{{ asset('assets/images/1111222.png') }}"
+                                                     alt="Logo"
+                                                     class="w-full h-full object-cover"/>
+                                            @endif
+                                            <div class="absolute inset-0 bg-gradient-to-t from-purple-950/50 via-transparent to-transparent pointer-events-none"></div>
+                                        </div>
+                                        {{-- Badge under photo --}}
+                                        <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 lg:left-6 lg:translate-x-0 bg-purple-900 text-purple-200 border border-purple-400/60 text-[11px] font-bold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-lg whitespace-nowrap">
+                                            <span>Шеър муаллифи</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-2">
+                                        <p class="text-xs uppercase tracking-widest text-purple-300 font-serif font-semibold">Ижодкор ходим:</p>
+                                        <h3 class="font-display font-bold text-xl md:text-2xl xl:text-3xl text-white">{{ $work->employee->full_name ?? 'Институт ходими' }}</h3>
+                                        <p class="text-sm text-purple-200/80 font-serif italic">{{ $work->employee->position ?? '' }}</p>
+                                    </div>
+
+                                    <div class="pt-1">
+                                        <span class="scroll-badge" style="background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.45); color: #e9d5ff;">
+                                            <span class="material-symbols-outlined text-sm scroll-arrow-anim text-purple-300">arrow_downward</span>
+                                            <span>Автоматик ҳаракат</span>
+                                        </span>
                                     </div>
                                 </div>
 
-                                {{-- Category & Title --}}
-                                <div class="space-y-3">
-                                    <p class="text-sm uppercase tracking-[0.3em] text-purple-300 font-serif italic">📜 Назмий сатрлар</p>
-                                    <h2 class="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white">
+                                {{-- Right: Poem Header & Auto-scrolling Poem lines --}}
+                                <div class="space-y-4 min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-purple-400 text-xl">history_edu</span>
+                                        <span class="text-xs sm:text-sm uppercase tracking-[0.25em] text-purple-300 font-serif font-bold">Назмий сатрлар • Ходимлар ижоди</span>
+                                    </div>
+                                    <h2 class="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
                                         «<span class="gold-text">{{ $work->title }}</span>»
                                     </h2>
                                     @if($work->excerpt)
-                                        <p class="text-base text-purple-200/80 italic font-serif">{{ $work->excerpt }}</p>
+                                        <p class="text-purple-200/90 font-serif italic text-base md:text-lg border-l-2 border-purple-400 pl-4 py-1">
+                                            {{ $work->excerpt }}
+                                        </p>
                                     @endif
-                                </div>
 
-                                {{-- Poem lines --}}
-                                <div class="py-6 my-2 px-8 rounded-2xl bg-black/40 border border-purple-500/30 max-h-[62vh] overflow-y-auto">
-                                    <p class="font-serif italic text-lg sm:text-xl md:text-2xl lg:text-3xl text-purple-100 leading-relaxed sm:leading-loose whitespace-pre-line">
-                                        {{ $work->content }}
-                                    </p>
+                                    {{-- Creative Poem Auto-Scroll Box --}}
+                                    <div class="story-scroll-box poem-scroll-box">
+                                        <div class="story-scroll-inner autoscroll-target poem-scroll-inner" id="poem-scroll-{{ $idx }}">
+                                            <div class="poem-content-text" id="poem-content-{{ $idx }}">
+                                                {{ $work->content }}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1066,6 +1176,9 @@
             clearTimeout(storyScrollTimer);
             storyScrollTimer = null;
         }
+        document.querySelectorAll('.poem-kinetic-drift').forEach(el => {
+            el.classList.remove('poem-kinetic-drift');
+        });
     }
 
     function startStoryAutoScroll(slideElement) {
@@ -1105,7 +1218,11 @@
 
                 const maxScroll = container.scrollHeight - container.clientHeight;
                 if (maxScroll <= 2) {
-                    return; // Agar matn to'liq sig'ib tursa, harakat shart emas
+                    const poemText = container.querySelector('.poem-content-text');
+                    if (poemText && !poemText.classList.contains('poem-kinetic-drift')) {
+                        poemText.classList.add('poem-kinetic-drift');
+                    }
+                    return; // Agar matn to'liq sig'ib tursa, nafis kinetic drift orqali harakatlanib turadi
                 }
 
                 if (!reachedBottom) {
