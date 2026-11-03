@@ -93,7 +93,7 @@
                                         <th>#</th>
                                         <th>Photo</th>
                                         <th>F.I.Sh</th>
-                                        <th>Lavozimi</th>
+                                        <th>Qolgan vaqt</th>
                                         <th>Tug'ilgan kuni</th>
                                         <th>Telefon raqami</th>
                                         <th>Dizayn</th>
@@ -116,12 +116,34 @@
                                             </td>
                                             <td>
                                                 <strong>{{ $employee->full_name }}</strong>
+                                                @if($employee->position)
+                                                    <div class="small text-muted fs-12">{{ $employee->position }}</div>
+                                                @endif
                                                 @if($employee->custom_wish)
-                                                    <span class="badge bg-soft-primary text-primary ms-1" title="Maxsus tabrik bor"><i class="feather-message-square"></i></span>
+                                                    <span class="badge bg-soft-primary text-primary mt-1" title="Maxsus tabrik bor"><i class="feather-message-square me-1"></i>Maxsus tabrik</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                {{ $employee->position ?: '—' }}
+                                                @php $days = $employee->days_until_birthday; @endphp
+                                                @if($days === 0)
+                                                    <span class="badge bg-danger text-white py-1 px-2.5 shadow-sm fw-bold">
+                                                        <i class="feather-gift me-1"></i>Бугун! 🎉
+                                                    </span>
+                                                @elseif($days === 1)
+                                                    <span class="badge bg-warning text-dark py-1 px-2.5 shadow-sm fw-bold">
+                                                        <i class="feather-clock me-1"></i>Эртага (1 кун қолди) ⏳
+                                                    </span>
+                                                @elseif($days !== null && $days <= 7)
+                                                    <span class="badge bg-soft-warning text-warning border border-warning-subtle py-1 px-2 fw-semibold">
+                                                        <i class="feather-clock me-1"></i>{{ $days }} кун қолди
+                                                    </span>
+                                                @elseif($days !== null)
+                                                    <span class="badge bg-soft-info text-info py-1 px-2">
+                                                        <i class="feather-calendar me-1"></i>{{ $days }} кун қолди
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-light text-muted border py-1 px-2">—</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 @if($employee->birth_date)

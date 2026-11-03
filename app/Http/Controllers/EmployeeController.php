@@ -11,10 +11,14 @@ use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
-    // 1. READ: Barcha xodimlarni ro'yxatini ko'rsatish
+    // 1. READ: Barcha xodimlarni ro'yxatini ko'rsatish (tug'ilgan kuniga kam qolganlar eng yuqorida)
     public function index()
     {
-        $employees = Employee::latest('id')->get();
+        $employees = Employee::all()->sortBy(function ($employee) {
+            $days = $employee->days_until_birthday;
+            return $days === null ? 99999 : $days;
+        })->values();
+
         return view('admin.brith.index', compact('employees'));
     }
 

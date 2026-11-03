@@ -137,6 +137,140 @@
                         </a>
                     </div>
                 </div>
+
+                @if(Auth::check() && Auth::user()->role === 'admin')
+                    @php
+                        $tomorrowDate = \Carbon\Carbon::now('Asia/Tashkent')->addDay();
+                        $tomorrowEmployees = \App\Models\Employee::whereMonth('birth_date', $tomorrowDate->month)
+                            ->whereDay('birth_date', $tomorrowDate->day)
+                            ->get();
+
+                        $todayDate = \Carbon\Carbon::now('Asia/Tashkent');
+                        $todayCelebrants = \App\Models\Employee::whereMonth('birth_date', $todayDate->month)
+                            ->whereDay('birth_date', $todayDate->day)
+                            ->get();
+
+                        $unreadCount = $tomorrowEmployees->count();
+                    @endphp
+                    <div class="dropdown nxl-h-item">
+                        <a href="javascript:void(0);" class="nxl-head-link position-relative d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" role="button" data-bs-auto-close="outside" aria-expanded="false" title="Туғилган кун эслатмалари">
+                            <i class="feather-bell fs-18 {{ $unreadCount > 0 ? 'text-warning bday-bell-shake' : 'text-dark' }}"></i>
+                            @if($unreadCount > 0)
+                                <span class="badge bg-danger rounded-pill position-absolute" style="top: 2px; right: -2px; font-size: 10px; padding: 2px 5px; line-height: 1; border: 1.5px solid #fff;">
+                                    {{ $unreadCount }}
+                                </span>
+                            @endif
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end nxl-h-dropdown p-0 shadow-lg border-0 rounded-4 overflow-hidden" style="width: 360px; max-width: 90vw;">
+                            <!-- Header -->
+                            <div class="p-3 text-white d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fs-18">🎂</span>
+                                    <div>
+                                        <h6 class="text-white fw-bold mb-0 fs-14">Туғилган кун эслатмаси</h6>
+                                        <small class="text-warning fs-11">
+                                            @if($unreadCount > 0)
+                                                Эртага {{ $unreadCount }} нафар ходимнинг таваллуд куни!
+                                            @else
+                                                Эртага таваллуд куни бўлганлар йўқ
+                                            @endif
+                                        </small>
+                                    </div>
+                                </div>
+                                @if($unreadCount > 0)
+                                    <span class="badge bg-danger px-2 py-1 fs-11 fw-bold">1 кун қолди</span>
+                                @endif
+                            </div>
+
+                            <!-- List content -->
+                            <div class="p-2" style="max-height: 380px; overflow-y: auto;">
+                                @if($tomorrowEmployees->isNotEmpty())
+                                    <div class="px-2 py-1 text-uppercase fs-11 fw-bold text-muted">
+                                        ⏳ Эртага нишонлайдиганлар (1 кун қолди):
+                                    </div>
+                                    @foreach($tomorrowEmployees as $emp)
+                                        <div class="p-2.5 mb-2 rounded-3 bg-light border border-warning-subtle d-flex align-items-center gap-2.5">
+                                            @if($emp->photo)
+                                                <img src="{{ asset('storage/' . $emp->photo) }}" alt="{{ $emp->full_name }}" class="rounded-circle object-fit-cover shadow-sm flex-shrink-0" style="width: 44px; height: 44px; border: 2px solid #f59e0b;" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                            @else
+                                                <div class="avatar-text avatar-sm bg-warning text-dark rounded-circle fw-bold flex-shrink-0" style="width: 44px; height: 44px; line-height: 44px; text-align: center;">
+                                                    {{ mb_substr($emp->full_name, 0, 1) }}
+                                                </div>
+                                            @endif
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="fw-bold text-dark fs-13 text-truncate">{{ $emp->full_name }}</div>
+                                                <div class="text-muted fs-11 text-truncate">{{ $emp->position ?: 'Институт ходими' }}</div>
+                                                <div class="mt-1 d-flex align-items-center gap-2">
+                                                    <span class="badge bg-warning text-dark py-0.5 px-2 fs-10 fw-bold">
+                                                        <i class="feather-clock me-1"></i>1 кун қолди
+                                                    </span>
+                                                    @if($emp->phone)
+                                                        <span class="text-muted fs-11">
+                                                            <i class="feather-phone fs-10 me-0.5"></i>{{ $emp->phone }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+
+                                @if($todayCelebrants->isNotEmpty())
+                                    <div class="px-2 py-1 mt-1 text-uppercase fs-11 fw-bold text-success">
+                                        🎉 Бугун таваллуд айёми бўлганлар:
+                                    </div>
+                                    @foreach($todayCelebrants as $emp)
+                                        <div class="p-2.5 mb-2 rounded-3 bg-soft-success border border-success-subtle d-flex align-items-center gap-2.5">
+                                            @if($emp->photo)
+                                                <img src="{{ asset('storage/' . $emp->photo) }}" alt="{{ $emp->full_name }}" class="rounded-circle object-fit-cover shadow-sm flex-shrink-0" style="width: 40px; height: 40px; border: 2px solid #10b981;" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                                            @else
+                                                <div class="avatar-text avatar-sm bg-success text-white rounded-circle fw-bold flex-shrink-0" style="width: 40px; height: 40px; line-height: 40px; text-align: center;">
+                                                    {{ mb_substr($emp->full_name, 0, 1) }}
+                                                </div>
+                                            @endif
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="fw-bold text-dark fs-13 text-truncate">{{ $emp->full_name }}</div>
+                                                <div class="text-muted fs-11 text-truncate">{{ $emp->position ?: 'Институт ходими' }}</div>
+                                                <span class="badge bg-success text-white py-0.5 px-2 fs-10 fw-bold mt-1">
+                                                    <i class="feather-gift me-1"></i>Бугун! 🎉
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+
+                                @if($tomorrowEmployees->isEmpty() && $todayCelebrants->isEmpty())
+                                    <div class="text-center py-4 px-3">
+                                        <div class="fs-32 text-muted mb-2">🔔</div>
+                                        <h6 class="fs-13 fw-semibold text-dark mb-1">Яқин кунларда туғилган кунлар йўқ</h6>
+                                        <p class="fs-11 text-muted mb-0">Эртага ёки бугун таваллуд айёми бўлган ходимлар мавжуд эмас.</p>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="p-2 border-top bg-light text-center">
+                                <a href="{{ route('employees.index') }}" class="btn btn-sm btn-outline-primary w-100 rounded-pill fs-12 fw-semibold">
+                                    <i class="feather-calendar me-1"></i>Барча туғилган кунлар рўйхати →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <style>
+                    @keyframes bdayBellShake {
+                        0%, 100% { transform: rotate(0); }
+                        10%, 30% { transform: rotate(-15deg); }
+                        20%, 40% { transform: rotate(15deg); }
+                        50% { transform: rotate(0); }
+                    }
+                    .bday-bell-shake {
+                        display: inline-block;
+                        animation: bdayBellShake 2.5s infinite ease-in-out;
+                        transform-origin: top center;
+                    }
+                </style>
 {{--                <div class="nxl-h-item dark-light-theme">--}}
 {{--                    <a href="javascript:void(0);" class="nxl-head-link me-0 dark-button" style="display: none" >--}}
 {{--                        <i class="feather-moon"></i>--}}

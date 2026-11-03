@@ -13,4 +13,4 @@ Schedule::command('tasks:send-reminders')->dailyAt('04:00');
 
 Schedule::command('tasks:check-deadlines')->dailyAt('04:00');
 
-Schedule::command('employees:send-birthday-sms')->dailyAt('03:00');
+Schedule::command('employees:send-birthday-sms')->timezone('Asia/Tashkent')->dailyAt('08:30');

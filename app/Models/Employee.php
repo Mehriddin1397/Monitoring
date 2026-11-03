@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Employee extends Model
 {
@@ -61,5 +62,36 @@ class Employee extends Model
         $c2 = $isFemale ? '%23f43f5e' : '%237c3aed';
 
         return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='{$c1}'/%3E%3Cstop offset='100%25' stop-color='{$c2}'/%3E%3C/defs%3E%3Crect width='128' height='128' rx='64' fill='url(%23g)'/%3E%3Ctext x='50%25' y='55%25' font-family='sans-serif' font-size='46' font-weight='700' fill='%23ffffff' text-anchor='middle' dominant-baseline='middle'%3E{$initials}%3C/text%3E%3C/svg%3E";
+    }
+
+    /**
+     * Tug'ilgan kuniga necha kun qolganini hisoblash:
+     * 0 = Bugun, 1 = Ertaga, 2 = Indinga, ..., null = Kiritilmagan
+     */
+    public function getDaysUntilBirthdayAttribute(): ?int
+    {
+        if (empty($this->birth_date)) {
+            return null;
+        }
+
+        try {
+            $today = Carbon::now('Asia/Tashkent')->startOfDay();
+            $bDate = Carbon::parse($this->birth_date);
+            $month = (int) $bDate->month;
+            $day = (int) $bDate->day;
+
+            if ($month === 2 && $day === 29 && !$today->isLeapYear()) {
+                $day = 28;
+            }
+
+            $nextBirthday = Carbon::create($today->year, $month, $day, 0, 0, 0, 'Asia/Tashkent');
+            if ($nextBirthday->lt($today)) {
+                $nextBirthday->addYear();
+            }
+
+            return (int) $today->diffInDays($nextBirthday);
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }
