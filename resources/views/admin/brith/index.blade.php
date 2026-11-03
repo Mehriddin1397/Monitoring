@@ -181,6 +181,14 @@
                                             </td>
                                             <td>
                                                 <div class="hstack gap-2 justify-content-end">
+                                                    @if($employee->phone)
+                                                        <form action="{{ route('employees.send_sms', $employee->id) }}" method="POST" class="d-inline" onsubmit="return confirm('{{ $employee->full_name }} ga tabrik SMS xabari yuborilsinmi?');">
+                                                            @csrf
+                                                            <button type="submit" class="avatar-text avatar-md text-success border-0 bg-transparent p-0" title="Tabrik SMS yuborish">
+                                                                <i class="feather-send"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
                                                     <a href="javascript:void(0)" 
                                                        class="avatar-text avatar-md text-primary btn-edit-employee"
                                                        data-id="{{ $employee->id }}"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Services\TurniketService;
 use App\Services\EmployeeSyncService;
+use App\Services\EskizSmsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -337,5 +338,25 @@ class EmployeeController extends Controller
         $employee->delete();
 
         return redirect()->route('employees.index')->with('success', 'Xodim o\'chirildi!');
+    }
+
+    // 8. Tug'ilgan kun tabrik SMS ini qo'lda yuborish
+    public function sendBirthdaySms($id, EskizSmsService $smsService)
+    {
+        $employee = Employee::findOrFail($id);
+
+        if (empty($employee->phone)) {
+            return back()->with('error', "{$employee->full_name}ning telefon raqami kiritilmagan!");
+        }
+
+        $message = "Hurmatli {$employee->full_name}! Kriminologiya jamoasi sizni tug'ilgan kuningiz bilan chin dildan muborakbod etadi. Sizga mustahkam sog'liq, baxt-saodat va ishlaringizda ulkan zafarlar tilaymiz!";
+
+        $sent = $smsService->send($employee->phone, $message);
+
+        if ($sent) {
+            return back()->with('success', "{$employee->full_name}ga tabrik SMS muvaffaqiyatli yuborildi!");
+        }
+
+        return back()->with('error', "SMS yuborishda xatolik yuz berdi. Iltimos Eskiz tizimi yoki raqamni tekshiring.");
     }
 }

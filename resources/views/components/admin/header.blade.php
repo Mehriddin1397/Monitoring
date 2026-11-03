@@ -211,13 +211,21 @@
                                                     @endif
                                                 </div>
                                             </div>
+                                            @if($emp->phone)
+                                                <form action="{{ route('employees.send_sms', $emp->id) }}" method="POST" class="ms-auto flex-shrink-0" onsubmit="return confirm('{{ $emp->full_name }} ga tabrik SMS xabari yuborilsinmi?');">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 rounded-pill px-2 py-0.5 fs-11" title="Tabrik SMS yuborish">
+                                                        <i class="feather-send" style="font-size: 10px;"></i> SMS
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     @endforeach
                                 @endif
 
                                 @if($todayCelebrants->isNotEmpty())
                                     <div class="px-2 py-1 mt-1 text-uppercase fs-11 fw-bold text-success">
-                                        🎉 Бугун таваллуд айёми бўлганлар:
+                                        🎉 Бугун таваллуд айёми бўлганlar:
                                     </div>
                                     @foreach($todayCelebrants as $emp)
                                         <div class="p-2.5 mb-2 rounded-3 bg-soft-success border border-success-subtle d-flex align-items-center gap-2.5">
@@ -235,6 +243,14 @@
                                                     <i class="feather-gift me-1"></i>Бугун! 🎉
                                                 </span>
                                             </div>
+                                            @if($emp->phone)
+                                                <form action="{{ route('employees.send_sms', $emp->id) }}" method="POST" class="ms-auto flex-shrink-0" onsubmit="return confirm('{{ $emp->full_name }} ga tabrik SMS xabari yuborilsinmi?');">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-success d-inline-flex align-items-center gap-1 rounded-pill px-2 py-0.5 fs-11 text-white" title="Tabrik SMS yuborish">
+                                                        <i class="feather-send" style="font-size: 10px;"></i> SMS
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     @endforeach
                                 @endif

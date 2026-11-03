@@ -51,10 +51,8 @@ class SendBirthdaySms extends Command
             }
 
             try {
-                // Xodim ismini olib, chiroyli tabrik matnini shakllantirish
-                $message = !empty($employee->custom_wish)
-                    ? "Hurmatli {$employee->full_name}! {$employee->custom_wish}"
-                    : "Hurmatli {$employee->full_name}! Kriminologiya jamoasi sizni tug'ilgan kuningiz bilan chin dildan muborakbod etadi. Sizga mustahkam sog'liq, baxt-saodat va ishlaringizda ulkan zafarlar tilaymiz!";
+                // Xodim ismiga moslangan standart tabrik matni
+                $message = "Hurmatli {$employee->full_name}! Kriminologiya jamoasi sizni tug'ilgan kuningiz bilan chin dildan muborakbod etadi. Sizga mustahkam sog'liq, baxt-saodat va ishlaringizda ulkan zafarlar tilaymiz!";
 
                 // Eskiz SMS orqali yuborish
                 $sent = $smsService->send($employee->phone, $message);
