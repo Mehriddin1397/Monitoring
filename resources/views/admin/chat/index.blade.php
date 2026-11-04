@@ -374,7 +374,7 @@
                         </button>
                     </div>
 
-                    <!-- Upload Progress Bar (5 GB gacha fayllarni yuklash foizi) -->
+                    <!-- Upload Progress Bar (10 GB gacha fayllarni yuklash foizi) -->
                     <div id="fileUploadProgressBar" class="file-upload-progress-container d-none">
                         <div class="d-flex justify-content-between align-items-center mb-1.5">
                             <div class="d-flex align-items-center gap-2 min-w-0">
@@ -1343,9 +1343,9 @@ function handleFileSelected(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024; // 5 GB
+    const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024; // 10 GB
     if (file.size > MAX_FILE_SIZE) {
-        alert("Fayl hajmi 5 GB dan oshmasligi kerak! Tanlangan fayl: " + formatBytes(file.size));
+        alert("Fayl hajmi 10 GB dan oshmasligi kerak! Tanlangan fayl: " + formatBytes(file.size));
         clearSelectedFile();
         return;
     }
@@ -1423,7 +1423,7 @@ function hideUploadProgress() {
     if (bar) bar.classList.add('d-none');
 }
 
-// Katta hajmdagi faylni bo'laklab (Chunked - 10MB) yuklash
+// Katta hajmdagi faylni bo'laklab (Chunked - 20MB) yuklash
 async function uploadFileInChunks(file, body) {
     const submitBtn = document.getElementById('btnSubmitMessage');
     const input = document.getElementById('chatMessageInput');
@@ -1432,8 +1432,8 @@ async function uploadFileInChunks(file, body) {
     showUploadProgress(file.name);
     isChunkUploadCancelled = false;
 
-    // 10 MB lik bo'laklar
-    const CHUNK_SIZE = 10 * 1024 * 1024;
+    // 20 MB lik bo'laklar (10 GB gacha bo'lgan fayllar tezroq va barqaror yuklanishi uchun)
+    const CHUNK_SIZE = 20 * 1024 * 1024;
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     const fileId = 'up_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
 
@@ -1568,7 +1568,7 @@ async function handleSendMessage(event) {
         return;
     }
 
-    // Agar fayl biriktirilgan bo'lsa, Chunked (bo'laklab) yuklash tizimiga uzatamiz (5 GB gacha)
+    // Agar fayl biriktirilgan bo'lsa, Chunked (bo'laklab) yuklash tizimiga uzatamiz (10 GB gacha)
     if (selectedFile) {
         await uploadFileInChunks(selectedFile, body);
         return;

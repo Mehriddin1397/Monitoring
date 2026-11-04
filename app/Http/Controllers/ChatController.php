@@ -183,7 +183,7 @@ class ChatController extends Controller
     {
         $request->validate([
             'body' => 'nullable|string',
-            'file' => 'nullable|file|max:5242880', // max 5 GB
+            'file' => 'nullable|file|max:10485760', // max 10 GB
         ]);
 
         $chat = Chat::whereHas('participants', function ($q) {
