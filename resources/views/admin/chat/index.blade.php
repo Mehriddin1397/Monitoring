@@ -300,7 +300,7 @@
                                         <button type="button" class="btn-msg-action" onclick="setReplyMessage({{ $msg->id }}, '{{ addslashes($msg->user ? ($msg->user->full_name ?: $msg->user->name) : 'Xodim') }}', '{{ addslashes(Str::limit($msg->getSnippet(), 50)) }}')" title="Javob berish (Otmetka)">
                                             <i class="feather-corner-up-left"></i>
                                         </button>
-                                        @if($msg->canDelete(Auth::user()))
+                                        @if($isMe)
                                             <button type="button" class="btn-msg-action btn-msg-delete" onclick="deleteMessage({{ $msg->id }})" title="Xabarni o'chirish">
                                                 <i class="feather-trash-2"></i>
                                             </button>
@@ -1861,7 +1861,7 @@ function appendMessageToUI(msg) {
             <button type="button" class="btn-msg-action" onclick="setReplyMessage(${msg.id}, '${safeUser}', '${safeSnippet}')" title="Javob berish (Otmetka)">
                 <i class="feather-corner-up-left"></i>
             </button>
-            ${(msg.can_delete || msg.is_me) ? `
+            ${msg.is_me ? `
                 <button type="button" class="btn-msg-action btn-msg-delete" onclick="deleteMessage(${msg.id})" title="Xabarni o'chirish">
                     <i class="feather-trash-2"></i>
                 </button>

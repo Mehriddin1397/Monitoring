@@ -456,7 +456,7 @@ class ChatController extends Controller
         $message = Message::with('chat.participants')->findOrFail($messageId);
 
         if (!$message->canDelete($user)) {
-            return response()->json(['error' => "Ushbu xabarni o'chirishga huquqingiz yo'q!"], 403);
+            return response()->json(['error' => "Ushbu xabarni faqat uni yozgan yoki faylni yuklagan foydalanuvchi o'chira oladi!"], 403);
         }
 
         // Agar fayl biriktirilgan bo'lsa uni o'chirish

@@ -47,26 +47,14 @@ class Message extends Model
 
     /**
      * Foydalanuvchi ushbu xabarni o'chira oladimi?
+     * Faqat xabarni yozgan yoki faylni yuklagan foydalanuvchining o'zi o'chira oladi.
      */
     public function canDelete(?User $user = null): bool
     {
         $user = $user ?: auth()->user();
         if (!$user) return false;
 
-        // O'z xabarini o'chirish
-        if ($this->user_id === $user->id) return true;
-
-        // Tizim administratori
-        if ($user->role === 'admin') return true;
-
-        // Guruh administratori yoki yaratuvchisi
-        if ($this->chat && $this->chat->isGroup()) {
-            if ($this->chat->created_by === $user->id) return true;
-            $participant = $this->chat->participants->firstWhere('user_id', $user->id);
-            if ($participant && $participant->role === 'admin') return true;
-        }
-
-        return false;
+        return (int) $this->user_id === (int) $user->id;
     }
 
     /**
