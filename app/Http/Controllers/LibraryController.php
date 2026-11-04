@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Library;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class LibraryController extends Controller
@@ -46,7 +47,7 @@ class LibraryController extends Controller
 
         $search = $request ? $request->input('search') : request('search');
 
-        $query = $category->libraries();
+        $query = $category->libraries()->with('uploader');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -74,7 +75,8 @@ class LibraryController extends Controller
         $library = Library::create([
             'name' => $request->name,
             'author' => $request->author,
-            'pdf_path' => $path
+            'pdf_path' => $path,
+            'uploaded_by' => Auth::id(),
         ]);
 
         $library->categories()->attach($request->category_id);
@@ -84,6 +86,14 @@ class LibraryController extends Controller
 
     public function update(Request $request, Library $library)
     {
+        if ($library->uploaded_by) {
+            if ($library->uploaded_by !== Auth::id()) {
+                abort(403, 'Бу адабиётни фақат юклаган ходим таҳрирлай олади!');
+            }
+        } elseif (Auth::user()?->role !== 'admin') {
+            abort(403, 'Бу адабиётни фақат юклаган ходим таҳрирлай олади!');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'author' => 'required|string|max:255',
@@ -108,6 +118,14 @@ class LibraryController extends Controller
 
     public function destroy(Library $library)
     {
+        if ($library->uploaded_by) {
+            if ($library->uploaded_by !== Auth::id()) {
+                abort(403, 'Бу адабиётни фақат юклаган ходим ўчира олади!');
+            }
+        } elseif (Auth::user()?->role !== 'admin') {
+            abort(403, 'Бу адабиётни фақат юклаган ходим ўчира олади!');
+        }
+
         Storage::disk('public')->delete($library->pdf_path);
         $library->delete();
         return redirect()->back()->with('success', 'Адабиёт ўчирилди!');

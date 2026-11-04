@@ -90,6 +90,14 @@ class DocumentController extends Controller
      */
     public function update(Request $request, Document $document)
     {
+        if ($document->uploaded_by) {
+            if ($document->uploaded_by !== Auth::id()) {
+                abort(403, 'Бу ҳужжатни фақат юклаган ходим таҳрирлай олади!');
+            }
+        } elseif (Auth::user()?->role !== 'admin') {
+            abort(403, 'Бу ҳужжатни фақат юклаган ходим таҳрирлай олади!');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip,ppt,pptx',
@@ -115,6 +123,14 @@ class DocumentController extends Controller
      */
     public function destroy(Document $document)
     {
+        if ($document->uploaded_by) {
+            if ($document->uploaded_by !== Auth::id()) {
+                abort(403, 'Бу ҳужжатни фақат юклаган ходим ўчира олади!');
+            }
+        } elseif (Auth::user()?->role !== 'admin') {
+            abort(403, 'Бу ҳужжатни фақат юклаган ходим ўчира олади!');
+        }
+
         Storage::disk('public')->delete($document->file_path);
         $document->delete();
         return redirect()->back()->with('success', 'Ҳужжат ўчирилди!');

@@ -1,5 +1,6 @@
 <!--! [Start] Library Edit Offcanvas !-->
 @foreach($libraries as $document)
+    @if(Auth::id() === $document->uploaded_by || (empty($document->uploaded_by) && Auth::user()?->role === 'admin'))
     <div class="offcanvas offcanvas-end w-50" tabindex="-1" id="tasksDetailsOffcanvasEdit{{ $document->id }}">
         <div class="offcanvas-header border-bottom py-3">
             <div class="d-flex align-items-center">
@@ -59,5 +60,6 @@
             </form>
         </div>
     </div>
+    @endif
 @endforeach
 <!--! [End] Library Edit Offcanvas !-->

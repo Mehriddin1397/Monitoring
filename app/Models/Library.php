@@ -12,8 +12,14 @@ class Library extends Model
     protected $fillable = [
         'name',
         'author',
-        'pdf_path'
+        'pdf_path',
+        'uploaded_by',
     ];
+
+    public function uploader()
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
 
     public function categories()
     {

@@ -107,8 +107,9 @@
                             <tr>
                                 <th class="text-center" style="width: 60px;">№</th>
                                 <th>Китоб / Адабиёт номи</th>
-                                <th style="width: 250px;">Муаллиф(лар)</th>
-                                <th class="text-end" style="width: 180px;">Амаллар</th>
+                                <th style="width: 220px;">Муаллиф(лар)</th>
+                                <th style="width: 200px;">Юклаган ходим</th>
+                                <th class="text-end" style="width: 140px;">Амаллар</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -133,6 +134,14 @@
                                             <span class="fs-13 text-secondary">{{ $item->author }}</span>
                                         </div>
                                     </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar-text avatar-xs bg-soft-info text-info rounded-circle">
+                                                {{ mb_substr($item->uploader->name ?? 'X', 0, 1) }}
+                                            </div>
+                                            <span class="fs-13 text-secondary">{{ $item->uploader->name ?? 'Тизим' }}</span>
+                                        </div>
+                                    </td>
                                     <td class="text-end">
                                         <div class="d-inline-flex align-items-center gap-1">
                                             <button type="button" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
@@ -141,36 +150,31 @@
                                                 <span>Ўқиш</span>
                                             </button>
 
-                                            <a href="{{ asset('storage/' . $item->pdf_path) }}" 
-                                               download="{{ $item->name }}.pdf" 
-                                               class="btn btn-sm btn-outline-secondary" 
-                                               title="Юклаб олиш">
-                                                <i class="feather-download"></i>
-                                            </a>
-
                                             @auth
-                                                <button type="button" class="btn btn-sm btn-outline-warning" 
-                                                        data-bs-toggle="offcanvas" 
-                                                        data-bs-target="#tasksDetailsOffcanvasEdit{{ $item->id }}" 
-                                                        title="Таҳрирлаш">
-                                                    <i class="feather-edit-2"></i>
-                                                </button>
-
-                                                <form action="{{ route('library.destroy', $item->id) }}" method="POST" class="d-inline"
-                                                      onsubmit="return confirm('Ҳақиқатан ҳам ушбу адабиётни ўчирмоқчимисиз?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Ўчириш">
-                                                        <i class="feather-trash-2"></i>
+                                                @if(Auth::id() === $item->uploaded_by || (empty($item->uploaded_by) && Auth::user()?->role === 'admin'))
+                                                    <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                            data-bs-toggle="offcanvas" 
+                                                            data-bs-target="#tasksDetailsOffcanvasEdit{{ $item->id }}" 
+                                                            title="Таҳрирлаш">
+                                                        <i class="feather-edit-2"></i>
                                                     </button>
-                                                </form>
+
+                                                    <form action="{{ route('library.destroy', $item->id) }}" method="POST" class="d-inline"
+                                                          onsubmit="return confirm('Ҳақиқатан ҳам ушбу адабиётни ўчирмоқчимисиз?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Ўчириш">
+                                                            <i class="feather-trash-2"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             @endauth
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-5">
+                                    <td colspan="5" class="text-center py-5">
                                         <div class="text-muted">
                                             <i class="feather-book-open fs-40 d-block mb-2 text-secondary opacity-50"></i>
                                             <h6 class="fw-bold mb-1">Ушбу бўлимда адабиётлар топилмади</h6>
@@ -214,10 +218,6 @@
                 </span>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
-                <a href="#" id="customPdfDownloadBtn" download class="btn btn-sm btn-outline-light d-flex align-items-center gap-1" style="font-size:12px; border-radius:6px;">
-                    <i class="feather-download"></i>
-                    <span>Юклаб олиш</span>
-                </a>
                 <button type="button" onclick="closeCustomPdfViewer()" style="background:transparent; border:none; color:#cbd5e1; font-size:26px; line-height:1; cursor:pointer; padding:0 5px;" title="Ёпиш (Esc)">
                     &times;
                 </button>
@@ -233,8 +233,7 @@
 <script>
     function openCustomPdfViewer(fileUrl, title) {
         document.getElementById('customPdfTitle').innerText = title || 'Китобни мутолаа қилиш';
-        document.getElementById('customPdfFrame').src = fileUrl;
-        document.getElementById('customPdfDownloadBtn').href = fileUrl;
+        document.getElementById('customPdfFrame').src = fileUrl + '#toolbar=0';
         var modal = document.getElementById('customPdfModalOverlay');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';

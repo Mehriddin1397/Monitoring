@@ -156,29 +156,24 @@
                                                 </button>
                                             @endif
 
-                                            <a href="{{ asset('storage/' . $doc->file_path) }}" 
-                                               download="{{ $doc->name }}" 
-                                               class="btn btn-sm btn-outline-secondary" 
-                                               title="Юклаб олиш">
-                                                <i class="feather-download"></i>
-                                            </a>
-
                                             @auth
-                                                <button type="button" class="btn btn-sm btn-outline-warning" 
-                                                        data-bs-toggle="offcanvas" 
-                                                        data-bs-target="#tasksDetailsOffcanvasEdit{{ $doc->id }}" 
-                                                        title="Таҳрирлаш">
-                                                    <i class="feather-edit-2"></i>
-                                                </button>
-
-                                                <form action="{{ route('documents.destroy', $doc->id) }}" method="POST" class="d-inline"
-                                                      onsubmit="return confirm('Ҳақиқатан ҳам ушбу ҳужжатни ўчирмоқчимисиз?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Ўчириш">
-                                                        <i class="feather-trash-2"></i>
+                                                @if(Auth::id() === $doc->uploaded_by || (empty($doc->uploaded_by) && Auth::user()?->role === 'admin'))
+                                                    <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                            data-bs-toggle="offcanvas" 
+                                                            data-bs-target="#tasksDetailsOffcanvasEdit{{ $doc->id }}" 
+                                                            title="Таҳрирлаш">
+                                                        <i class="feather-edit-2"></i>
                                                     </button>
-                                                </form>
+
+                                                    <form action="{{ route('documents.destroy', $doc->id) }}" method="POST" class="d-inline"
+                                                          onsubmit="return confirm('Ҳақиқатан ҳам ушбу ҳужжатни ўчирмоқчимисиз?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Ўчириш">
+                                                            <i class="feather-trash-2"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             @endauth
                                         </div>
                                     </td>
@@ -229,10 +224,6 @@
                 </span>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
-                <a href="#" id="customPdfDownloadBtn" download class="btn btn-sm btn-outline-light d-flex align-items-center gap-1" style="font-size:12px; border-radius:6px;">
-                    <i class="feather-download"></i>
-                    <span>Юклаб олиш</span>
-                </a>
                 <button type="button" onclick="closeCustomPdfViewer()" style="background:transparent; border:none; color:#cbd5e1; font-size:26px; line-height:1; cursor:pointer; padding:0 5px;" title="Ёпиш (Esc)">
                     &times;
                 </button>
@@ -248,8 +239,7 @@
 <script>
     function openCustomPdfViewer(fileUrl, title) {
         document.getElementById('customPdfTitle').innerText = title || 'PDF Ҳужжат';
-        document.getElementById('customPdfFrame').src = fileUrl;
-        document.getElementById('customPdfDownloadBtn').href = fileUrl;
+        document.getElementById('customPdfFrame').src = fileUrl + '#toolbar=0';
         var modal = document.getElementById('customPdfModalOverlay');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden'; // sahifa orqa fonida skroll bo'lmasligi uchun
