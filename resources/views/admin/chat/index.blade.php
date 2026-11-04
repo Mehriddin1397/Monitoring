@@ -374,6 +374,29 @@
                         </button>
                     </div>
 
+                    <!-- Upload Progress Bar (5 GB gacha fayllarni yuklash foizi) -->
+                    <div id="fileUploadProgressBar" class="file-upload-progress-container d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-1.5">
+                            <div class="d-flex align-items-center gap-2 min-w-0">
+                                <span class="spinner-border spinner-border-sm text-primary flex-shrink-0" role="status"></span>
+                                <span class="fs-12 fw-bold text-dark text-truncate" id="uploadProgressFileName">Yuklanmoqda...</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                <span class="fs-11 fw-semibold text-primary" id="uploadProgressStats">0%</span>
+                                <button type="button" class="btn btn-xs btn-outline-danger rounded-pill px-2 py-0.5" onclick="cancelChunkUpload()" title="Yuklashni to'xtatish">
+                                    <i class="feather-x"></i> Bekor qilish
+                                </button>
+                            </div>
+                        </div>
+                        <div class="progress" style="height: 6px; border-radius: 4px; background: #e2e8f0;">
+                            <div id="uploadProgressBarFill" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1 text-muted fs-11">
+                            <span id="uploadSpeedText">Tezlik: hisoblanmoqda...</span>
+                            <span id="uploadRemainingText">Qolgan vaqt: hisoblanmoqda...</span>
+                        </div>
+                    </div>
+
                     <form id="chatSendForm" class="chat-form" onsubmit="handleSendMessage(event)">
                         @csrf
                         <input type="file" id="chatFileInput" class="d-none" onchange="handleFileSelected(event)">
@@ -1130,6 +1153,15 @@
     margin-bottom: 8px;
 }
 
+.file-upload-progress-container {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
 .btn-remove-attachment {
     background: transparent;
     border: none;
@@ -1298,10 +1330,25 @@ function scrollToBottom() {
     }
 }
 
+function formatBytes(bytes) {
+    if (!bytes || bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
 // Fayl tanlanganda
 function handleFileSelected(event) {
     const file = event.target.files[0];
     if (!file) return;
+
+    const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024; // 5 GB
+    if (file.size > MAX_FILE_SIZE) {
+        alert("Fayl hajmi 5 GB dan oshmasligi kerak! Tanlangan fayl: " + formatBytes(file.size));
+        clearSelectedFile();
+        return;
+    }
 
     selectedFile = file;
     const preview = document.getElementById('fileAttachmentPreview');
@@ -1311,15 +1358,19 @@ function handleFileSelected(event) {
 
     if (preview && nameEl && sizeEl) {
         nameEl.innerText = file.name;
-        sizeEl.innerText = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+        sizeEl.innerText = formatBytes(file.size);
         
         if (file.type.startsWith('image/')) {
             iconEl.innerText = '📷';
+        } else if (file.type.startsWith('video/') || file.name.match(/\.(mp4|mkv|avi|mov)$/i)) {
+            iconEl.innerText = '🎬';
+        } else if (file.name.match(/\.(zip|rar|7z|tar|gz)$/i)) {
+            iconEl.innerText = '📦';
         } else if (file.name.endsWith('.pdf')) {
             iconEl.innerText = '📄';
-        } else if (file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+        } else if (file.name.match(/\.(doc|docx)$/i)) {
             iconEl.innerText = '📝';
-        } else if (file.name.endsWith('.xls') || file.name.endsWith('.xlsx')) {
+        } else if (file.name.match(/\.(xls|xlsx)$/i)) {
             iconEl.innerText = '📊';
         } else {
             iconEl.innerText = '📎';
@@ -1338,9 +1389,176 @@ function clearSelectedFile() {
     if (preview) preview.classList.add('d-none');
 }
 
+let currentChunkUploadXhr = null;
+let isChunkUploadCancelled = false;
+
+function cancelChunkUpload() {
+    if (!confirm("Fayl yuklashni bekor qilmoqchimisiz?")) return;
+    isChunkUploadCancelled = true;
+    if (currentChunkUploadXhr) {
+        currentChunkUploadXhr.abort();
+    }
+    hideUploadProgress();
+    const submitBtn = document.getElementById('btnSubmitMessage');
+    if (submitBtn) submitBtn.disabled = false;
+    clearSelectedFile();
+}
+
+function showUploadProgress(fileName) {
+    const bar = document.getElementById('fileUploadProgressBar');
+    const preview = document.getElementById('fileAttachmentPreview');
+    if (preview) preview.classList.add('d-none');
+    if (bar) {
+        bar.classList.remove('d-none');
+        document.getElementById('uploadProgressFileName').innerText = fileName;
+        document.getElementById('uploadProgressBarFill').style.width = '0%';
+        document.getElementById('uploadProgressStats').innerText = '0%';
+        document.getElementById('uploadSpeedText').innerText = 'Tezlik: hisoblanmoqda...';
+        document.getElementById('uploadRemainingText').innerText = 'Qolgan vaqt: hisoblanmoqda...';
+    }
+}
+
+function hideUploadProgress() {
+    const bar = document.getElementById('fileUploadProgressBar');
+    if (bar) bar.classList.add('d-none');
+}
+
+// Katta hajmdagi faylni bo'laklab (Chunked - 10MB) yuklash
+async function uploadFileInChunks(file, body) {
+    const submitBtn = document.getElementById('btnSubmitMessage');
+    const input = document.getElementById('chatMessageInput');
+    if (submitBtn) submitBtn.disabled = true;
+
+    showUploadProgress(file.name);
+    isChunkUploadCancelled = false;
+
+    // 10 MB lik bo'laklar
+    const CHUNK_SIZE = 10 * 1024 * 1024;
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const fileId = 'up_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+
+    const startTime = Date.now();
+    let uploadedBytesSoFar = 0;
+
+    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        if (isChunkUploadCancelled) {
+            console.log("Upload bekor qilindi.");
+            return;
+        }
+
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunkBlob = file.slice(start, end);
+        const chunkSize = end - start;
+
+        let retries = 3;
+        let success = false;
+        let lastResponseData = null;
+
+        while (retries > 0 && !success && !isChunkUploadCancelled) {
+            try {
+                lastResponseData = await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    currentChunkUploadXhr = xhr;
+
+                    xhr.open('POST', `{{ route('chat.index') }}/${activeChatId}/upload-chunk`, true);
+                    xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+                    xhr.setRequestHeader('Accept', 'application/json');
+
+                    xhr.upload.onprogress = (e) => {
+                        if (e.lengthComputable) {
+                            const currentTotalUploaded = uploadedBytesSoFar + e.loaded;
+                            const percent = Math.min(100, Math.round((currentTotalUploaded / file.size) * 100));
+
+                            document.getElementById('uploadProgressBarFill').style.width = percent + '%';
+                            document.getElementById('uploadProgressStats').innerText = 
+                                `${percent}% (${formatBytes(currentTotalUploaded)} / ${formatBytes(file.size)})`;
+
+                            const elapsedSec = (Date.now() - startTime) / 1000;
+                            if (elapsedSec > 0.5) {
+                                const bytesPerSec = currentTotalUploaded / elapsedSec;
+                                const speedText = formatBytes(bytesPerSec) + '/s';
+                                const remainingBytes = file.size - currentTotalUploaded;
+                                const remainingSec = Math.round(remainingBytes / bytesPerSec);
+
+                                document.getElementById('uploadSpeedText').innerText = 'Tezlik: ' + speedText;
+                                if (remainingSec > 60) {
+                                    const min = Math.floor(remainingSec / 60);
+                                    const sec = remainingSec % 60;
+                                    document.getElementById('uploadRemainingText').innerText = `Qolgan vaqt: ~${min} daq ${sec} son`;
+                                } else {
+                                    document.getElementById('uploadRemainingText').innerText = `Qolgan vaqt: ~${remainingSec} son`;
+                                }
+                            }
+                        }
+                    };
+
+                    xhr.onload = () => {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                resolve(JSON.parse(xhr.responseText));
+                            } catch (err) {
+                                reject(err);
+                            }
+                        } else {
+                            reject(new Error(`Server xatosi: ${xhr.status}`));
+                        }
+                    };
+
+                    xhr.onerror = () => reject(new Error("Tarmoq xatosi"));
+                    xhr.onabort = () => reject(new Error("Yuklash to'xtatildi"));
+
+                    const fd = new FormData();
+                    fd.append('chunk', chunkBlob, `chunk_${chunkIndex}`);
+                    fd.append('file_id', fileId);
+                    fd.append('chunk_index', chunkIndex);
+                    fd.append('total_chunks', totalChunks);
+                    fd.append('file_name', file.name);
+                    fd.append('file_size', file.size);
+                    if (chunkIndex === totalChunks - 1 && body) {
+                        fd.append('body', body);
+                    }
+
+                    xhr.send(fd);
+                });
+
+                success = true;
+                uploadedBytesSoFar += chunkSize;
+            } catch (err) {
+                if (isChunkUploadCancelled) return;
+                retries--;
+                console.warn(`Bo'lak ${chunkIndex} xatolik berdi, qayta urinish (${retries}):`, err);
+                if (retries === 0) {
+                    alert(`Fayl yuklashda xatolik yuz berdi (${err.message}). Qayta urinib ko'ring.`);
+                    hideUploadProgress();
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
+                }
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        }
+
+        // Agar bu oxirgi bo'lak bo'lsa va xabar muvaffaqiyatli saqlangan bo'lsa
+        if (chunkIndex === totalChunks - 1 && lastResponseData && lastResponseData.success && lastResponseData.message) {
+            appendMessageToUI(lastResponseData.message);
+            if (input) {
+                input.value = '';
+                input.style.height = 'auto';
+            }
+            clearSelectedFile();
+            hideUploadProgress();
+            lastMessageId = Math.max(lastMessageId, lastResponseData.message.id);
+            scrollToBottom();
+            playNotificationSound();
+        }
+    }
+
+    if (submitBtn) submitBtn.disabled = false;
+}
+
 // Xabar yuborish
 async function handleSendMessage(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     if (!activeChatId) return;
 
     const input = document.getElementById('chatMessageInput');
@@ -1350,11 +1568,16 @@ async function handleSendMessage(event) {
         return;
     }
 
+    // Agar fayl biriktirilgan bo'lsa, Chunked (bo'laklab) yuklash tizimiga uzatamiz (5 GB gacha)
+    if (selectedFile) {
+        await uploadFileInChunks(selectedFile, body);
+        return;
+    }
+
+    // Faqat matnli xabar bo'lsa, oddiy tezkor jo'natish
     const formData = new FormData();
     if (body) formData.append('body', body);
-    if (selectedFile) formData.append('file', selectedFile);
 
-    // Disable input while sending
     const submitBtn = document.getElementById('btnSubmitMessage');
     if (submitBtn) submitBtn.disabled = true;
 

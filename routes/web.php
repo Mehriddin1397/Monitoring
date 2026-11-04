@@ -148,6 +148,7 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
         Route::post('/direct', [\App\Http\Controllers\ChatController::class, 'startDirect'])->name('start_direct');
         Route::post('/group', [\App\Http\Controllers\ChatController::class, 'createGroup'])->name('create_group');
         Route::post('/{chat}/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('send');
+        Route::post('/{chat}/upload-chunk', [\App\Http\Controllers\ChatController::class, 'uploadChunk'])->name('upload_chunk');
         Route::get('/poll', [\App\Http\Controllers\ChatController::class, 'poll'])->name('poll');
         Route::get('/download/{message}', [\App\Http\Controllers\ChatController::class, 'download'])->name('download');
         Route::post('/{chat}/add-members', [\App\Http\Controllers\ChatController::class, 'addMembers'])->name('add_members');

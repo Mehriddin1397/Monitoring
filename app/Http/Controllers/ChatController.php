@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ChatController extends Controller
 {
@@ -182,7 +183,7 @@ class ChatController extends Controller
     {
         $request->validate([
             'body' => 'nullable|string',
-            'file' => 'nullable|file|max:51200', // max 50 MB
+            'file' => 'nullable|file|max:5242880', // max 5 GB
         ]);
 
         $chat = Chat::whereHas('participants', function ($q) {
@@ -232,6 +233,143 @@ class ChatController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => [
+                'id' => $message->id,
+                'chat_id' => $message->chat_id,
+                'user_id' => $message->user_id,
+                'user_name' => Auth::user()->name,
+                'user_avatar' => Auth::user()->avatar_url,
+                'body' => $message->body,
+                'type' => $message->type,
+                'file_url' => $message->file_url,
+                'file_name' => $message->file_name,
+                'file_size' => $message->formatted_file_size,
+                'is_image' => $message->isImage(),
+                'created_at' => $message->created_at->timezone('Asia/Tashkent')->format('H:i'),
+                'created_at_timestamp' => $message->created_at->timestamp,
+                'is_read' => false,
+                'is_me' => true,
+            ],
+        ]);
+    }
+
+    /**
+     * Katta hajmdagi fayllarni (5 GB gacha) bo'laklab (Chunked) yuklash
+     */
+    public function uploadChunk(Request $request, $chatId)
+    {
+        $request->validate([
+            'chunk' => 'required|file',
+            'file_id' => 'required|string',
+            'chunk_index' => 'required|integer|min:0',
+            'total_chunks' => 'required|integer|min:1',
+            'file_name' => 'required|string',
+            'file_size' => 'required|numeric',
+            'body' => 'nullable|string',
+        ]);
+
+        $chat = Chat::whereHas('participants', function ($q) {
+            $q->where('user_id', Auth::id());
+        })->findOrFail($chatId);
+
+        $fileId = preg_replace('/[^a-zA-Z0-9_-]/', '', $request->file_id);
+        $chunkIndex = (int) $request->chunk_index;
+        $totalChunks = (int) $request->total_chunks;
+        $chunk = $request->file('chunk');
+
+        $tempBase = storage_path('app/chunks_tmp');
+        if (!file_exists($tempBase)) {
+            @mkdir($tempBase, 0775, true);
+        }
+
+        $chunkDir = $tempBase . '/' . $fileId;
+        if (!file_exists($chunkDir)) {
+            @mkdir($chunkDir, 0775, true);
+        }
+
+        // Bo'lakni saqlash
+        $chunk->move($chunkDir, "chunk_{$chunkIndex}");
+
+        // Agar bu oxirgi bo'lak bo'lmasa, tasdiq qaytarish
+        if ($chunkIndex < ($totalChunks - 1)) {
+            return response()->json([
+                'success' => true,
+                'completed' => false,
+                'chunk_index' => $chunkIndex,
+                'total_chunks' => $totalChunks,
+            ]);
+        }
+
+        // Oxirgi bo'lak kelganda: barcha bo'laklarni birlashtirish
+        $originalName = $request->file_name;
+        $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+        $safeExtension = $extension ? '.' . preg_replace('/[^a-zA-Z0-9]/', '', $extension) : '';
+        $cleanBase = pathinfo($originalName, PATHINFO_FILENAME);
+        $cleanBase = Str::slug(mb_substr($cleanBase, 0, 50)) ?: 'fayl';
+        $finalFileName = time() . '_' . Str::random(10) . '_' . $cleanBase . $safeExtension;
+
+        $chatDir = storage_path('app/public/chat_files/' . $chat->id);
+        if (!file_exists($chatDir)) {
+            @mkdir($chatDir, 0775, true);
+        }
+
+        $finalFilePath = $chatDir . '/' . $finalFileName;
+        $out = fopen($finalFilePath, 'wb');
+
+        if (!$out) {
+            return response()->json(['error' => 'Faylni yozish uchun ochib bo\'lmadi!'], 500);
+        }
+
+        for ($i = 0; $i < $totalChunks; $i++) {
+            $chunkPath = $chunkDir . "/chunk_{$i}";
+            if (!file_exists($chunkPath)) {
+                fclose($out);
+                @unlink($finalFilePath);
+                return response()->json(['error' => "Bo'lak {$i} topilmadi!"], 400);
+            }
+
+            $in = fopen($chunkPath, 'rb');
+            if ($in) {
+                stream_copy_to_stream($in, $out);
+                fclose($in);
+            }
+            @unlink($chunkPath);
+        }
+        fclose($out);
+        @rmdir($chunkDir);
+
+        $realSize = file_exists($finalFilePath) ? filesize($finalFilePath) : (int) $request->file_size;
+        $fileMime = 'application/octet-stream';
+        if (function_exists('mime_content_type')) {
+            $detected = @mime_content_type($finalFilePath);
+            if ($detected) {
+                $fileMime = $detected;
+            }
+        }
+        $type = str_starts_with($fileMime, 'image/') ? 'image' : 'file';
+        $relativeFilePath = 'chat_files/' . $chat->id . '/' . $finalFileName;
+        $body = trim((string) $request->body);
+
+        $message = Message::create([
+            'chat_id' => $chat->id,
+            'user_id' => Auth::id(),
+            'body' => $body ?: null,
+            'type' => $type,
+            'file_path' => $relativeFilePath,
+            'file_name' => $originalName,
+            'file_size' => $realSize,
+            'file_mime' => $fileMime,
+        ]);
+
+        $chat->update(['last_message_at' => now()]);
+
+        ChatParticipant::where('chat_id', $chat->id)
+            ->where('user_id', Auth::id())
+            ->update(['last_read_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'completed' => true,
             'message' => [
                 'id' => $message->id,
                 'chat_id' => $message->chat_id,
