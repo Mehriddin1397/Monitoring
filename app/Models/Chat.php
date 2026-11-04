@@ -41,12 +41,12 @@ class Chat extends Model
 
     public function messages(): HasMany
     {
-        return $this->hasMany(Message::class, 'chat_id');
+        return $this->hasMany(Message::class, 'chat_id')->where('is_deleted', false);
     }
 
     public function latestMessage(): HasOne
     {
-        return $this->hasOne(Message::class, 'chat_id')->latestOfMany();
+        return $this->hasOne(Message::class, 'chat_id')->where('is_deleted', false)->latestOfMany();
     }
 
     public function isGroup(): bool

@@ -10,12 +10,19 @@ class Message extends Model
     protected $fillable = [
         'chat_id',
         'user_id',
+        'reply_to_id',
         'body',
         'type',
         'file_path',
         'file_name',
         'file_size',
         'file_mime',
+        'is_deleted',
+        'deleted_by',
+    ];
+
+    protected $casts = [
+        'is_deleted' => 'boolean',
     ];
 
     public function chat(): BelongsTo
@@ -26,6 +33,57 @@ class Message extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(Message::class, 'reply_to_id');
+    }
+
+    public function deletedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
+
+    /**
+     * Foydalanuvchi ushbu xabarni o'chira oladimi?
+     */
+    public function canDelete(?User $user = null): bool
+    {
+        $user = $user ?: auth()->user();
+        if (!$user) return false;
+
+        // O'z xabarini o'chirish
+        if ($this->user_id === $user->id) return true;
+
+        // Tizim administratori
+        if ($user->role === 'admin') return true;
+
+        // Guruh administratori yoki yaratuvchisi
+        if ($this->chat && $this->chat->isGroup()) {
+            if ($this->chat->created_by === $user->id) return true;
+            $participant = $this->chat->participants->firstWhere('user_id', $user->id);
+            if ($participant && $participant->role === 'admin') return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Qisqa snippet (otmetka qilib javob berilganda ko'rsatish uchun)
+     */
+    public function getSnippet(): string
+    {
+        if ($this->is_deleted) {
+            return "O'chirilgan xabar";
+        }
+        if ($this->type === 'image') {
+            return "📷 Rasm";
+        }
+        if ($this->type === 'file') {
+            return "📎 " . ($this->file_name ?: "Fayl");
+        }
+        return $this->body ?: "Xabar";
     }
 
     public function isFile(): bool

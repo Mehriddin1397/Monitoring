@@ -1,9 +1,65 @@
+<style>
+/* Sidebar "Muloqot va hujjatlar" bo'limini ajratib ko'rsatish (Highlight) */
+.chat-menu-item-highlight {
+    margin: 5px 12px 6px !important;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(99, 102, 241, 0.18) 100%) !important;
+    border: 1.5px solid rgba(37, 99, 235, 0.3) !important;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12) !important;
+}
+.chat-menu-item-highlight:hover {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.22) 0%, rgba(99, 102, 241, 0.28) 100%) !important;
+    border-color: #2563eb !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.22) !important;
+}
+.chat-menu-item-highlight .nxl-link {
+    color: #1d4ed8 !important;
+    font-weight: 700 !important;
+    padding: 10px 14px !important;
+}
+.chat-menu-item-highlight.active {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    border-color: #1e40af !important;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35) !important;
+}
+.chat-menu-item-highlight.active .nxl-link {
+    color: #ffffff !important;
+}
+.chat-menu-item-highlight .nxl-micon i {
+    color: #2563eb !important;
+    font-size: 19px !important;
+}
+.chat-menu-item-highlight.active .nxl-micon i {
+    color: #ffffff !important;
+}
+.chat-sparkle-pill {
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-left: 6px;
+}
+.chat-menu-item-highlight.active .chat-sparkle-pill {
+    background: #ffffff;
+    color: #2563eb;
+}
+</style>
+
 <nav class="nxl-navigation">
     <div class="navbar-wrapper" style="background-color: #dcddea">
-        <div class="m-header">
-            <a href="#" class="b-brand">
-                <img src="{{ asset('/img/logo/3.png') }}" alt="Logo" class="logo logo-lg"/>
-                <img src="{{ asset('/img/logo/3.png') }}" alt="Logo" class="logo logo-sm"/>
+        <div class="m-header" style="padding: 12px 18px; display: flex; align-items: center; justify-content: flex-start;">
+            <a href="{{ route('dashboard') }}" class="b-brand d-flex align-items-center gap-2.5 text-decoration-none">
+                <img src="{{ asset('assets/images/logoo.jfif') }}" alt="Smart-Ijro Logo" class="logo logo-lg" style="height: 42px; width: 42px; object-fit: contain; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.18); border: 1.5px solid #ffffff;"/>
+                <div class="d-flex flex-column text-start">
+                    <span class="fw-bolder text-dark" style="font-size: 14.5px; letter-spacing: 0.6px; line-height: 1.2;">SMART-IJRO</span>
+                    <span class="text-muted fw-semibold" style="font-size: 10px; line-height: 1.1;">Monitoring & Muloqot</span>
+                </div>
             </a>
         </div>
         <div class="navbar-content">
@@ -51,12 +107,13 @@
                         </a>
                     </li>
 
-                    {{-- Ички мулоқот ва ҳужжатлар (Chat) --}}
-                    <li class="nxl-item nxl-hasmenu {{ request()->routeIs('chat.*') ? 'active' : '' }}">
-                        <a href="{{ route('chat.index') }}" class="nxl-link">
+                    {{-- Ички мулоқот ва ҳужжатлар (Chat - Ajralib turuvchi maxsus dizayn) --}}
+                    <li class="nxl-item nxl-hasmenu chat-menu-item-highlight {{ request()->routeIs('chat.*') ? 'active' : '' }}">
+                        <a href="{{ route('chat.index') }}" class="nxl-link d-flex align-items-center">
                             <span class="nxl-micon"><i class="feather-message-circle"></i></span>
                             <span class="nxl-mtext">Мулоқот ва ҳужжатлар</span>
-                            <span class="badge bg-primary rounded-pill ms-auto px-2 fs-10" id="sidebarChatBadge" style="display: none;">0</span>
+                            <span class="chat-sparkle-pill">Chat</span>
+                            <span class="badge bg-danger rounded-pill ms-auto px-2 fs-10" id="sidebarChatBadge" style="display: none;">0</span>
                         </a>
                     </li>
 
@@ -68,6 +125,7 @@
                                 <span class="nxl-mtext">Ҳисобот</span>
                             </a>
                         </li>
+                    @endif
                     @endif
 
                     {{-- Ҳаёт ва ижтимоий бўлимлар (Админ ёки махсус ходим учун) --}}

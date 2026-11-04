@@ -149,6 +149,7 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
         Route::post('/group', [\App\Http\Controllers\ChatController::class, 'createGroup'])->name('create_group');
         Route::post('/{chat}/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('send');
         Route::post('/{chat}/upload-chunk', [\App\Http\Controllers\ChatController::class, 'uploadChunk'])->name('upload_chunk');
+        Route::delete('/message/{message}', [\App\Http\Controllers\ChatController::class, 'deleteMessage'])->name('delete_message');
         Route::get('/poll', [\App\Http\Controllers\ChatController::class, 'poll'])->name('poll');
         Route::get('/download/{message}', [\App\Http\Controllers\ChatController::class, 'download'])->name('download');
         Route::post('/{chat}/add-members', [\App\Http\Controllers\ChatController::class, 'addMembers'])->name('add_members');

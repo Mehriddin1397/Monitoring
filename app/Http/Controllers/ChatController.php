@@ -57,7 +57,8 @@ class ChatController extends Controller
 
             // So'nggi xabarlarni yuklash
             $messages = $activeChat->messages()
-                ->with('user')
+                ->where('is_deleted', false)
+                ->with(['user', 'replyTo.user'])
                 ->oldest()
                 ->take(150)
                 ->get();
@@ -212,9 +213,20 @@ class ChatController extends Controller
             $filePath = $file->store('chat_files/' . $chat->id, 'public');
         }
 
+        $replyToId = (int) $request->reply_to_id;
+        if ($replyToId > 0) {
+            $validReply = Message::where('id', $replyToId)->where('chat_id', $chat->id)->where('is_deleted', false)->exists();
+            if (!$validReply) {
+                $replyToId = null;
+            }
+        } else {
+            $replyToId = null;
+        }
+
         $message = Message::create([
             'chat_id' => $chat->id,
             'user_id' => Auth::id(),
+            'reply_to_id' => $replyToId,
             'body' => $body ?: null,
             'type' => $type,
             'file_path' => $filePath,
@@ -222,6 +234,19 @@ class ChatController extends Controller
             'file_size' => $fileSize,
             'file_mime' => $fileMime,
         ]);
+
+        $message->load('replyTo.user');
+
+        $replyData = null;
+        if ($message->replyTo) {
+            $replyData = [
+                'id' => $message->replyTo->id,
+                'user_name' => $message->replyTo->user ? ($message->replyTo->user->full_name ?: $message->replyTo->user->name) : 'Xodim',
+                'body' => $message->replyTo->body,
+                'snippet' => $message->replyTo->getSnippet(),
+                'type' => $message->replyTo->type,
+            ];
+        }
 
         // Chat vaqtini yangilash
         $chat->update(['last_message_at' => now()]);
@@ -245,6 +270,8 @@ class ChatController extends Controller
                 'file_name' => $message->file_name,
                 'file_size' => $message->formatted_file_size,
                 'is_image' => $message->isImage(),
+                'reply_to' => $replyData,
+                'can_delete' => true,
                 'created_at' => $message->created_at->timezone('Asia/Tashkent')->format('H:i'),
                 'created_at_timestamp' => $message->created_at->timestamp,
                 'is_read' => false,
@@ -350,9 +377,20 @@ class ChatController extends Controller
         $relativeFilePath = 'chat_files/' . $chat->id . '/' . $finalFileName;
         $body = trim((string) $request->body);
 
+        $replyToId = (int) $request->reply_to_id;
+        if ($replyToId > 0) {
+            $validReply = Message::where('id', $replyToId)->where('chat_id', $chat->id)->where('is_deleted', false)->exists();
+            if (!$validReply) {
+                $replyToId = null;
+            }
+        } else {
+            $replyToId = null;
+        }
+
         $message = Message::create([
             'chat_id' => $chat->id,
             'user_id' => Auth::id(),
+            'reply_to_id' => $replyToId,
             'body' => $body ?: null,
             'type' => $type,
             'file_path' => $relativeFilePath,
@@ -360,6 +398,19 @@ class ChatController extends Controller
             'file_size' => $realSize,
             'file_mime' => $fileMime,
         ]);
+
+        $message->load('replyTo.user');
+
+        $replyData = null;
+        if ($message->replyTo) {
+            $replyData = [
+                'id' => $message->replyTo->id,
+                'user_name' => $message->replyTo->user ? ($message->replyTo->user->full_name ?: $message->replyTo->user->name) : 'Xodim',
+                'body' => $message->replyTo->body,
+                'snippet' => $message->replyTo->getSnippet(),
+                'type' => $message->replyTo->type,
+            ];
+        }
 
         $chat->update(['last_message_at' => now()]);
 
@@ -382,11 +433,49 @@ class ChatController extends Controller
                 'file_name' => $message->file_name,
                 'file_size' => $message->formatted_file_size,
                 'is_image' => $message->isImage(),
+                'reply_to' => $replyData,
+                'can_delete' => true,
                 'created_at' => $message->created_at->timezone('Asia/Tashkent')->format('H:i'),
                 'created_at_timestamp' => $message->created_at->timestamp,
                 'is_read' => false,
                 'is_me' => true,
             ],
+        ]);
+    }
+
+    /**
+     * Xabarni o'chirish (Soft delete)
+     */
+    public function deleteMessage($messageId)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $message = Message::with('chat.participants')->findOrFail($messageId);
+
+        if (!$message->canDelete($user)) {
+            return response()->json(['error' => "Ushbu xabarni o'chirishga huquqingiz yo'q!"], 403);
+        }
+
+        // Agar fayl biriktirilgan bo'lsa uni o'chirish
+        if ($message->file_path && Storage::disk('public')->exists($message->file_path)) {
+            Storage::disk('public')->delete($message->file_path);
+        }
+
+        $message->update([
+            'is_deleted' => true,
+            'deleted_by' => $user->id,
+            'body' => null,
+            'file_path' => null,
+            'file_name' => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message_id' => $message->id,
+            'chat_id' => $message->chat_id,
         ]);
     }
 
@@ -461,8 +550,15 @@ class ChatController extends Controller
                 }
             }
 
+            // O'chirilgan xabarlar ID sini olish (real-vaqtda boshqa qatnashuvchilar ekranidan ham o'chirish uchun)
+            $deletedMessageIds = Message::where('chat_id', $activeChatId)
+                ->where('is_deleted', true)
+                ->pluck('id')
+                ->toArray();
+
             $messagesQuery = Message::where('chat_id', $activeChatId)
-                ->with('user')
+                ->where('is_deleted', false)
+                ->with(['user', 'replyTo.user'])
                 ->where('user_id', '!=', $user->id);
 
             if ($lastMessageId > 0) {
@@ -472,6 +568,17 @@ class ChatController extends Controller
             $rawMessages = $messagesQuery->oldest()->get();
 
             foreach ($rawMessages as $msg) {
+                $replyData = null;
+                if ($msg->replyTo) {
+                    $replyData = [
+                        'id' => $msg->replyTo->id,
+                        'user_name' => $msg->replyTo->user ? ($msg->replyTo->user->full_name ?: $msg->replyTo->user->name) : 'Xodim',
+                        'body' => $msg->replyTo->body,
+                        'snippet' => $msg->replyTo->getSnippet(),
+                        'type' => $msg->replyTo->type,
+                    ];
+                }
+
                 $newMessages[] = [
                     'id' => $msg->id,
                     'chat_id' => $msg->chat_id,
@@ -484,6 +591,8 @@ class ChatController extends Controller
                     'file_name' => $msg->file_name,
                     'file_size' => $msg->formatted_file_size,
                     'is_image' => $msg->isImage(),
+                    'reply_to' => $replyData,
+                    'can_delete' => $msg->canDelete($user),
                     'created_at' => $msg->created_at->timezone('Asia/Tashkent')->format('H:i'),
                     'created_at_timestamp' => $msg->created_at->timestamp,
                     'is_me' => false,
@@ -500,6 +609,7 @@ class ChatController extends Controller
         $incomingMessages = [];
         if ($lastGlobalMessageId > 0 && !empty($userChatIds)) {
             $incomingRaw = Message::whereIn('chat_id', $userChatIds)
+                ->where('is_deleted', false)
                 ->where('id', '>', $lastGlobalMessageId)
                 ->where('user_id', '!=', $user->id)
                 ->with(['user', 'chat.participants.user', 'chat.users'])
@@ -607,6 +717,7 @@ class ChatController extends Controller
 
         return response()->json([
             'new_messages' => $newMessages,
+            'deleted_ids' => $deletedMessageIds ?? [],
             'incoming_messages' => $incomingMessages,
             'max_global_message_id' => $currentMaxGlobalId,
             'sidebar_chats' => $sidebarChats,

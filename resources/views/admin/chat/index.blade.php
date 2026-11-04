@@ -11,12 +11,10 @@
             <div class="chat-sidebar-header">
                 <div class="d-flex align-items-center justify-content-between mb-2.5">
                     <div class="d-flex align-items-center gap-2">
-                        <div class="chat-logo-icon">
-                            <i class="feather-message-square"></i>
-                        </div>
+                        <img src="{{ asset('assets/images/logoo.jfif') }}" alt="Logo" style="width: 38px; height: 38px; border-radius: 50%; object-fit: contain; box-shadow: 0 2px 6px rgba(37,99,235,0.2); border: 2px solid #2563eb; background: #ffffff;">
                         <div>
-                            <h5 class="fw-bold mb-0 fs-16 text-dark">Muloqot & Hujjatlar</h5>
-                            <small class="text-muted fs-11">Institut ichki tarmog'i</small>
+                            <h5 class="fw-bold mb-0 fs-15 text-dark">Muloqot & Hujjatlar</h5>
+                            <small class="text-primary fw-semibold fs-11">Institut ichki tarmog'i</small>
                         </div>
                     </div>
                     <div class="d-flex gap-1.5 align-items-center">
@@ -296,7 +294,30 @@
                                     @if(!$isMe)
                                         <img src="{{ $msg->user ? $msg->user->avatar_url : asset('assets/images/8214212.png') }}" alt="" class="message-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
                                     @endif
+
+                                    <!-- Message Actions (Otmetka va O'chirish) -->
+                                    <div class="message-actions">
+                                        <button type="button" class="btn-msg-action" onclick="setReplyMessage({{ $msg->id }}, '{{ addslashes($msg->user ? ($msg->user->full_name ?: $msg->user->name) : 'Xodim') }}', '{{ addslashes(Str::limit($msg->getSnippet(), 50)) }}')" title="Javob berish (Otmetka)">
+                                            <i class="feather-corner-up-left"></i>
+                                        </button>
+                                        @if($msg->canDelete(Auth::user()))
+                                            <button type="button" class="btn-msg-action btn-msg-delete" onclick="deleteMessage({{ $msg->id }})" title="Xabarni o'chirish">
+                                                <i class="feather-trash-2"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+
                                     <div class="message-bubble">
+                                        {{-- Quoted message preview if replied (Otmetka) --}}
+                                        @if($msg->replyTo)
+                                            <div class="message-reply-quote" onclick="scrollToMessage({{ $msg->replyTo->id }})">
+                                                <div class="quote-content min-w-0">
+                                                    <div class="quote-sender text-truncate">{{ $msg->replyTo->user ? ($msg->replyTo->user->full_name ?: $msg->replyTo->user->name) : 'Xodim' }}</div>
+                                                    <div class="quote-text text-truncate">{{ $msg->replyTo->getSnippet() }}</div>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         @if(!$isMe && $activeChat->isGroup() && $msg->user)
                                             <div class="message-sender-name">{{ $msg->user->name }}</div>
                                         @endif
@@ -318,15 +339,15 @@
                                                         $ext = strtolower(pathinfo($msg->file_name, PATHINFO_EXTENSION));
                                                     @endphp
                                                     @if(in_array($ext, ['pdf']))
-                                                        📄
+                                                         📄
                                                     @elseif(in_array($ext, ['doc', 'docx']))
-                                                        📝
+                                                         📝
                                                     @elseif(in_array($ext, ['xls', 'xlsx']))
-                                                        📊
+                                                         📊
                                                     @elseif(in_array($ext, ['zip', 'rar']))
-                                                        📦
+                                                         📦
                                                     @else
-                                                        📎
+                                                         📎
                                                     @endif
                                                 </div>
                                                 <div class="doc-info min-w-0">
@@ -364,6 +385,22 @@
 
                 <!-- Chat Input Bar -->
                 <div class="chat-input-area">
+                    <!-- Selected reply bar preview (Otmetka) -->
+                    <div id="replyPreviewBar" class="reply-preview-bar d-none">
+                        <div class="d-flex align-items-center gap-2 min-w-0">
+                            <div class="min-w-0">
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <i class="feather-corner-up-left fs-12 text-primary"></i>
+                                    <span class="fw-bold text-primary fs-12 text-truncate" id="replyTargetUser">Rustam</span>
+                                </div>
+                                <div class="text-muted fs-11 text-truncate" id="replyTargetText">Salom...</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-remove-attachment" onclick="cancelReply()" title="Bekor qilish">
+                            <i class="feather-x"></i>
+                        </button>
+                    </div>
+
                     <!-- Selected file pill preview -->
                     <div id="fileAttachmentPreview" class="file-attachment-preview d-none">
                         <div class="d-flex align-items-center gap-2">
@@ -995,7 +1032,9 @@
 .message-row {
     display: flex;
     gap: 8px;
-    max-width: 72%;
+    max-width: 78%;
+    position: relative;
+    transition: background-color 0.3s ease;
 }
 
 .message-in {
@@ -1005,6 +1044,118 @@
 .message-out {
     align-self: flex-end;
     flex-direction: row-reverse;
+}
+
+/* Message Hover Actions (Otmetka va O'chirish) */
+.message-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    align-self: center;
+    user-select: none;
+    flex-shrink: 0;
+    margin: 0 4px;
+}
+
+.message-row:hover .message-actions {
+    opacity: 1;
+}
+
+.btn-msg-action {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.btn-msg-action:hover {
+    background: #f1f5f9;
+    color: #2563eb;
+    border-color: #cbd5e1;
+    transform: scale(1.12);
+}
+
+.btn-msg-action.btn-msg-delete:hover {
+    color: #ef4444;
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
+/* Quoted Reply inside Message Bubble */
+.message-reply-quote {
+    display: flex;
+    align-items: flex-start;
+    background: rgba(37, 99, 235, 0.08);
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    border-left: 3px solid #2563eb;
+    transition: background 0.15s ease;
+    max-width: 100%;
+}
+
+.message-out .message-reply-quote {
+    background: rgba(37, 99, 235, 0.12);
+    border-left-color: #1d4ed8;
+}
+
+.message-reply-quote:hover {
+    background: rgba(37, 99, 235, 0.18);
+}
+
+.quote-sender {
+    font-size: 11px;
+    font-weight: 700;
+    color: #2563eb;
+    line-height: 1.25;
+}
+
+.quote-text {
+    font-size: 11.5px;
+    color: #475569;
+    line-height: 1.25;
+}
+
+/* Reply Preview Bar above input */
+.reply-preview-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-left: 3.5px solid #2563eb;
+    border-radius: 8px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    animation: slideDownReply 0.18s ease;
+}
+
+@keyframes slideDownReply {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Highlight pulse when navigating to quoted message */
+.message-highlight-pulse {
+    animation: msgHighlight 1.5s ease;
+}
+
+@keyframes msgHighlight {
+    0% { background-color: rgba(37, 99, 235, 0.22); border-radius: 12px; }
+    100% { background-color: transparent; }
 }
 
 .message-avatar {
@@ -1521,8 +1672,9 @@ async function uploadFileInChunks(file, body) {
                     fd.append('total_chunks', totalChunks);
                     fd.append('file_name', file.name);
                     fd.append('file_size', file.size);
-                    if (chunkIndex === totalChunks - 1 && body) {
-                        fd.append('body', body);
+                    if (chunkIndex === totalChunks - 1) {
+                        if (body) fd.append('body', body);
+                        if (currentReplyToId) fd.append('reply_to_id', currentReplyToId);
                     }
 
                     xhr.send(fd);
@@ -1552,6 +1704,7 @@ async function uploadFileInChunks(file, body) {
                 input.style.height = 'auto';
             }
             clearSelectedFile();
+            cancelReply();
             hideUploadProgress();
             lastMessageId = Math.max(lastMessageId, lastResponseData.message.id);
             scrollToBottom();
@@ -1583,6 +1736,7 @@ async function handleSendMessage(event) {
     // Faqat matnli xabar bo'lsa, oddiy tezkor jo'natish
     const formData = new FormData();
     if (body) formData.append('body', body);
+    if (currentReplyToId) formData.append('reply_to_id', currentReplyToId);
 
     const submitBtn = document.getElementById('btnSubmitMessage');
     if (submitBtn) submitBtn.disabled = true;
@@ -1606,6 +1760,7 @@ async function handleSendMessage(event) {
                 input.style.height = 'auto';
             }
             clearSelectedFile();
+            cancelReply();
             lastMessageId = Math.max(lastMessageId, res.message.id);
             scrollToBottom();
         } else if (res.error) {
@@ -1616,6 +1771,11 @@ async function handleSendMessage(event) {
     } finally {
         if (submitBtn) submitBtn.disabled = false;
     }
+}
+
+function escapeJsString(str) {
+    if (!str) return '';
+    return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
 }
 
 // UI ga yangi xabar qo'shish
@@ -1638,6 +1798,18 @@ function appendMessageToUI(msg) {
     let senderNameHTML = '';
     if (!msg.is_me && msg.user_name) {
         senderNameHTML = `<div class="message-sender-name">${escapeHtml(msg.user_name)}</div>`;
+    }
+
+    let replyQuoteHTML = '';
+    if (msg.reply_to) {
+        replyQuoteHTML = `
+            <div class="message-reply-quote" onclick="scrollToMessage(${msg.reply_to.id})">
+                <div class="quote-content min-w-0">
+                    <div class="quote-sender text-truncate">${escapeHtml(msg.reply_to.user_name)}</div>
+                    <div class="quote-text text-truncate">${escapeHtml(msg.reply_to.snippet || msg.reply_to.body || 'Xabar')}</div>
+                </div>
+            </div>
+        `;
     }
 
     let mediaHTML = '';
@@ -1680,9 +1852,28 @@ function appendMessageToUI(msg) {
         checkmarks = `<span class="message-status ${colorClass}" id="msgStatus_${msg.id}" title="${titleText}">${icon}</span>`;
     }
 
+    const snippetText = msg.body || (msg.is_image ? '📷 Rasm' : (msg.file_name || 'Xabar'));
+    const safeUser = escapeJsString(msg.user_name || 'Xodim');
+    const safeSnippet = escapeJsString(snippetText.substring(0, 50));
+
+    let actionsHTML = `
+        <div class="message-actions">
+            <button type="button" class="btn-msg-action" onclick="setReplyMessage(${msg.id}, '${safeUser}', '${safeSnippet}')" title="Javob berish (Otmetka)">
+                <i class="feather-corner-up-left"></i>
+            </button>
+            ${(msg.can_delete || msg.is_me) ? `
+                <button type="button" class="btn-msg-action btn-msg-delete" onclick="deleteMessage(${msg.id})" title="Xabarni o'chirish">
+                    <i class="feather-trash-2"></i>
+                </button>
+            ` : ''}
+        </div>
+    `;
+
     row.innerHTML = `
         ${avatarHTML}
+        ${actionsHTML}
         <div class="message-bubble">
+            ${replyQuoteHTML}
             ${senderNameHTML}
             ${mediaHTML}
             ${bodyHTML}
@@ -1875,6 +2066,19 @@ async function pollChatUpdates() {
         // 0. Dastlabki yuklanganda bazadagi eng so'nggi ID ni olib olish
         if (lastGlobalMessageId === 0 && data.max_global_message_id) {
             lastGlobalMessageId = data.max_global_message_id;
+        }
+
+        // 0.1 O'chirilgan xabarlarni real-vaqtda ekrandan olib tashlash
+        if (data.deleted_ids && Array.isArray(data.deleted_ids)) {
+            data.deleted_ids.forEach(delId => {
+                const row = document.querySelector(`.message-row[data-message-id="${delId}"]`);
+                if (row) {
+                    row.style.transition = 'all 0.25s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'scale(0.85)';
+                    setTimeout(() => { if (row.parentElement) row.remove(); }, 250);
+                }
+            });
         }
 
         // 1. Yangi kelgan xabarlar (barcha chatlar bo'yicha bildirishnoma va tovush berish)
@@ -2284,6 +2488,70 @@ function filterGroupUsers(val) {
         const text = el.innerText.toLowerCase();
         el.style.display = (!val || text.includes(val)) ? 'flex' : 'none';
     });
+}
+
+// ==================== OTMETKA (REPLY) VA XABARNI O'CHIRISH ====================
+let currentReplyToId = null;
+
+function setReplyMessage(msgId, userName, snippetText) {
+    currentReplyToId = msgId;
+    const bar = document.getElementById('replyPreviewBar');
+    const userEl = document.getElementById('replyTargetUser');
+    const textEl = document.getElementById('replyTargetText');
+    const input = document.getElementById('chatMessageInput');
+
+    if (userEl) userEl.innerText = userName;
+    if (textEl) textEl.innerText = snippetText;
+    if (bar) bar.classList.remove('d-none');
+    if (input) input.focus();
+}
+
+function cancelReply() {
+    currentReplyToId = null;
+    const bar = document.getElementById('replyPreviewBar');
+    if (bar) bar.classList.add('d-none');
+}
+
+function scrollToMessage(msgId) {
+    const target = document.querySelector(`.message-row[data-message-id="${msgId}"]`);
+    if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.classList.add('message-highlight-pulse');
+        setTimeout(() => {
+            target.classList.remove('message-highlight-pulse');
+        }, 1600);
+    }
+}
+
+async function deleteMessage(messageId) {
+    if (!messageId) return;
+    if (!confirm("Haqiqatan ham ushbu xabarni o'chirmoqchimisiz?")) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`{{ route('chat.index') }}/message/${messageId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        });
+        const res = await response.json();
+        if (res.success) {
+            const row = document.querySelector(`.message-row[data-message-id="${messageId}"]`);
+            if (row) {
+                row.style.transition = 'all 0.25s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'scale(0.85)';
+                setTimeout(() => { if (row.parentElement) row.remove(); }, 250);
+            }
+        } else if (res.error) {
+            alert(res.error);
+        }
+    } catch (e) {
+        console.error("Xabarni o'chirishda xatolik:", e);
+    }
 }
 </script>
 @endsection
