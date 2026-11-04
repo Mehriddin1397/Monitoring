@@ -405,12 +405,21 @@ class ChatController extends Controller
 
         $activeChatId = (int) $request->active_chat_id;
         $lastMessageId = (int) $request->last_message_id;
+        $lastGlobalMessageId = (int) $request->last_global_message_id;
 
         $newMessages = [];
         $otherLastReadTimestamp = 0;
         $chatStatus = null;
 
-        if ($activeChatId) {
+        // Foydalanuvchi qatnashayotgan barcha chatlar
+        $chats = Chat::whereHas('participants', fn($q) => $q->where('user_id', $user->id))
+            ->with(['participants.user', 'users', 'latestMessage.user'])
+            ->orderByDesc('last_message_at')
+            ->get();
+        $userChatIds = $chats->pluck('id')->toArray();
+
+        // 1. Agar faol chat tanlangan bo'lsa
+        if ($activeChatId && in_array($activeChatId, $userChatIds)) {
             // O'qilgan vaqtni yangilash
             ChatParticipant::where('chat_id', $activeChatId)
                 ->where('user_id', $user->id)
@@ -426,7 +435,7 @@ class ChatController extends Controller
             }
 
             // Faol chatning onlayn / oflayn holati
-            $activeChat = Chat::with(['participants.user', 'users'])->find($activeChatId);
+            $activeChat = $chats->firstWhere('id', $activeChatId) ?? Chat::with(['participants.user', 'users'])->find($activeChatId);
             if ($activeChat) {
                 if ($activeChat->isDirect()) {
                     $otherUser = $activeChat->getOtherUser($user);
@@ -482,18 +491,104 @@ class ChatController extends Controller
             }
         }
 
-        // Har bir chat uchun o'qilmaganlar sonini hisoblash
+        // 2. Global yangi xabarlar (tizim bo'ylab bildirishnomalar va audio signallar uchun)
+        $currentMaxGlobalId = 0;
+        if (!empty($userChatIds)) {
+            $currentMaxGlobalId = (int) Message::whereIn('chat_id', $userChatIds)->max('id');
+        }
+
+        $incomingMessages = [];
+        if ($lastGlobalMessageId > 0 && !empty($userChatIds)) {
+            $incomingRaw = Message::whereIn('chat_id', $userChatIds)
+                ->where('id', '>', $lastGlobalMessageId)
+                ->where('user_id', '!=', $user->id)
+                ->with(['user', 'chat.participants.user', 'chat.users'])
+                ->oldest()
+                ->get();
+
+            foreach ($incomingRaw as $msg) {
+                $msgChat = $msg->chat;
+                $snippet = 'Xabar';
+                if ($msg->type === 'image') {
+                    $snippet = '📷 Rasm yubordi';
+                } elseif ($msg->type === 'file') {
+                    $snippet = '📎 ' . ($msg->file_name ?: 'Hujjat yubordi');
+                } elseif ($msg->body) {
+                    $snippet = $msg->body;
+                }
+
+                $incomingMessages[] = [
+                    'id' => $msg->id,
+                    'chat_id' => $msg->chat_id,
+                    'chat_name' => $msgChat ? $msgChat->getDisplayName($user) : 'Muloqot',
+                    'chat_avatar' => $msgChat ? $msgChat->getDisplayAvatar($user) : asset('assets/images/8214212.png'),
+                    'chat_type' => $msgChat ? $msgChat->type : 'direct',
+                    'user_id' => $msg->user_id,
+                    'user_name' => $msg->user ? ($msg->user->full_name ?: $msg->user->name) : 'Xodim',
+                    'user_avatar' => $msg->user ? $msg->user->avatar_url : asset('assets/images/8214212.png'),
+                    'body' => $msg->body,
+                    'type' => $msg->type,
+                    'file_name' => $msg->file_name,
+                    'snippet' => $snippet,
+                    'created_at' => $msg->created_at->timezone('Asia/Tashkent')->format('H:i'),
+                    'created_at_timestamp' => $msg->created_at->timestamp,
+                ];
+            }
+        }
+
+        // 3. Har bir chat uchun o'qilmaganlar soni va sidebar ro'yxati ma'lumotlari
         $unreadCounts = [];
         $totalUnread = 0;
-
-        $chats = Chat::whereHas('participants', fn($q) => $q->where('user_id', $user->id))
-            ->with(['participants', 'latestMessage'])
-            ->get();
+        $sidebarChats = [];
 
         foreach ($chats as $c) {
             $unread = $c->unreadCountFor($user);
             $unreadCounts[$c->id] = $unread;
             $totalUnread += $unread;
+
+            $latest = $c->latestMessage;
+            $snippet = 'Hali xabarlar yo\'q';
+            $snippetPrefix = '';
+            if ($latest) {
+                if ($latest->user_id === $user->id) {
+                    $snippetPrefix = 'Siz: ';
+                } elseif ($c->isGroup() && $latest->user) {
+                    $snippetPrefix = explode(' ', $latest->user->name)[0] . ': ';
+                }
+
+                if ($latest->type === 'file') {
+                    $snippet = '📎 ' . ($latest->file_name ?: 'Hujjat');
+                } elseif ($latest->type === 'image') {
+                    $snippet = '📷 Rasm';
+                } elseif ($latest->type === 'system') {
+                    $snippet = $latest->body;
+                } else {
+                    $snippet = $latest->body;
+                }
+            }
+
+            $timeText = '';
+            if ($c->last_message_at) {
+                $ct = $c->last_message_at->timezone('Asia/Tashkent');
+                $timeText = $ct->isToday() ? $ct->format('H:i') : ($ct->isYesterday() ? 'Kecha' : $ct->format('d.m'));
+            }
+
+            $otherUser = $c->isDirect() ? $c->getOtherUser($user) : null;
+
+            $sidebarChats[] = [
+                'id' => $c->id,
+                'name' => $c->getDisplayName($user),
+                'avatar' => $c->getDisplayAvatar($user),
+                'type' => $c->type,
+                'other_user_id' => $otherUser?->id,
+                'other_user_online' => $otherUser ? $otherUser->isOnline() : false,
+                'other_user_last_seen' => $otherUser ? $otherUser->getLastSeenText() : '',
+                'snippet' => $snippet,
+                'snippet_prefix' => $snippetPrefix,
+                'time_text' => $timeText,
+                'unread' => $unread,
+                'last_message_timestamp' => $c->last_message_at ? $c->last_message_at->timestamp : 0,
+            ];
         }
 
         // Hozirda onlayn bo'lgan barcha xodimlar ID ro'yxati (oxirgi 2 daqiqada faol)
@@ -512,6 +607,9 @@ class ChatController extends Controller
 
         return response()->json([
             'new_messages' => $newMessages,
+            'incoming_messages' => $incomingMessages,
+            'max_global_message_id' => $currentMaxGlobalId,
+            'sidebar_chats' => $sidebarChats,
             'unread_counts' => $unreadCounts,
             'total_unread' => $totalUnread,
             'other_last_read_timestamp' => $otherLastReadTimestamp,

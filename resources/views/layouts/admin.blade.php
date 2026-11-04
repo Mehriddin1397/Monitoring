@@ -213,15 +213,108 @@
 </script>
 
 @auth
+<style>
+/* In-App Floating Toast Notifications (Barcha sahifalarda ko'rinuvchi bildirishnoma) */
+.chat-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 380px;
+    width: calc(100% - 40px);
+    pointer-events: none;
+}
+.chat-toast-card {
+    pointer-events: auto;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18), 0 2px 8px rgba(15, 23, 42, 0.08);
+    border: 1px solid #e2e8f0;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.chat-toast-card.show {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+.chat-toast-card:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.22);
+}
+.chat-toast-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #e2e8f0;
+}
+.chat-toast-body {
+    flex: 1;
+    min-width: 0;
+}
+.chat-toast-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.chat-toast-snippet {
+    font-size: 12.5px;
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+}
+.chat-toast-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    padding: 2px 6px;
+    font-size: 18px;
+    line-height: 1;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.chat-toast-close:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+}
+</style>
+
+<div id="chatToastContainer" class="chat-toast-container" aria-live="polite"></div>
+
 <script>
     (function() {
+        let lastGlobalMaxId = 0;
         let lastKnownUnread = null;
 
-        function playGlobalChatSound() {
+        // Web Audio API ovozli signal
+        window.playGlobalChatSound = function() {
             try {
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
                 if (!AudioCtx) return;
-                const ctx = new AudioCtx();
+                if (!window.__chatAudioCtx) {
+                    window.__chatAudioCtx = new AudioCtx();
+                }
+                const ctx = window.__chatAudioCtx;
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
                 const now = ctx.currentTime;
 
                 const osc1 = ctx.createOscillator();
@@ -246,16 +339,87 @@
                 osc2.start(now + 0.08);
                 osc2.stop(now + 0.48);
             } catch (e) {}
+        };
+
+        // Foydalanuvchining ilk bosishida ovozni blokdan chiqarish
+        function unlockAudio() {
+            if (window.__chatAudioCtx && window.__chatAudioCtx.state === 'suspended') {
+                window.__chatAudioCtx.resume();
+            } else if (!window.__chatAudioCtx) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) window.__chatAudioCtx = new AudioCtx();
+            }
         }
+        ['click', 'keydown', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, unlockAudio, { once: false, passive: true });
+        });
+
+        // Floating In-App Toast
+        function escapeHtmlLayout(text) {
+            if (!text) return '';
+            const d = document.createElement('div');
+            d.innerText = text;
+            return d.innerHTML;
+        }
+
+        window.showInAppToastNotification = function(data) {
+            let container = document.getElementById('chatToastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'chatToastContainer';
+                container.className = 'chat-toast-container';
+                container.setAttribute('aria-live', 'polite');
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'chat-toast-card';
+            const avatarSrc = data.user_avatar || '{{ asset("assets/images/8214212.png") }}';
+            const name = data.user_name || 'Xodim';
+            const titleText = data.chat_type === 'group' ? (data.chat_name + ' · ' + name) : name;
+            const snippetText = data.snippet || data.body || 'Yangi xabar';
+            const timeText = data.created_at || '';
+            const chatUrl = `{{ route('chat.index') }}?chat_id=${data.chat_id}`;
+
+            toast.innerHTML = `
+                <img src="${avatarSrc}" class="chat-toast-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                <div class="chat-toast-body">
+                    <div class="chat-toast-title">
+                        <span class="text-truncate">${escapeHtmlLayout(titleText)}</span>
+                        <span class="fs-10 text-muted fw-normal ms-1 flex-shrink-0">${timeText}</span>
+                    </div>
+                    <div class="chat-toast-snippet">${escapeHtmlLayout(snippetText)}</div>
+                </div>
+                <button type="button" class="chat-toast-close" title="Yopish">&times;</button>
+            `;
+
+            toast.querySelector('.chat-toast-close').addEventListener('click', function(e) {
+                e.stopPropagation();
+                toast.classList.remove('show');
+                setTimeout(() => { if (toast.parentElement) toast.remove(); }, 300);
+            });
+
+            toast.addEventListener('click', function() {
+                window.location.href = chatUrl;
+            });
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.remove('show');
+                    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 300);
+                }
+            }, 6000);
+        };
 
         // Service Worker registratsiyasi
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/sw.js').then(function(reg) {
                     window.swRegistration = reg;
-                }).catch(function(err) {
-                    console.warn('SW registration failed:', err);
-                });
+                }).catch(function(err) {});
             });
         }
 
@@ -264,18 +428,22 @@
             if (!("Notification" in window)) return false;
             if (Notification.permission === "granted") return true;
             if (Notification.permission !== "denied") {
-                const res = await Notification.requestPermission();
-                return res === "granted";
+                try {
+                    const res = await Notification.requestPermission();
+                    return res === "granted";
+                } catch (e) {
+                    return false;
+                }
             }
             return false;
         };
 
         // Desktop Windows Toast bildirishnomasi
-        window.showDesktopNotification = function(title, body, url) {
+        window.showDesktopNotification = function(title, body, url, icon) {
             if (!("Notification" in window) || Notification.permission !== "granted") return;
             const options = {
                 body: body || 'Sizga yangi xabar keldi',
-                icon: '{{ asset("assets/images/logo.svg") }}',
+                icon: icon || '{{ asset("assets/images/logo.svg") }}',
                 badge: '{{ asset("assets/images/logo.svg") }}',
                 data: { url: url || '{{ route("chat.index") }}' }
             };
@@ -283,6 +451,14 @@
             if (navigator.serviceWorker && navigator.serviceWorker.controller) {
                 navigator.serviceWorker.ready.then(function(reg) {
                     reg.showNotification(title || 'Smart-Ijro — Muloqot', options);
+                }).catch(function() {
+                    try {
+                        const notif = new Notification(title || 'Smart-Ijro — Muloqot', options);
+                        notif.onclick = function() {
+                            window.focus();
+                            window.location.href = options.data.url;
+                        };
+                    } catch (e) {}
                 });
             } else {
                 try {
@@ -295,23 +471,41 @@
             }
         };
 
+        // Global polling (Boshqa sahifalarda turganda yangi xabarlarni kuzatish)
         async function checkGlobalChatUnread() {
             try {
                 if (window.location.pathname.includes('/chat')) return;
 
-                const res = await fetch('{{ route("chat.poll") }}', {
+                const url = `{{ route('chat.poll') }}?last_global_message_id=${lastGlobalMaxId}`;
+                const res = await fetch(url, {
                     headers: { 'Accept': 'application/json' }
                 });
                 const data = await res.json();
-                const total = data.total_unread || 0;
 
-                // Yangi xabar kelgan bo'lsa ovozli signal berish va bildirishnoma chiqarish
-                if (lastKnownUnread !== null && total > lastKnownUnread) {
-                    playGlobalChatSound();
-                    window.showDesktopNotification('Smart-Ijro — Muloqot', 'Sizda yangi o\'qilmagan xabarlar mavjud!', '{{ route("chat.index") }}');
+                // 1. Dastlabki yuklanganda bazadagi eng so'nggi ID ni olib olish
+                if (lastGlobalMaxId === 0 && data.max_global_message_id) {
+                    lastGlobalMaxId = data.max_global_message_id;
                 }
-                lastKnownUnread = total;
 
+                // 2. Yangi kelgan xabarlar bo'lsa
+                if (data.incoming_messages && data.incoming_messages.length > 0) {
+                    window.playGlobalChatSound();
+                    data.incoming_messages.forEach(msg => {
+                        window.showInAppToastNotification(msg);
+                        window.showDesktopNotification(
+                            msg.chat_type === 'group' ? (msg.chat_name + ' · ' + msg.user_name) : msg.user_name,
+                            msg.snippet,
+                            `{{ route('chat.index') }}?chat_id=${msg.chat_id}`,
+                            msg.user_avatar
+                        );
+                        lastGlobalMaxId = Math.max(lastGlobalMaxId, msg.id);
+                    });
+                } else if (data.max_global_message_id) {
+                    lastGlobalMaxId = Math.max(lastGlobalMaxId, data.max_global_message_id);
+                }
+
+                // 3. Badgelarni yangilash
+                const total = data.total_unread || 0;
                 const headerBadge = document.getElementById('headerChatBadge');
                 if (headerBadge) {
                     headerBadge.innerText = total;
@@ -332,7 +526,16 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             checkGlobalChatUnread();
-            setInterval(checkGlobalChatUnread, 15000);
+            setInterval(checkGlobalChatUnread, 4000);
+
+            // Bildirishnomani birinchi bosishda so'rash (agar 'default' bo'lsa)
+            if ("Notification" in window && Notification.permission === 'default') {
+                const promptHandler = function() {
+                    window.requestChatNotificationPermission();
+                    document.removeEventListener('click', promptHandler);
+                };
+                document.addEventListener('click', promptHandler, { once: true });
+            }
         });
     })();
 </script>

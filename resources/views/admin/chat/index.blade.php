@@ -23,6 +23,9 @@
                         <button type="button" class="btn btn-sm btn-soft-secondary rounded-circle p-2" onclick="testNotificationSound()" title="Ovozli signalni sinab ko'rish">
                             <i class="feather-volume-2 text-primary" id="btnSoundIcon"></i>
                         </button>
+                        <button type="button" class="btn btn-sm btn-soft-secondary rounded-circle p-2" onclick="toggleDesktopNotifications()" title="Bildirishnomalarni yoqish / tekshirish" id="btnSidebarNotif">
+                            <i class="feather-bell text-primary" id="btnSidebarNotifIcon"></i>
+                        </button>
                         <button type="button" class="btn btn-sm btn-soft-primary rounded-circle p-2" data-bs-toggle="modal" data-bs-target="#newDirectModal" title="Yangi shaxsiy yozishma">
                             <i class="feather-user-plus"></i>
                         </button>
@@ -61,7 +64,8 @@
                        class="chat-item {{ $isActive ? 'active' : '' }}" 
                        data-chat-id="{{ $chat->id }}"
                        data-type="{{ $chat->type }}"
-                       data-name="{{ mb_strtolower($chat->getDisplayName()) }}">
+                       data-name="{{ mb_strtolower($chat->getDisplayName()) }}"
+                       data-last-ts="{{ $chat->last_message_at ? $chat->last_message_at->timestamp : 0 }}">
                         <div class="chat-item-avatar-wrapper">
                             @if($chat->isGroup())
                                 <div class="chat-group-avatar">
@@ -1318,7 +1322,9 @@
 
 <script>
 let activeChatId = {{ $activeChat ? $activeChat->id : 'null' }};
+window.__currentActiveChatId = activeChatId;
 let lastMessageId = {{ $messages->isNotEmpty() ? $messages->last()->id : 0 }};
+let lastGlobalMessageId = 0;
 let selectedFile = null;
 let pollInterval = null;
 
@@ -1755,19 +1761,148 @@ function testNotificationSound() {
     }
 }
 
-// Real-time yangilanishlarni so'rash (Polling har 3 soniyada)
+// Sidebar chat ro'yxatini real-vaqtda yangilash va qayta tartiblash (Eng so'nggi xabar tushgan chat darhol tepaga chiqadi)
+function updateSidebarChatList(sidebarChats) {
+    if (!sidebarChats || !Array.isArray(sidebarChats)) return;
+    const container = document.getElementById('chatListContainer');
+    if (!container) return;
+
+    // Bo'sh turgan placeholder bo'lsa va chatlar paydo bo'lsa, uni tozalash
+    const emptyPlaceholder = document.getElementById('chatEmptyPlaceholder');
+    if (emptyPlaceholder && sidebarChats.length > 0) {
+        emptyPlaceholder.remove();
+    }
+
+    sidebarChats.forEach(c => {
+        let item = container.querySelector(`.chat-item[data-chat-id="${c.id}"]`);
+        if (item) {
+            // Snippet matnini yangilash
+            const snippetEl = item.querySelector('.chat-item-last-msg');
+            if (snippetEl) {
+                let prefixHtml = c.snippet_prefix ? `<span class="${c.snippet_prefix.includes('Siz') ? 'text-primary' : 'text-dark'} fw-semibold">${escapeHtml(c.snippet_prefix)}</span>` : '';
+                snippetEl.innerHTML = `${prefixHtml}<span>${escapeHtml(c.snippet)}</span>`;
+            }
+
+            // Vaqtni yangilash
+            const timeEl = item.querySelector('.chat-item-time');
+            if (timeEl && c.time_text) {
+                timeEl.innerText = c.time_text;
+            }
+
+            // O'qilmaganlar nishoni (badge)
+            const badge = document.getElementById(`unreadBadge_${c.id}`);
+            if (badge) {
+                badge.innerText = c.unread;
+                if (c.unread > 0 && c.id != activeChatId) {
+                    badge.classList.remove('d-none');
+                } else {
+                    badge.classList.add('d-none');
+                }
+            }
+
+            // Foydalanuvchi online yashil nuqtasi
+            if (c.type === 'direct' && c.other_user_id) {
+                const dot = item.querySelector('.user-status-indicator');
+                if (dot) {
+                    if (c.other_user_online) {
+                        dot.classList.add('online');
+                        dot.title = 'Onlayn';
+                    } else {
+                        dot.classList.remove('online');
+                        dot.title = c.other_user_last_seen || 'Oflayn';
+                    }
+                }
+            }
+
+            // Eng so'nggi xabar vaqtiga qarab ro'yxat tepasiga ko'tarish!
+            const oldTs = parseInt(item.getAttribute('data-last-ts') || '0');
+            const newTs = parseInt(c.last_message_timestamp || '0');
+            item.setAttribute('data-last-ts', newTs);
+
+            if (newTs > oldTs && container.firstElementChild !== item) {
+                container.insertBefore(item, container.firstChild);
+            }
+        } else {
+            // Yangi boshlangan chat bo'lsa uni DOM ga qo'shish
+            const newItem = document.createElement('a');
+            newItem.href = `{{ route('chat.index') }}?chat_id=${c.id}`;
+            newItem.className = `chat-item ${c.id == activeChatId ? 'active' : ''}`;
+            newItem.setAttribute('data-chat-id', c.id);
+            newItem.setAttribute('data-type', c.type);
+            newItem.setAttribute('data-name', (c.name || '').toLowerCase());
+            newItem.setAttribute('data-last-ts', c.last_message_timestamp || 0);
+
+            let avatarHtml = '';
+            if (c.type === 'group') {
+                avatarHtml = `<div class="chat-group-avatar"><i class="feather-users"></i></div>`;
+            } else {
+                avatarHtml = `
+                    <img src="${c.avatar}" alt="" class="chat-item-avatar" onerror="this.src='{{ asset('assets/images/8214212.png') }}';">
+                    <span class="user-status-indicator ${c.other_user_online ? 'online' : ''}" data-user-status-id="${c.other_user_id || ''}" title="${c.other_user_online ? 'Onlayn' : (c.other_user_last_seen || 'Oflayn')}"></span>
+                `;
+            }
+
+            let prefixHtml = c.snippet_prefix ? `<span class="${c.snippet_prefix.includes('Siz') ? 'text-primary' : 'text-dark'} fw-semibold">${escapeHtml(c.snippet_prefix)}</span>` : '';
+            let unreadBadgeHtml = `<span class="badge bg-primary rounded-pill chat-unread-badge ${c.unread > 0 ? '' : 'd-none'}" id="unreadBadge_${c.id}">${c.unread}</span>`;
+
+            newItem.innerHTML = `
+                <div class="chat-item-avatar-wrapper">${avatarHtml}</div>
+                <div class="chat-item-info">
+                    <div class="chat-item-header">
+                        <h6 class="chat-item-name text-truncate">${escapeHtml(c.name)}</h6>
+                        <span class="chat-item-time">${escapeHtml(c.time_text || '')}</span>
+                    </div>
+                    <div class="chat-item-snippet">
+                        <p class="chat-item-last-msg text-truncate mb-0">${prefixHtml}<span>${escapeHtml(c.snippet)}</span></p>
+                        ${unreadBadgeHtml}
+                    </div>
+                </div>
+            `;
+            container.insertBefore(newItem, container.firstChild);
+        }
+    });
+}
+
+// Real-time yangilanishlarni so'rash (Polling har 2.5 soniyada)
 async function pollChatUpdates() {
     try {
-        const url = `{{ route('chat.poll') }}?active_chat_id=${activeChatId || ''}&last_message_id=${lastMessageId || 0}`;
+        const url = `{{ route('chat.poll') }}?active_chat_id=${activeChatId || ''}&last_message_id=${lastMessageId || 0}&last_global_message_id=${lastGlobalMessageId || 0}`;
         const response = await fetch(url, {
             headers: { 'Accept': 'application/json' }
         });
         const data = await response.json();
 
-        let previousTotalUnread = window.lastTotalUnread || 0;
-        let newTotalUnread = data.total_unread || 0;
+        // 0. Dastlabki yuklanganda bazadagi eng so'nggi ID ni olib olish
+        if (lastGlobalMessageId === 0 && data.max_global_message_id) {
+            lastGlobalMessageId = data.max_global_message_id;
+        }
 
-        // 1. Yangi kelgan xabarlar bo'lsa qo'shish
+        // 1. Yangi kelgan xabarlar (barcha chatlar bo'yicha bildirishnoma va tovush berish)
+        if (data.incoming_messages && data.incoming_messages.length > 0) {
+            playNotificationSound();
+            data.incoming_messages.forEach(msg => {
+                // Agar oyna orqa fonda bo'lsa yoki boshqa chatda tursa bildirishnoma ko'rsatish
+                const isCurrentChatActive = (activeChatId && msg.chat_id == activeChatId && document.hasFocus() && !document.hidden);
+                if (!isCurrentChatActive) {
+                    if (typeof window.showInAppToastNotification === 'function') {
+                        window.showInAppToastNotification(msg);
+                    }
+                    if (typeof window.showDesktopNotification === 'function') {
+                        window.showDesktopNotification(
+                            msg.chat_type === 'group' ? (msg.chat_name + ' · ' + msg.user_name) : msg.user_name,
+                            msg.snippet,
+                            `{{ route('chat.index') }}?chat_id=${msg.chat_id}`,
+                            msg.user_avatar
+                        );
+                    }
+                }
+                lastGlobalMessageId = Math.max(lastGlobalMessageId, msg.id);
+            });
+        } else if (data.max_global_message_id) {
+            lastGlobalMessageId = Math.max(lastGlobalMessageId, data.max_global_message_id);
+        }
+
+        // 2. Faol chat uchun yangi xabarlarni UI ga kiritish
         if (data.new_messages && data.new_messages.length > 0) {
             let hasNew = false;
             data.new_messages.forEach(msg => {
@@ -1775,36 +1910,22 @@ async function pollChatUpdates() {
                     appendMessageToUI(msg);
                     lastMessageId = msg.id;
                     hasNew = true;
-
-                    // Tab orqa fonda bo'lsa yoki oyna nofaol bo'lsa, desktop bildirishnoma chiqarish
-                    if (document.hidden && typeof window.showDesktopNotification === 'function') {
-                        const notifBody = msg.body || (msg.type === 'image' ? '📷 Rasm yubordi' : '📎 Fayl yubordi');
-                        window.showDesktopNotification(
-                            msg.user_name || 'Smart-Ijro — Muloqot',
-                            notifBody,
-                            `{{ route('chat.index') }}?chat_id=${msg.chat_id}`
-                        );
-                    }
                 }
             });
             if (hasNew) {
                 scrollToBottom();
-                playNotificationSound(); // <-- Yangi xabar kelganda ovozli signal!
-            }
-        } else if (newTotalUnread > previousTotalUnread) {
-            // Boshqa chatga yangi xabar kelgan bo'lsa ham signal berish
-            playNotificationSound();
-            if (document.hidden && typeof window.showDesktopNotification === 'function') {
-                window.showDesktopNotification(
-                    'Smart-Ijro — Muloqot',
-                    'Sizda yangi xabarlar mavjud!',
-                    '{{ route("chat.index") }}'
-                );
+                if (!data.incoming_messages || data.incoming_messages.length === 0) {
+                    playNotificationSound();
+                }
             }
         }
-        window.lastTotalUnread = newTotalUnread;
 
-        // 2. Onlayn / Oflayn holat va so'nggi faollikni yangilash (Online status & last seen)
+        // 3. Sidebar chatlar ro'yxatini real-vaqtda yangilash va yuqoriga surish!
+        if (data.sidebar_chats && data.sidebar_chats.length > 0) {
+            updateSidebarChatList(data.sidebar_chats);
+        }
+
+        // 4. Faol chatning onlayn / oflayn holati
         if (data.chat_status) {
             if (data.chat_status.type === 'direct') {
                 const statusEl = document.getElementById('activeChatUserStatus');
@@ -1823,18 +1944,18 @@ async function pollChatUpdates() {
             }
         }
 
-        // 3. Barcha foydalanuvchilarning onlayn / oflayn yashil indikatorlari va matnlarini yangilash
+        // 5. Barcha foydalanuvchilarning onlayn / oflayn indikatorlari
         if (data.users_status && typeof data.users_status === 'object') {
             for (const [uid, uInfo] of Object.entries(data.users_status)) {
-                // Nuqta (indicator)
                 document.querySelectorAll(`[data-user-status-id="${uid}"]`).forEach(el => {
                     if (uInfo.is_online) {
                         el.classList.add('online');
+                        el.title = 'Onlayn';
                     } else {
                         el.classList.remove('online');
+                        el.title = uInfo.text || 'Oflayn';
                     }
                 });
-                // Matn (status text)
                 document.querySelectorAll(`[data-user-text-id="${uid}"]`).forEach(el => {
                     if (uInfo.is_online) {
                         el.innerHTML = '<span class="text-success fw-semibold">onlayn</span>';
@@ -1843,19 +1964,9 @@ async function pollChatUpdates() {
                     }
                 });
             }
-        } else if (data.online_user_ids && Array.isArray(data.online_user_ids)) {
-            const onlineSet = new Set(data.online_user_ids.map(id => String(id)));
-            document.querySelectorAll('[data-user-status-id]').forEach(indicator => {
-                const uid = indicator.getAttribute('data-user-status-id');
-                if (onlineSet.has(uid)) {
-                    indicator.classList.add('online');
-                } else {
-                    indicator.classList.remove('online');
-                }
-            });
         }
 
-        // 4. O'qilganlik holatini (Checkmarks ✓ -> ✓✓) yangilash!
+        // 6. O'qilganlik belgilari (Checkmarks ✓ -> ✓✓)
         if (data.other_last_read_timestamp && data.other_last_read_timestamp > 0) {
             const outgoingMessages = document.querySelectorAll('.message-out[data-timestamp]');
             outgoingMessages.forEach(el => {
@@ -1871,7 +1982,7 @@ async function pollChatUpdates() {
             });
         }
 
-        // 5. O'qilmaganlar sonini yangilash
+        // 7. O'qilmaganlar sonini yangilash
         if (data.unread_counts) {
             for (const [cId, count] of Object.entries(data.unread_counts)) {
                 const badge = document.getElementById(`unreadBadge_${cId}`);
@@ -1921,51 +2032,90 @@ function initPwaAndNotifications() {
 }
 
 function updateNotificationButtonUI() {
+    const isGranted = ("Notification" in window) && Notification.permission === 'granted';
+    const isDenied = ("Notification" in window) && Notification.permission === 'denied';
+
+    // 1. Sidebar bildirishnoma tugmasi
+    const sidebarIcon = document.getElementById('btnSidebarNotifIcon');
+    const sidebarBtn = document.getElementById('btnSidebarNotif');
+    if (sidebarBtn && sidebarIcon) {
+        if (isGranted) {
+            sidebarIcon.className = 'feather-bell text-success';
+            sidebarBtn.title = 'Bildirishnomalar yoqilgan (Faol)';
+        } else if (isDenied) {
+            sidebarIcon.className = 'feather-bell-off text-danger';
+            sidebarBtn.title = 'Bildirishnomalar taqiqlangan';
+        } else {
+            sidebarIcon.className = 'feather-bell text-primary';
+            sidebarBtn.title = 'Bildirishnomalarni yoqish';
+        }
+    }
+
+    // 2. Chat ichidagi header tugmasi
     const btn = document.getElementById('btnToggleNotifications');
     const icon = document.getElementById('btnNotifIcon');
     const text = document.getElementById('btnNotifText');
-    if (!btn || !icon || !text) return;
+    if (btn && icon && text) {
+        if (!("Notification" in window)) {
+            btn.style.display = 'none';
+            return;
+        }
 
-    if (!("Notification" in window)) {
-        btn.style.display = 'none';
-        return;
-    }
-
-    if (Notification.permission === 'granted') {
-        icon.className = 'feather-bell text-success';
-        text.innerText = 'Yoqilgan';
-        btn.classList.remove('btn-outline-secondary', 'btn-outline-danger');
-        btn.classList.add('btn-outline-success');
-    } else if (Notification.permission === 'denied') {
-        icon.className = 'feather-bell-off text-danger';
-        text.innerText = 'Taqiqlangan';
-        btn.classList.remove('btn-outline-secondary', 'btn-outline-success');
-        btn.classList.add('btn-outline-danger');
-    } else {
-        icon.className = 'feather-bell text-secondary';
-        text.innerText = 'Bildirishnoma';
-        btn.classList.remove('btn-outline-success', 'btn-outline-danger');
-        btn.classList.add('btn-outline-secondary');
+        if (isGranted) {
+            icon.className = 'feather-bell text-success';
+            text.innerText = 'Yoqilgan';
+            btn.classList.remove('btn-outline-secondary', 'btn-outline-danger');
+            btn.classList.add('btn-outline-success');
+        } else if (isDenied) {
+            icon.className = 'feather-bell-off text-danger';
+            text.innerText = 'Taqiqlangan';
+            btn.classList.remove('btn-outline-secondary', 'btn-outline-success');
+            btn.classList.add('btn-outline-danger');
+        } else {
+            icon.className = 'feather-bell text-secondary';
+            text.innerText = 'Bildirishnoma';
+            btn.classList.remove('btn-outline-success', 'btn-outline-danger');
+            btn.classList.add('btn-outline-secondary');
+        }
     }
 }
 
 async function toggleDesktopNotifications() {
     if (!("Notification" in window)) {
-        alert("Brouzeringiz bildirishnomalarni qo'llab-quvvatlamaydi!");
+        if (typeof window.showInAppToastNotification === 'function') {
+            window.showInAppToastNotification({
+                user_name: 'Smart-Ijro Tizimi',
+                snippet: 'Ichki bildirishnomalar faol! Yangi xabarlar ekranda ko\'rinadi.',
+                chat_id: activeChatId || ''
+            });
+        }
         return;
     }
+
     if (Notification.permission === 'granted') {
         if (typeof window.showDesktopNotification === 'function') {
             window.showDesktopNotification('Smart-Ijro — Muloqot', 'Bildirishnomalar yoqilgan! Yangi xabarlar ekranga chiqadi.', '{{ route("chat.index") }}');
         }
+        if (typeof window.showInAppToastNotification === 'function') {
+            window.showInAppToastNotification({
+                user_name: 'Smart-Ijro Tizimi',
+                snippet: 'Bildirishnomalar yoqilgan! Yangi xabarlar ekranda ko\'rinadi.',
+                chat_id: activeChatId || ''
+            });
+        }
         return;
     }
-    const permission = await Notification.requestPermission();
-    updateNotificationButtonUI();
-    if (permission === 'granted') {
-        if (typeof window.showDesktopNotification === 'function') {
-            window.showDesktopNotification('Smart-Ijro — Muloqot', 'Bildirishnomalar muvaffaqiyatli yoqildi!', '{{ route("chat.index") }}');
+
+    try {
+        const permission = await Notification.requestPermission();
+        updateNotificationButtonUI();
+        if (permission === 'granted') {
+            if (typeof window.showDesktopNotification === 'function') {
+                window.showDesktopNotification('Smart-Ijro — Muloqot', 'Bildirishnomalar muvaffaqiyatli yoqildi!', '{{ route("chat.index") }}');
+            }
         }
+    } catch (e) {
+        console.warn('Notification permission error:', e);
     }
 }
 
@@ -2084,11 +2234,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Polling start (har 3 soniyada)
-    pollInterval = setInterval(pollChatUpdates, 3000);
+    // Polling start (har 2.5 soniyada va yuklanganda darhol birinchi so'rov)
+    pollChatUpdates();
+    pollInterval = setInterval(pollChatUpdates, 2500);
 
     // PWA va Bildirishnomalarni ishga tushirish
     initPwaAndNotifications();
+
+    if ("Notification" in window && Notification.permission === 'default') {
+        const promptHandler = function() {
+            Notification.requestPermission().then(() => updateNotificationButtonUI()).catch(() => {});
+            document.removeEventListener('click', promptHandler);
+        };
+        document.addEventListener('click', promptHandler, { once: true });
+    }
 
     // Filter tabs
     const tabBtns = document.querySelectorAll('.chat-tab-btn');
