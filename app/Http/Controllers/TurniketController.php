@@ -445,6 +445,44 @@ class TurniketController extends Controller
             ]);
             $allRecords = $reportsRes['data'] ?? [];
 
+            // Кунлар бўйича ходимлар қайдини хариталаш
+            $datesMap = [];
+            if ($startDate === $endDate) {
+                $datesMap[$startDate] = [];
+            }
+            foreach ($allRecords as $r) {
+                $d = $r['date'] ?? $startDate;
+                $datesMap[$d][(string)($r['employee_no'] ?? '')] = true;
+            }
+
+            // Мазкур кунда умуман турникетдан ўтмаган (келмаган) ходимларни тўлиқ қўшиш
+            $synthAbsent = [];
+            foreach ($datesMap as $d => $empMap) {
+                // Битта кун сўралганда ёки иш кунларида (10 дан ортиқ қайд бўлган кунлар)
+                if ($startDate === $endDate || count($empMap) >= 10) {
+                    foreach ($mainEmployees as $me) {
+                        $eNo = (string)($me['employee_no'] ?? '');
+                        if ($eNo && !isset($empMap[$eNo])) {
+                            $synthAbsent[] = [
+                                'date'            => $d,
+                                'employee_no'     => $eNo,
+                                'fullname'        => $me['fullname'] ?? ('ID: ' . $eNo),
+                                'department'      => $me['department'] ?? 'Институт',
+                                'first_entry'     => '-',
+                                'last_exit'       => '-',
+                                'late_minutes'    => 0,
+                                'worked_duration' => '-',
+                                'status'          => 'Kelmagan',
+                            ];
+                        }
+                    }
+                }
+            }
+
+            if (!empty($synthAbsent)) {
+                $allRecords = array_merge($allRecords, $synthAbsent);
+            }
+
             $allMain = [];
             $allGuard = [];
             foreach ($allRecords as $r) {
