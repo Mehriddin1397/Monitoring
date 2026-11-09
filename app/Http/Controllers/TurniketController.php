@@ -33,6 +33,52 @@ class TurniketController extends Controller
     }
 
     /**
+     * Барча ходимларни тўлиқ олиш (турникетнинг барча саҳифалари ва маҳаллий базадан)
+     */
+    protected function fetchAllEmployees(): array
+    {
+        return Cache::remember('turniket_all_employees_complete_v4', 300, function () {
+            $employees = [];
+            $page = 1;
+            do {
+                $res = $this->turniketService->getEmployees(['page' => $page, 'limit' => 50]);
+                $items = $res['data'] ?? [];
+                if (empty($items)) {
+                    break;
+                }
+                foreach ($items as $item) {
+                    $no = (string)($item['employee_no'] ?? '');
+                    if ($no) {
+                        $employees[$no] = $item;
+                    }
+                }
+                $lastPage = $res['pagination']['last_page'] ?? 1;
+                $page++;
+            } while ($page <= $lastPage && $page <= 5);
+
+            // Маҳаллий базадаги ходимларни ҳам ном ва лавозимлари билан қўшиш
+            try {
+                $dbEmps = \App\Models\Employee::whereNotNull('turniket_id')->where('turniket_id', '!=', '')->get();
+                foreach ($dbEmps as $de) {
+                    $no = (string)$de->turniket_id;
+                    if (!isset($employees[$no])) {
+                        $employees[$no] = [
+                            'employee_no' => $no,
+                            'fullname'    => $de->full_name ?? $no,
+                            'department'  => $de->position ?? 'Институт',
+                            'photo_url'   => $de->avatar_url,
+                        ];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore DB error if any
+            }
+
+            return array_values($employees);
+        });
+    }
+
+    /**
      * Турникет асосий панели (Dashboard - Кўрсаткичлар)
      */
     public function dashboard(): View
@@ -72,11 +118,8 @@ class TurniketController extends Controller
         $recentAttendanceRes = $this->turniketService->getAttendance(['limit' => 20]);
         $recentAttendance = $recentAttendanceRes['data'] ?? [];
 
-        // Ходимлар рўйхати (кэш ёки API)
-        $allEmployees = Cache::remember('turniket_employees_list_v2', 300, function () {
-            $res = $this->turniketService->getEmployees(['limit' => 500]);
-            return $res['data'] ?? [];
-        });
+        // Ходимлар рўйхати (тўлиқ)
+        $allEmployees = $this->fetchAllEmployees();
 
         // 🛡️ Қўриқлаш хизмати ва Асосий ходимларни тўлиқ ажратиш
         $mainEmployees = [];
@@ -241,11 +284,8 @@ class TurniketController extends Controller
 
         $isOnline = $this->turniketService->isOnline();
 
-        // Барча ходимлар рўйхатини кэшдан ёки API орқали олиш (5 дақиқа)
-        $allEmployees = Cache::remember('turniket_employees_list_v2', 300, function () {
-            $res = $this->turniketService->getEmployees(['limit' => 500]);
-            return $res['data'] ?? [];
-        });
+        // Барча ходимлар рўйхатини тўлиқ олиш
+        $allEmployees = $this->fetchAllEmployees();
 
         // Ходимларни алифбо бўйича саралаш
         usort($allEmployees, function ($a, $b) {
@@ -519,11 +559,8 @@ class TurniketController extends Controller
         $metricsRes = $this->turniketService->getMetrics();
         $metrics = $metricsRes['data'] ?? [];
 
-        // Ходимларни кэшдан олиш
-        $allEmployees = Cache::remember('turniket_employees_list_v2', 300, function () {
-            $res = $this->turniketService->getEmployees(['limit' => 500]);
-            return $res['data'] ?? [];
-        });
+        // Ходимларни тўлиқ олиш
+        $allEmployees = $this->fetchAllEmployees();
 
         $guardEmployees = array_filter($allEmployees, fn($e) => $this->isGuardId($e['employee_no'] ?? ''));
         $mainEmployees  = array_filter($allEmployees, fn($e) => !$this->isGuardId($e['employee_no'] ?? ''));

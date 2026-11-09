@@ -103,22 +103,11 @@
                             </label>
                             <select name="employee_filter" id="employeeFilterSelect" class="form-select form-select-sm">
                                 <option value="">-- Барча ходимлар (Умумий ҳисобот) --</option>
-                                
-                                <optgroup label="🏢 Асосий ходимлар ({{ count($mainEmployees) }})">
-                                    @foreach($mainEmployees as $emp)
-                                        <option value="{{ $emp['employee_no'] }}" {{ (string)$selectedEmployee === (string)$emp['employee_no'] ? 'selected' : '' }}>
-                                            {{ $emp['fullname'] }} (ID: {{ $emp['employee_no'] }})
-                                        </option>
-                                    @endforeach
-                                </optgroup>
-
-                                <optgroup label="🛡️ Қўриқлаш хизмати ходимлари ({{ count($guardEmployees) }})">
-                                    @foreach($guardEmployees as $emp)
-                                        <option value="{{ $emp['employee_no'] }}" {{ (string)$selectedEmployee === (string)$emp['employee_no'] ? 'selected' : '' }}>
-                                            🛡️ {{ $emp['fullname'] }} (ID: {{ $emp['employee_no'] }})
-                                        </option>
-                                    @endforeach
-                                </optgroup>
+                                @foreach($mainEmployees as $emp)
+                                    <option value="{{ $emp['employee_no'] }}" {{ (string)$selectedEmployee === (string)$emp['employee_no'] ? 'selected' : '' }}>
+                                        {{ $emp['fullname'] }} (ID: {{ $emp['employee_no'] }})
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
 
