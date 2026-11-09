@@ -5,15 +5,31 @@ namespace App\Http\Controllers;
 use App\Services\TurniketService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class TurniketController extends Controller
 {
+    public const GUARD_IDS = ['00100', '0090', '0091', '00101', '100', '90', '91', '101'];
+
     protected TurniketService $turniketService;
 
     public function __construct(TurniketService $turniketService)
     {
         $this->turniketService = $turniketService;
+    }
+
+    /**
+     * Check if an employee ID belongs to the security guard team
+     */
+    public function isGuardId(?string $employeeNo): bool
+    {
+        if (!$employeeNo) {
+            return false;
+        }
+        $trimmed = ltrim($employeeNo, '0');
+        return in_array($employeeNo, ['00100', '0090', '0091', '00101'], true)
+            || in_array($trimmed, ['100', '90', '91', '101'], true);
     }
 
     /**
@@ -114,35 +130,186 @@ class TurniketController extends Controller
     }
 
     /**
-     * Ҳисоботлар (Daily, Weekly, Monthly reports)
+     * Ҳисоботлар (Кунлик, саналар оралиғи ва алоҳида ходим бўйича ҳисоботлар)
      */
     public function reports(Request $request): View
     {
-        $type = $request->input('type', 'daily');
-        $date = $request->input('date', date('Y-m-d'));
+        $today = date('Y-m-d');
+        $startDate = $request->input('start_date');
+        $endDate   = $request->input('end_date');
 
-        $params = [
-            'type'            => $type,
-            'date'            => $date,
-            'start_date'      => $request->input('start_date'),
-            'end_date'        => $request->input('end_date'),
-            'employee_filter' => $request->input('employee_filter'),
-            'status'          => $request->input('status'),
-        ];
-        $params = array_filter($params, fn($v) => !is_null($v) && $v !== '');
+        // Агар алоҳида date параметри келган бўлса (эски ҳаволалар учун)
+        if (!$startDate) {
+            $startDate = $request->input('date', $today);
+        }
+        if (!$endDate) {
+            $endDate = $request->input('date', $today);
+        }
 
-        $reportsRes = $this->turniketService->getReports($params);
-        $records = $reportsRes['data'] ?? [];
-        $meta = $reportsRes['meta'] ?? [
-            'type'          => $type,
-            'start_date'    => $date,
-            'end_date'      => $date,
-            'total_records' => count($records),
-        ];
+        // Саналар тартибини тўғрилаш (start_date <= end_date)
+        if (strtotime($startDate) > strtotime($endDate)) {
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
+
+        $selectedEmployee = $request->input('employee_filter');
+        if ($selectedEmployee === '' || $selectedEmployee === 'all') {
+            $selectedEmployee = null;
+        }
 
         $isOnline = $this->turniketService->isOnline();
 
-        return view('admin.turniket.reports', compact('records', 'meta', 'type', 'date', 'isOnline'));
+        // Барча ходимлар рўйхатини кэшдан ёки API орқали олиш (5 дақиқа)
+        $allEmployees = Cache::remember('turniket_employees_list_v2', 300, function () {
+            $res = $this->turniketService->getEmployees(['limit' => 500]);
+            return $res['data'] ?? [];
+        });
+
+        // Ходимларни алифбо бўйича саралаш
+        usort($allEmployees, function ($a, $b) {
+            return strcasecmp($a['fullname'] ?? '', $b['fullname'] ?? '');
+        });
+
+        // Ходимларни асосий ва қўриқлаш хизматига ажратиш
+        $mainEmployees = [];
+        $guardEmployees = [];
+        foreach ($allEmployees as $emp) {
+            $empNo = (string)($emp['employee_no'] ?? '');
+            if ($this->isGuardId($empNo)) {
+                $guardEmployees[] = $emp;
+            } else {
+                $mainEmployees[] = $emp;
+            }
+        }
+
+        $singleEmployeeData = null;
+        $mainRecords = [];
+        $guardRecords = [];
+        $meta = [
+            'start_date'   => $startDate,
+            'end_date'     => $endDate,
+            'total_main'   => 0,
+            'total_guard'  => 0,
+        ];
+
+        // Агар аниқ битта ходим танланган бўлса — Алоҳида батафсил ҳисобот
+        if ($selectedEmployee) {
+            // 1. Кунлик жамланган ҳисобот (getReports)
+            $reportsRes = $this->turniketService->getReports([
+                'start_date'  => $startDate,
+                'end_date'    => $endDate,
+                'employee_no' => $selectedEmployee,
+            ]);
+            $dailyRecords = $reportsRes['data'] ?? [];
+
+            // 2. Барча кириш ва чиқиш ҳаракатлари (Attendance logs)
+            $allEvents = [];
+            $page = 1;
+            do {
+                $attRes = $this->turniketService->getAttendance([
+                    'search'     => $selectedEmployee,
+                    'start_date' => $startDate,
+                    'end_date'   => $endDate,
+                    'page'       => $page,
+                    'limit'      => 100,
+                ]);
+                $items = $attRes['data'] ?? [];
+                foreach ($items as $it) {
+                    $itNo = (string)($it['employee_no'] ?? '');
+                    if ($itNo === $selectedEmployee || ltrim($itNo, '0') === ltrim($selectedEmployee, '0')) {
+                        $allEvents[] = $it;
+                    }
+                }
+                $lastPage = $attRes['pagination']['last_page'] ?? 1;
+                $page++;
+            } while ($page <= $lastPage && $page <= 5);
+
+            // Ҳаракатларни вақт бўйича саралаш (янгидан эскига)
+            usort($allEvents, fn($a, $b) => strcmp($b['event_time'] ?? '', $a['event_time'] ?? ''));
+
+            // Ходим маълумотларини аниқлаш
+            $empInfo = null;
+            foreach ($allEmployees as $e) {
+                $eNo = (string)($e['employee_no'] ?? '');
+                if ($eNo === $selectedEmployee || ltrim($eNo, '0') === ltrim($selectedEmployee, '0')) {
+                    $empInfo = $e;
+                    break;
+                }
+            }
+            if (!$empInfo && !empty($dailyRecords)) {
+                $empInfo = [
+                    'employee_no' => $selectedEmployee,
+                    'fullname'    => $dailyRecords[0]['fullname'] ?? ('ID: ' . $selectedEmployee),
+                    'department'  => $dailyRecords[0]['department'] ?? 'Институт',
+                    'photo_url'   => null,
+                ];
+            }
+
+            // Ҳаракатлар статистикаси
+            $totalEntries = count(array_filter($allEvents, fn($e) => ($e['direction'] ?? '') === 'entry'));
+            $totalExits   = count(array_filter($allEvents, fn($e) => ($e['direction'] ?? '') === 'exit'));
+            $totalEvents  = count($allEvents);
+
+            // Ҳаракатларни кунлар бўйича гуруҳлаш
+            $eventsByDate = [];
+            foreach ($allEvents as $ev) {
+                $d = substr($ev['event_time'] ?? '', 0, 10);
+                if ($d) {
+                    $eventsByDate[$d][] = $ev;
+                }
+            }
+
+            // Жами кечикиш дақиқалари
+            $totalLateMinutes = 0;
+            foreach ($dailyRecords as $dr) {
+                $totalLateMinutes += (int)($dr['late_minutes'] ?? 0);
+            }
+
+            $singleEmployeeData = [
+                'employee'           => $empInfo,
+                'employee_no'        => $selectedEmployee,
+                'is_guard'           => $this->isGuardId($selectedEmployee),
+                'daily_records'      => $dailyRecords,
+                'events'             => $allEvents,
+                'events_by_date'     => $eventsByDate,
+                'total_entries'      => $totalEntries,
+                'total_exits'        => $totalExits,
+                'total_events'       => $totalEvents,
+                'total_late_minutes' => $totalLateMinutes,
+            ];
+        } else {
+            // Барча ходимлар бўйича умумий ҳисобот
+            $reportsRes = $this->turniketService->getReports([
+                'start_date' => $startDate,
+                'end_date'   => $endDate,
+            ]);
+            $allRecords = $reportsRes['data'] ?? [];
+
+            foreach ($allRecords as $r) {
+                $empNo = (string)($r['employee_no'] ?? '');
+                if ($this->isGuardId($empNo)) {
+                    $guardRecords[] = $r;
+                } else {
+                    $mainRecords[] = $r;
+                }
+            }
+
+            $meta['total_main']  = count($mainRecords);
+            $meta['total_guard'] = count($guardRecords);
+        }
+
+        return view('admin.turniket.reports', compact(
+            'startDate',
+            'endDate',
+            'selectedEmployee',
+            'allEmployees',
+            'mainEmployees',
+            'guardEmployees',
+            'mainRecords',
+            'guardRecords',
+            'singleEmployeeData',
+            'meta',
+            'isOnline'
+        ));
     }
 
     /**
