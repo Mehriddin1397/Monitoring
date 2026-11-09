@@ -282,6 +282,26 @@ class TurniketController extends Controller
             $selectedEmployee = null;
         }
 
+        $statusFilter = $request->input('status');
+        if ($statusFilter === '' || $statusFilter === 'all') {
+            $statusFilter = null;
+        }
+
+        // Ҳолатни таснифлаш ёрдамчи функцияси
+        $classifyStatus = function (array $row): string {
+            $st = strtolower($row['status'] ?? '');
+            $lateMinutes = (int)($row['late_minutes'] ?? 0);
+            $hasEntry = !empty($row['first_entry']) && $row['first_entry'] !== '-';
+
+            if (str_contains($st, 'kelma') || $st === 'absent' || !$hasEntry) {
+                return 'absent';
+            }
+            if (str_contains($st, 'kechik') || $lateMinutes > 0) {
+                return 'late';
+            }
+            return 'on_time';
+        };
+
         $isOnline = $this->turniketService->isOnline();
 
         // Барча ходимлар рўйхатини тўлиқ олиш
@@ -387,6 +407,11 @@ class TurniketController extends Controller
                 $totalLateMinutes += (int)($dr['late_minutes'] ?? 0);
             }
 
+            // Агар ҳолат филтри қўлланган бўлса
+            if ($statusFilter) {
+                $dailyRecords = array_values(array_filter($dailyRecords, fn($dr) => $classifyStatus($dr) === $statusFilter));
+            }
+
             $singleEmployeeData = [
                 'employee'           => $empInfo,
                 'employee_no'        => $selectedEmployee,
@@ -399,6 +424,19 @@ class TurniketController extends Controller
                 'total_events'       => $totalEvents,
                 'total_late_minutes' => $totalLateMinutes,
             ];
+
+            $statusCounts = [
+                'all'     => count($dailyRecords),
+                'on_time' => 0,
+                'late'    => 0,
+                'absent'  => 0,
+            ];
+            foreach ($dailyRecords as $dr) {
+                $stCode = $classifyStatus($dr);
+                if (isset($statusCounts[$stCode])) {
+                    $statusCounts[$stCode]++;
+                }
+            }
         } else {
             // Барча ходимлар бўйича умумий ҳисобот
             $reportsRes = $this->turniketService->getReports([
@@ -407,13 +445,38 @@ class TurniketController extends Controller
             ]);
             $allRecords = $reportsRes['data'] ?? [];
 
+            $allMain = [];
+            $allGuard = [];
             foreach ($allRecords as $r) {
                 $empNo = (string)($r['employee_no'] ?? '');
                 if ($this->isGuardId($empNo)) {
-                    $guardRecords[] = $r;
+                    $allGuard[] = $r;
                 } else {
-                    $mainRecords[] = $r;
+                    $allMain[] = $r;
                 }
+            }
+
+            // Асосий ходимлар учун ҳар бир ҳолат бўйича умумий сонлар
+            $statusCounts = [
+                'all'     => count($allMain),
+                'on_time' => 0,
+                'late'    => 0,
+                'absent'  => 0,
+            ];
+            foreach ($allMain as $r) {
+                $stCode = $classifyStatus($r);
+                if (isset($statusCounts[$stCode])) {
+                    $statusCounts[$stCode]++;
+                }
+            }
+
+            // Ҳолат филтри бўйича саралаш
+            if ($statusFilter) {
+                $mainRecords  = array_values(array_filter($allMain, fn($r) => $classifyStatus($r) === $statusFilter));
+                $guardRecords = array_values(array_filter($allGuard, fn($r) => $classifyStatus($r) === $statusFilter));
+            } else {
+                $mainRecords  = $allMain;
+                $guardRecords = $allGuard;
             }
 
             $meta['total_main']  = count($mainRecords);
@@ -424,6 +487,8 @@ class TurniketController extends Controller
             'startDate',
             'endDate',
             'selectedEmployee',
+            'statusFilter',
+            'statusCounts',
             'allEmployees',
             'mainEmployees',
             'guardEmployees',

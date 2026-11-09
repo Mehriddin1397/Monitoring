@@ -14,6 +14,13 @@
                     ХОДИМНИНГ ДАВОМАТ ВА ТУРНИКЕТДАН КИРИБ-ЧИҚИШ ҲИСОБОТИ
                 @else
                     ТУРНИКЕТ ДАВОМАТ ВА ИШ ВАҚТИ МОНИТОРИНГИ ҲИСОБОТИ
+                    @if($statusFilter === 'late')
+                        — КЕЧИККАН ХОДИМЛАР РЎЙХАТИ
+                    @elseif($statusFilter === 'absent')
+                        — КЕЛМАГАН ХОДИМЛАР РЎЙХАТИ
+                    @elseif($statusFilter === 'on_time')
+                        — ЎЗ ВАҚТИДА КЕЛГАН ХОДИМЛАР РЎЙХАТИ
+                    @endif
                 @endif
             </h5>
         </div>
@@ -77,9 +84,9 @@
         <div class="card border-0 shadow-sm mb-4 filter-card d-print-none">
             <div class="card-body p-3 p-lg-4">
                 <form action="{{ route('admin.turniket.reports') }}" method="GET" id="reportFilterForm">
-                    <div class="row g-3 align-items-end">
+                    <div class="row g-2 align-items-end">
                         <!-- Start Date -->
-                        <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="col-12 col-sm-6 col-lg-2">
                             <label class="form-label fs-12 fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
                                 <i class="feather-calendar text-primary"></i> Бошланиш санаси:
                             </label>
@@ -88,7 +95,7 @@
                         </div>
 
                         <!-- End Date -->
-                        <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="col-12 col-sm-6 col-lg-2">
                             <label class="form-label fs-12 fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
                                 <i class="feather-calendar text-primary"></i> Тугаш санаси:
                             </label>
@@ -96,13 +103,26 @@
                                    value="{{ $endDate }}" required>
                         </div>
 
-                        <!-- Employee Select Filter -->
-                        <div class="col-12 col-sm-8 col-lg-4">
+                        <!-- Status Filter -->
+                        <div class="col-12 col-sm-6 col-lg-3">
                             <label class="form-label fs-12 fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
-                                <i class="feather-user text-primary"></i> Ходим бўйича филтр (алоҳида ҳисобот):
+                                <i class="feather-check-circle text-primary"></i> Ҳолати бўйича филтр:
                             </label>
-                            <select name="employee_filter" id="employeeFilterSelect" class="form-select form-select-sm">
-                                <option value="">-- Барча ходимлар (Умумий ҳисобот) --</option>
+                            <select name="status" id="statusFilterSelect" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="">-- Барча ҳолатлар --</option>
+                                <option value="on_time" {{ $statusFilter === 'on_time' ? 'selected' : '' }}>🟢 Ўз вақтида келганлар</option>
+                                <option value="late" {{ $statusFilter === 'late' ? 'selected' : '' }}>🟡 Кечикканлар (Кеч қолганлар)</option>
+                                <option value="absent" {{ $statusFilter === 'absent' ? 'selected' : '' }}>🔴 Келмаганлар</option>
+                            </select>
+                        </div>
+
+                        <!-- Employee Select Filter -->
+                        <div class="col-12 col-sm-6 col-lg-3">
+                            <label class="form-label fs-12 fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
+                                <i class="feather-user text-primary"></i> Ходим бўйича филтр:
+                            </label>
+                            <select name="employee_filter" id="employeeFilterSelect" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="">-- Барча ходимлар --</option>
                                 @foreach($mainEmployees as $emp)
                                     <option value="{{ $emp['employee_no'] }}" {{ (string)$selectedEmployee === (string)$emp['employee_no'] ? 'selected' : '' }}>
                                         {{ $emp['fullname'] }} (ID: {{ $emp['employee_no'] }})
@@ -112,8 +132,8 @@
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="col-12 col-sm-4 col-lg-2 d-flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-primary w-100 d-flex align-items-center justify-content-center gap-1">
+                        <div class="col-12 col-lg-2 d-flex gap-1">
+                            <button type="submit" class="btn btn-sm btn-primary flex-fill d-flex align-items-center justify-content-center gap-1">
                                 <i class="feather-filter"></i> Кўрсатиш
                             </button>
                             <a href="{{ route('admin.turniket.reports') }}" class="btn btn-sm btn-outline-secondary" title="Филтрларни тозалаш">
@@ -122,13 +142,33 @@
                         </div>
                     </div>
 
-                    <!-- Quick Date Presets -->
-                    <div class="d-flex align-items-center gap-2 mt-3 pt-2 border-top flex-wrap">
-                        <span class="fs-12 text-muted fw-semibold me-1"><i class="feather-clock me-1"></i>Тезкор оралиқ:</span>
-                        <button type="button" class="btn btn-xs btn-light border" onclick="setQuickDate('today')">Бугун</button>
-                        <button type="button" class="btn btn-xs btn-light border" onclick="setQuickDate('yesterday')">Кеча</button>
-                        <button type="button" class="btn btn-xs btn-light border" onclick="setQuickDate('week')">Охирги 7 кун</button>
-                        <button type="button" class="btn btn-xs btn-light border" onclick="setQuickDate('month')">Шу ой (1-санадан)</button>
+                    <!-- Quick Date & Status Presets Row -->
+                    <div class="d-flex align-items-center justify-content-between gap-3 mt-3 pt-2 border-top flex-wrap">
+                        <!-- Quick Date Presets -->
+                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <span class="fs-12 text-muted fw-semibold me-1"><i class="feather-clock me-1"></i>Тезкор сана:</span>
+                            <button type="button" class="btn btn-xs btn-light border" onclick="setQuickDate('today')">Бугун</button>
+                            <button type="button" class="btn btn-xs btn-light border" onclick="setQuickDate('yesterday')">Кеча</button>
+                            <button type="button" class="btn btn-xs btn-light border" onclick="setQuickDate('week')">Охирги 7 кун</button>
+                            <button type="button" class="btn btn-xs btn-light border" onclick="setQuickDate('month')">Шу ой</button>
+                        </div>
+
+                        <!-- Quick Status Presets -->
+                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <span class="fs-12 text-muted fw-semibold me-1"><i class="feather-activity me-1"></i>Ҳолати:</span>
+                            <button type="button" class="btn btn-xs {{ empty($statusFilter) ? 'btn-dark' : 'btn-light border' }}" onclick="setQuickStatus('')">
+                                Барчаси <span class="badge bg-secondary ms-1">{{ $statusCounts['all'] ?? count($mainRecords) }}</span>
+                            </button>
+                            <button type="button" class="btn btn-xs {{ $statusFilter === 'on_time' ? 'btn-success text-white' : 'btn-light border text-success' }}" onclick="setQuickStatus('on_time')">
+                                🟢 Ўз вақтида <span class="badge {{ $statusFilter === 'on_time' ? 'bg-light text-success' : 'bg-success' }} ms-1">{{ $statusCounts['on_time'] ?? 0 }}</span>
+                            </button>
+                            <button type="button" class="btn btn-xs {{ $statusFilter === 'late' ? 'btn-warning text-dark' : 'btn-light border text-warning-emphasis' }}" onclick="setQuickStatus('late')">
+                                🟡 Кечикканлар <span class="badge {{ $statusFilter === 'late' ? 'bg-dark text-warning' : 'bg-warning text-dark' }} ms-1">{{ $statusCounts['late'] ?? 0 }}</span>
+                            </button>
+                            <button type="button" class="btn btn-xs {{ $statusFilter === 'absent' ? 'btn-danger text-white' : 'btn-light border text-danger' }}" onclick="setQuickStatus('absent')">
+                                🔴 Келмаганлар <span class="badge {{ $statusFilter === 'absent' ? 'bg-light text-danger' : 'bg-danger' }} ms-1">{{ $statusCounts['absent'] ?? 0 }}</span>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -919,6 +959,15 @@ function setQuickDate(range) {
     }
 
     if (form) {
+        form.submit();
+    }
+}
+
+function setQuickStatus(status) {
+    const statusSelect = document.getElementById('statusFilterSelect');
+    const form = document.getElementById('reportFilterForm');
+    if (statusSelect && form) {
+        statusSelect.value = status;
         form.submit();
     }
 }
