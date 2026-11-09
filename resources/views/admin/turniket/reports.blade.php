@@ -7,8 +7,7 @@
 
     <!-- [ Print Official Header (Faqat chop etilganda ko'rinadi) ] -->
     <div class="print-header d-none d-print-block text-center mb-4">
-        <h4 class="fw-bold mb-1 text-uppercase" style="letter-spacing: 0.5px;">Ўзбекистон Республикаси Ҳуқуқни муҳофаза қилиш академияси</h4>
-        <h5 class="fw-bold mb-2 text-uppercase text-primary">Криминология тадқиқот институти</h5>
+        <h4 class="fw-bold mb-2 text-uppercase text-dark" style="letter-spacing: 0.5px;">Ўзбекистон Республикаси Криминология тадқиқот институти</h4>
         <div class="border-top border-bottom border-dark py-2 my-2">
             <h5 class="mb-0 fw-bold">
                 @if($singleEmployeeData)

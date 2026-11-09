@@ -195,6 +195,38 @@
             @endforelse
         </div>
 
+        <!-- 🛡️ Қўриқлаш хизмати алоҳида кўрсаткичлари панели -->
+        <div class="card border-0 shadow-sm mb-4 border-start border-warning border-4">
+            <div class="card-body p-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar-text avatar-md bg-warning text-dark rounded-circle shadow-sm" style="width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;">
+                        <i class="feather-shield fs-22"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h6 class="mb-0 fw-bold text-dark">Қўриқлаш хизмати навбатчилиги</h6>
+                            <span class="badge bg-warning text-dark fs-11 text-uppercase">Алоҳида ҳисоб</span>
+                        </div>
+                        <span class="fs-12 text-muted">ID рақамлари: 00100, 0090, 0091, 00101 — умумий ходимлар кўрсаткичларига қўшилмаган</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge bg-light text-dark border fs-12 px-3 py-2">
+                        Жами қўриқчилар: <strong id="kpi-guard-total">{{ $guardMetrics['total'] ?? 0 }} нафар</strong>
+                    </span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle fs-12 px-3 py-2">
+                        Бугун келган: <strong id="kpi-guard-arrived">{{ $guardMetrics['arrived'] ?? 0 }} нафар</strong>
+                    </span>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle fs-12 px-3 py-2">
+                        Ҳозир бинода: <strong id="kpi-guard-inside">{{ $guardMetrics['inside'] ?? 0 }} нафар</strong>
+                    </span>
+                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="document.getElementById('tab-guards-btn').click();">
+                        <i class="feather-eye me-1"></i> Қўриқчиларни кўриш
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 3. Main Data Tabs -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom p-3">
@@ -227,6 +259,12 @@
                         <button class="nav-link px-3 py-2 fw-semibold" id="tab-recent-btn" data-bs-toggle="tab" data-bs-target="#tab-recent" type="button" role="tab">
                             <i class="feather-activity me-1 text-primary"></i> Сўнгги ўтишлар
                             <span class="badge bg-primary ms-1">{{ count($recentAttendance) }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link px-3 py-2 fw-semibold text-warning-emphasis" id="tab-guards-btn" data-bs-toggle="tab" data-bs-target="#tab-guards" type="button" role="tab">
+                            <i class="feather-shield me-1 text-warning"></i> 🛡️ Қўриқлаш хизмати
+                            <span class="badge bg-warning text-dark ms-1">{{ count($guardStaff) }}</span>
                         </button>
                     </li>
                 </ul>
@@ -623,6 +661,107 @@
                         </div>
                     </div>
 
+                    <!-- TAB 6: GUARDS (ҚЎРИҚЛАШ ХИЗМАТИ) -->
+                    <div class="tab-pane fade" id="tab-guards" role="tabpanel">
+                        <div class="p-3 bg-light border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">
+                                    <i class="feather-shield text-warning me-2"></i>Қўриқлаш хизмати ходимлари мониторинги
+                                </h6>
+                                <small class="text-muted">Навбатчилик ва реал-вақтдаги бинода бўлиш кўрсаткичлари (ID: 00100, 0090, 0091, 00101)</small>
+                            </div>
+                            <span class="badge bg-warning text-dark px-3 py-2 fs-12">
+                                Жами қўриқчилар: {{ count($guardStaff) }} нафар
+                            </span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr class="fs-12 text-uppercase text-muted">
+                                        <th style="width: 50px;">#</th>
+                                        <th>Қўриқчи ходим</th>
+                                        <th>ID рақами</th>
+                                        <th>Ҳозирги ҳолати</th>
+                                        <th>Биринчи кириш</th>
+                                        <th>Сўнгги қурилма</th>
+                                        <th class="text-end">Амал</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($guardStaff as $idx => $g)
+                                        <tr>
+                                            <td class="text-muted fs-12">{{ $idx + 1 }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    @if(!empty($g['photo_url']))
+                                                        <img src="{{ $g['photo_url'] }}" alt="{{ $g['fullname'] }}" 
+                                                             class="rounded-circle object-fit-cover shadow-sm border border-warning" style="width: 42px; height: 42px;"
+                                                             onerror="this.onerror=null; this.src='/assets/images/avatar/default.png';">
+                                                    @else
+                                                        <div class="avatar-text avatar-md bg-warning text-dark rounded-circle fw-bold">
+                                                            <i class="feather-shield"></i>
+                                                        </div>
+                                                    @endif
+                                                    <div>
+                                                        <div class="fw-bold text-dark fs-14">{{ $g['fullname'] }}</div>
+                                                        <small class="text-muted">Қўриқлаш хизмати бўлими</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-warning-subtle text-dark border border-warning font-monospace fs-12">
+                                                    {{ $g['employee_no'] }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if($g['is_inside'])
+                                                    <span class="badge bg-success px-2 py-1 fs-12">
+                                                        <i class="feather-home me-1"></i> Ҳозир бинода
+                                                    </span>
+                                                @elseif($g['is_arrived'])
+                                                    <span class="badge bg-light text-dark border px-2 py-1 fs-12">
+                                                        <i class="feather-log-out me-1"></i> Ташқарида
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fs-12">
+                                                        <i class="feather-x me-1"></i> Келмаган
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if(!empty($g['first_entry']))
+                                                    <span class="fw-bold text-dark font-monospace fs-13">
+                                                        <i class="feather-clock text-success me-1"></i>{{ \Carbon\Carbon::parse($g['first_entry'])->timezone('Asia/Tashkent')->format('H:i:s') }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="text-muted fs-13">
+                                                    {{ $g['device_name'] ?? '-' }}
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="{{ route('admin.turniket.reports', ['employee_filter' => $g['employee_no']]) }}" 
+                                                   class="btn btn-xs btn-outline-warning" title="Қўриқчи бўйича тўлиқ ҳисобот">
+                                                    <i class="feather-file-text me-1"></i>Ҳисобот
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center py-5 text-muted">
+                                                <i class="feather-shield fs-36 d-block mb-2 text-warning"></i>
+                                                Қўриқлаш хизмати ходимлари топилмади.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -760,6 +899,7 @@ document.addEventListener('keydown', function(e) {
 </script>
 @endif
 
+<script>
 // Auto-poll metrics every 15 seconds to keep dashboard fresh
 document.addEventListener('DOMContentLoaded', function() {
     setInterval(function() {
@@ -781,6 +921,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (elLate) elLate.innerText = m.late_count || 0;
                     if (elAbsent) elAbsent.innerText = m.absent_count || 0;
                     if (elDevices) elDevices.innerText = (m.devices_online || 0) + ' / ' + (m.devices_total || 0);
+
+                    if (data.guard_metrics) {
+                        const gm = data.guard_metrics;
+                        const elGTotal = document.getElementById('kpi-guard-total');
+                        const elGArr = document.getElementById('kpi-guard-arrived');
+                        const elGIn = document.getElementById('kpi-guard-inside');
+                        if (elGTotal) elGTotal.innerText = (gm.total || 0) + ' нафар';
+                        if (elGArr) elGArr.innerText = (gm.arrived || 0) + ' нафар';
+                        if (elGIn) elGIn.innerText = (gm.inside || 0) + ' нафар';
+                    }
                 }
             })
             .catch(() => {});

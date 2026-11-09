@@ -33,12 +33,12 @@ class TurniketController extends Controller
     }
 
     /**
-     * Турникет асосий панели (Dashboard)
+     * Турникет асосий панели (Dashboard - Кўрсаткичлар)
      */
     public function dashboard(): View
     {
         $metricsRes = $this->turniketService->getMetrics();
-        $metrics = $metricsRes['data'] ?? [
+        $rawMetrics = $metricsRes['data'] ?? [
             'total_employees'       => 0,
             'arrived_count'         => 0,
             'absent_count'          => 0,
@@ -58,32 +58,115 @@ class TurniketController extends Controller
         $devices = $devicesRes['data'] ?? [];
 
         $arrivedRes = $this->turniketService->getArrived();
-        $arrived = $arrivedRes['data'] ?? [];
+        $allArrived = $arrivedRes['data'] ?? [];
 
         $lateRes = $this->turniketService->getLate();
-        $late = $lateRes['data'] ?? [];
+        $allLate = $lateRes['data'] ?? [];
 
         $insideRes = $this->turniketService->getInside();
-        $inside = is_array($insideRes['data'] ?? null) ? array_values($insideRes['data']) : [];
+        $allInside = is_array($insideRes['data'] ?? null) ? array_values($insideRes['data']) : [];
 
         $absentRes = $this->turniketService->getAbsent();
-        $absent = $absentRes['data'] ?? [];
+        $allAbsent = $absentRes['data'] ?? [];
 
-        $recentAttendanceRes = $this->turniketService->getAttendance(['limit' => 12]);
+        $recentAttendanceRes = $this->turniketService->getAttendance(['limit' => 20]);
         $recentAttendance = $recentAttendanceRes['data'] ?? [];
 
-        $employeesRes = $this->turniketService->getEmployees(['limit' => 200]);
-        $allEmployees = $employeesRes['data'] ?? [];
+        // Ходимлар рўйхати (кэш ёки API)
+        $allEmployees = Cache::remember('turniket_employees_list_v2', 300, function () {
+            $res = $this->turniketService->getEmployees(['limit' => 500]);
+            return $res['data'] ?? [];
+        });
+
+        // 🛡️ Қўриқлаш хизмати ва Асосий ходимларни тўлиқ ажратиш
+        $mainEmployees = [];
+        $guardEmployees = [];
+        foreach ($allEmployees as $emp) {
+            $eNo = (string)($emp['employee_no'] ?? '');
+            if ($this->isGuardId($eNo)) {
+                $guardEmployees[] = $emp;
+            } else {
+                $mainEmployees[] = $emp;
+            }
+        }
+
+        // Асосий ходимлар рўйхатлари
+        $arrived = array_values(array_filter($allArrived, fn($i) => !$this->isGuardId($i['employee_no'] ?? '')));
+        $late    = array_values(array_filter($allLate, fn($i) => !$this->isGuardId($i['employee_no'] ?? '')));
+        $inside  = array_values(array_filter($allInside, fn($i) => !$this->isGuardId($i['employee_no'] ?? '')));
+        $absent  = array_values(array_filter($allAbsent, fn($i) => !$this->isGuardId($i['employee_no'] ?? '')));
+
+        // Қўриқлаш хизмати рўйхатлари
+        $guardArrived = array_values(array_filter($allArrived, fn($i) => $this->isGuardId($i['employee_no'] ?? '')));
+        $guardInside  = array_values(array_filter($allInside, fn($i) => $this->isGuardId($i['employee_no'] ?? '')));
+        $guardLate    = array_values(array_filter($allLate, fn($i) => $this->isGuardId($i['employee_no'] ?? '')));
+        $guardAbsent  = array_values(array_filter($allAbsent, fn($i) => $this->isGuardId($i['employee_no'] ?? '')));
+
+        // Асосий ходимлар метрикалари (Қўриқчиларсиз тоза статистика)
+        $metrics = $rawMetrics;
+        $metrics['total_employees'] = count($mainEmployees);
+        $metrics['arrived_count']   = count($arrived);
+        $metrics['inside_count']    = count($inside);
+        $metrics['late_count']      = count($late);
+        $metrics['absent_count']    = count($absent);
+
+        // Қўриқлаш хизмати метрикалари
+        $guardMetrics = [
+            'total'   => count($guardEmployees),
+            'arrived' => count($guardArrived),
+            'inside'  => count($guardInside),
+            'late'    => count($guardLate),
+            'absent'  => count($guardAbsent),
+        ];
+
+        // Қўриқлаш хизмати ходимларининг ҳозирги батафсил ҳолати
+        $guardStaff = [];
+        foreach ($guardEmployees as $ge) {
+            $gNo = (string)($ge['employee_no'] ?? '');
+
+            $arrItem = null;
+            foreach ($guardArrived as $ga) {
+                if (($ga['employee_no'] ?? '') === $gNo) {
+                    $arrItem = $ga;
+                    break;
+                }
+            }
+
+            $isInside = false;
+            foreach ($guardInside as $gi) {
+                if (($gi['employee_no'] ?? '') === $gNo) {
+                    $isInside = true;
+                    break;
+                }
+            }
+
+            $guardStaff[] = [
+                'employee_no' => $gNo,
+                'fullname'    => $ge['fullname'] ?? ('ID: ' . $gNo),
+                'photo_url'   => $ge['photo_url'] ?? null,
+                'department'  => 'Қўриқлаш хизмати',
+                'is_arrived'  => $arrItem !== null,
+                'is_inside'   => $isInside,
+                'first_entry' => $arrItem['first_entry'] ?? null,
+                'last_exit'   => $arrItem['last_exit'] ?? null,
+                'device_name' => $arrItem['device_name'] ?? null,
+                'is_late'     => !empty($arrItem['is_late']),
+            ];
+        }
 
         $isOnline = $this->turniketService->isOnline();
 
         return view('admin.turniket.dashboard', compact(
             'metrics',
+            'guardMetrics',
             'devices',
             'arrived',
             'late',
             'inside',
             'absent',
+            'guardStaff',
+            'guardArrived',
+            'guardInside',
             'recentAttendance',
             'allEmployees',
             'isOnline'
@@ -434,13 +517,49 @@ class TurniketController extends Controller
     public function liveStats(): JsonResponse
     {
         $metricsRes = $this->turniketService->getMetrics();
+        $metrics = $metricsRes['data'] ?? [];
+
+        // Ходимларни кэшдан олиш
+        $allEmployees = Cache::remember('turniket_employees_list_v2', 300, function () {
+            $res = $this->turniketService->getEmployees(['limit' => 500]);
+            return $res['data'] ?? [];
+        });
+
+        $guardEmployees = array_filter($allEmployees, fn($e) => $this->isGuardId($e['employee_no'] ?? ''));
+        $mainEmployees  = array_filter($allEmployees, fn($e) => !$this->isGuardId($e['employee_no'] ?? ''));
+
+        $arrivedRes = $this->turniketService->getArrived();
+        $guardArrived = array_filter($arrivedRes['data'] ?? [], fn($i) => $this->isGuardId($i['employee_no'] ?? ''));
+        $mainArrivedCount = count(array_filter($arrivedRes['data'] ?? [], fn($i) => !$this->isGuardId($i['employee_no'] ?? '')));
+
+        $insideRes = $this->turniketService->getInside();
+        $guardInside = array_filter(is_array($insideRes['data'] ?? null) ? $insideRes['data'] : [], fn($i) => $this->isGuardId($i['employee_no'] ?? ''));
+        $mainInsideCount = count(array_filter(is_array($insideRes['data'] ?? null) ? $insideRes['data'] : [], fn($i) => !$this->isGuardId($i['employee_no'] ?? '')));
+
+        $lateRes = $this->turniketService->getLate();
+        $mainLateCount = count(array_filter($lateRes['data'] ?? [], fn($i) => !$this->isGuardId($i['employee_no'] ?? '')));
+
+        $absentRes = $this->turniketService->getAbsent();
+        $mainAbsentCount = count(array_filter($absentRes['data'] ?? [], fn($i) => !$this->isGuardId($i['employee_no'] ?? '')));
+
+        $metrics['total_employees'] = count($mainEmployees);
+        $metrics['arrived_count']   = $mainArrivedCount;
+        $metrics['inside_count']    = $mainInsideCount;
+        $metrics['late_count']      = $mainLateCount;
+        $metrics['absent_count']    = $mainAbsentCount;
+
         $devicesRes = $this->turniketService->getDevices();
 
         return response()->json([
-            'success'    => true,
-            'metrics'    => $metricsRes['data'] ?? [],
-            'devices'    => $devicesRes['data'] ?? [],
-            'updated_at' => now()->format('H:i:s'),
+            'success'       => true,
+            'metrics'       => $metrics,
+            'guard_metrics' => [
+                'total'   => count($guardEmployees),
+                'arrived' => count($guardArrived),
+                'inside'  => count($guardInside),
+            ],
+            'devices'       => $devicesRes['data'] ?? [],
+            'updated_at'    => now()->format('H:i:s'),
         ]);
     }
 }
