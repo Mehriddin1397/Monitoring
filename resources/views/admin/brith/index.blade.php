@@ -246,11 +246,69 @@
     @include('components.admin.brith.brith-modal-create')
     @include('components.admin.brith.brith-modal-edit')
 
-    <!-- [ Monitor Preview Modal ] start -->
-    <div class="modal fade" id="monitorPreviewModal" tabindex="-1" aria-labelledby="monitorPreviewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 95vw; width: 1280px;">
-            <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 18px; background: #0c101c;">
-                <div class="modal-header py-3 px-4 border-0 d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+    <!-- [ Monitor Preview Modal Overlay ] start -->
+    <style>
+        .custom-monitor-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 100060;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .custom-monitor-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            display: flex !important;
+        }
+        .custom-monitor-modal-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 1;
+            cursor: pointer;
+        }
+        .custom-monitor-modal-dialog {
+            position: relative;
+            z-index: 2;
+            width: 95vw;
+            max-width: 1300px;
+            max-height: 94vh;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.96);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .custom-monitor-modal-overlay.active .custom-monitor-modal-dialog {
+            transform: scale(1);
+        }
+        .custom-monitor-modal-content {
+            background: #0c101c;
+            border-radius: 18px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+
+    <div id="monitorPreviewModalOverlay" class="custom-monitor-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="monitorPreviewTitle">
+        <div class="custom-monitor-modal-backdrop" onclick="closeMonitorPreview()"></div>
+        <div class="custom-monitor-modal-dialog">
+            <div class="custom-monitor-modal-content">
+                <!-- Header -->
+                <div class="modal-header py-3 px-4 border-0 d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid rgba(255,255,255,0.08);">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-warning text-dark px-2.5 py-1 fw-bold fs-12">
                             <i class="feather-tv me-1"></i> MONITOR PREVIEW
@@ -263,80 +321,117 @@
                         <a href="#" id="btnOpenNewTabPreview" target="_blank" class="btn btn-sm btn-outline-warning">
                             <i class="feather-maximize me-1"></i> To'liq ekranda ochish
                         </a>
-                        <button type="button" class="btn btn-sm btn-light rounded-circle p-2" data-bs-dismiss="modal" aria-label="Close">
+                        <button type="button" class="btn btn-sm btn-light rounded-circle p-2 text-dark" onclick="closeMonitorPreview()" aria-label="Close" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">
                             <i class="feather-x"></i>
                         </button>
                     </div>
                 </div>
+
+                <!-- Body (Iframe) -->
                 <div class="modal-body p-0 position-relative" style="background: #000000; height: 75vh; min-height: 520px;">
-                    <div id="previewLoader" class="position-absolute top-50 start-50 translate-middle text-center text-white">
+                    <div id="previewLoader" class="position-absolute top-50 start-50 translate-middle text-center text-white" style="z-index: 1;">
                         <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;"></div>
-                        <p class="mt-2 text-warning fs-13">Monitor ko'rinishi yuklanmoqda...</p>
+                        <p class="mt-2 text-warning fs-13 mb-0">Monitor ko'rinishi yuklanmoqda...</p>
                     </div>
                     <iframe id="monitorPreviewFrame" src="" class="w-100 h-100 border-0 position-relative" style="z-index: 2; opacity: 0; transition: opacity 0.3s ease;"></iframe>
                 </div>
-                <div class="modal-footer py-2 px-4 border-0 d-flex justify-content-between align-items-center" style="background: #0f172a;">
+
+                <!-- Footer -->
+                <div class="modal-footer py-2 px-4 border-0 d-flex justify-content-between align-items-center" style="background: #0f172a; border-top: 1px solid rgba(255,255,255,0.08);">
                     <small class="text-white-50 fs-12">
                         <i class="feather-info me-1 text-warning"></i> Ushbu oyna katta monitorda (/brith) xodimning ramkasi, portreti va tabriknomasi qanday ko'rinishini aniq aks ettiradi.
                     </small>
-                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                    <button type="button" class="btn btn-sm btn-secondary px-3" onclick="closeMonitorPreview()">Yopish</button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- [ Monitor Preview Modal ] end -->
+    <!-- [ Monitor Preview Modal Overlay ] end -->
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Monitor Preview Modal Handler
-            const previewModalEl = document.getElementById('monitorPreviewModal');
+        // Global preview modal open/close functions
+        function openMonitorPreview(empName, previewUrl) {
+            const overlay = document.getElementById('monitorPreviewModalOverlay');
             const previewFrame = document.getElementById('monitorPreviewFrame');
             const previewTitle = document.getElementById('monitorPreviewTitle');
             const btnOpenNewTab = document.getElementById('btnOpenNewTabPreview');
             const previewLoader = document.getElementById('previewLoader');
-            let previewModal = null;
 
-            if (previewModalEl && typeof bootstrap !== 'undefined') {
-                previewModal = new bootstrap.Modal(previewModalEl);
+            if (previewTitle) {
+                previewTitle.textContent = empName + " — Monitorda ko'rinishi (/brith)";
+            }
+            if (btnOpenNewTab) {
+                btnOpenNewTab.href = previewUrl;
+            }
+            if (previewLoader) {
+                previewLoader.style.display = 'block';
+            }
+            if (previewFrame) {
+                previewFrame.style.opacity = '0';
+                previewFrame.onload = function() {
+                    if (previewLoader) previewLoader.style.display = 'none';
+                    previewFrame.style.opacity = '1';
+                };
+                previewFrame.src = previewUrl;
+
+                // Fallback: Agar onload kechiksa, 1.2s da baribir ko'rsatish
+                setTimeout(function() {
+                    if (previewLoader) previewLoader.style.display = 'none';
+                    if (previewFrame) previewFrame.style.opacity = '1';
+                }, 1200);
             }
 
+            if (overlay) {
+                overlay.style.display = 'flex';
+                // Trigger reflow for smooth transition
+                void overlay.offsetHeight;
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMonitorPreview() {
+            const overlay = document.getElementById('monitorPreviewModalOverlay');
+            const previewFrame = document.getElementById('monitorPreviewFrame');
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(function() {
+                    overlay.style.display = 'none';
+                    document.body.style.overflow = '';
+                }, 250);
+            }
+            if (previewFrame) {
+                previewFrame.src = '';
+                previewFrame.style.opacity = '0';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal elementini body ga ko'chirish (har qanday stacking context trapdan xalos bo'lish uchun)
+            const overlay = document.getElementById('monitorPreviewModalOverlay');
+            if (overlay && overlay.parentNode !== document.body) {
+                document.body.appendChild(overlay);
+            }
+
+            // Monitor Preview button click listener
             document.querySelectorAll('.btn-monitor-preview').forEach(function(btn) {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
                     const empName = this.getAttribute('data-name');
                     const previewUrl = this.getAttribute('data-url');
-
-                    if (previewTitle) {
-                        previewTitle.textContent = empName + ' — Monitorda ko\'rinishi (/brith)';
-                    }
-                    if (btnOpenNewTab) {
-                        btnOpenNewTab.href = previewUrl;
-                    }
-                    if (previewLoader) {
-                        previewLoader.style.display = 'block';
-                    }
-                    if (previewFrame) {
-                        previewFrame.style.opacity = '0';
-                        previewFrame.src = previewUrl;
-                        previewFrame.onload = function() {
-                            if (previewLoader) previewLoader.style.display = 'none';
-                            previewFrame.style.opacity = '1';
-                        };
-                    }
-
-                    if (previewModal) {
-                        previewModal.show();
-                    }
+                    openMonitorPreview(empName, previewUrl);
                 });
             });
 
-            if (previewModalEl) {
-                previewModalEl.addEventListener('hidden.bs.modal', function() {
-                    if (previewFrame) {
-                        previewFrame.src = '';
-                        previewFrame.style.opacity = '0';
+            // ESC bosilganda modalni yopish
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const ov = document.getElementById('monitorPreviewModalOverlay');
+                    if (ov && ov.classList.contains('active')) {
+                        closeMonitorPreview();
                     }
-                });
-            }
+                }
+            });
 
             const searchInput = document.getElementById('employeeSearchInput');
             const clearBtn = document.getElementById('btnClearSearch');
