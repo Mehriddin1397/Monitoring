@@ -1056,8 +1056,17 @@
     const monthsCy = ['Январ','Феврал','Март','Апрел','Май','Июн','Июл','Август','Сентябр','Октябр','Ноябр','Декабр'];
     const weekdaysCy = ['Якшанба','Душанба','Сешанба','Чоршанба','Пайшанба','Жума','Шанба'];
 
+    const initialLoadedDate = new Date().getDate();
+
     function updateClock() {
         const now = new Date();
+
+        // 1. Yangi kun (00:00) kelsa, avtomatik yangi kunga o'tish (masalan, tug'ilgan kunlarni ochish)
+        if (now.getDate() !== initialLoadedDate) {
+            location.reload(true);
+            return;
+        }
+
         const h = String(now.getHours()).padStart(2, '0');
         const m = String(now.getMinutes()).padStart(2, '0');
         const s = String(now.getSeconds()).padStart(2, '0');
@@ -1466,6 +1475,11 @@
             if (e.key === 'ArrowRight') nextMasterScene();
             if (e.key === 'ArrowLeft') prevMasterScene();
         });
+
+        // Kun davomida yangi guruh rasmlari, yangiliklar va ijod namunalarini olish uchun har 15 daqiqada avtomatik yangilash
+        setInterval(() => {
+            location.reload(true);
+        }, 15 * 60 * 1000);
     });
 </script>
 </body>

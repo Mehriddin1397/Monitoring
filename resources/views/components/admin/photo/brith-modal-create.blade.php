@@ -18,15 +18,21 @@
         <form action="{{ route('group-photos.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="row">
-
-                <div class="col-md-6">
+                <div class="col-12">
                     <div class="form-group mb-4">
-                        <label class="form-label">Rasmi:</label>
-                        <input type="file" name="photo" class="form-control" required>
+                        <label class="form-label fw-bold">Guruh rasmlari (bir nechta tanlash mumkin):</label>
+                        <input type="file" name="photos[]" class="form-control" multiple accept="image/*" required>
+                        <small class="text-muted d-block mt-2">
+                            <i class="feather-info me-1"></i> Bir vaqtning o'zida bir nechta rasmni tanlab yuklashingiz mumkin.
+                            Formatlar: JPG, PNG, WEBP, JFIF, GIF. Maksimal hajm: 25MB gacha.
+                        </small>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary d-inline-block mt-4">Qo'shish</button>
-
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="feather-upload me-2"></i> Rasmlarni yuklash
+                    </button>
+                </div>
             </div>
         </form>
     </div>

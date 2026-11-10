@@ -99,6 +99,7 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
 
     Route::post('/employees/sync-turniket', [\App\Http\Controllers\EmployeeController::class, 'syncTurniket'])->name('employees.sync_turniket');
     Route::post('/employees/{id}/send-sms', [\App\Http\Controllers\EmployeeController::class, 'sendBirthdaySms'])->name('employees.send_sms');
+    Route::get('/employees/{id}/preview', [\App\Http\Controllers\EmployeeController::class, 'preview'])->name('employees.preview');
     Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
     Route::resource('group-photos', \App\Http\Controllers\GroupPhotoController::class)->except(['show', 'edit', 'update']); // Guruh rasmlari uchun faqat ko'rish, qo'shish va o'chirish yetarli
     Route::resource('employee-works', \App\Http\Controllers\EmployeeWorkController::class);

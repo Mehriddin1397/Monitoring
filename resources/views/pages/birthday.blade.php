@@ -796,6 +796,19 @@
                 const current = employees[currentIndex] || employees[0];
                 spawnParticle(current.gender);
             }, 450);
+
+            // 1. Yangi kun (00:00) kirganda avtomatik sahifani yangilash (keyingi kunga o'tish)
+            const initialBirthdayDay = new Date().getDate();
+            setInterval(() => {
+                if (new Date().getDate() !== initialBirthdayDay) {
+                    location.reload(true);
+                }
+            }, 1000);
+
+            // 2. Har 15 daqiqada fon rejimida sahifani yangilash
+            setInterval(() => {
+                location.reload(true);
+            }, 15 * 60 * 1000);
         }
 
         document.addEventListener('keydown', (e) => {

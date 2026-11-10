@@ -359,4 +359,26 @@ class EmployeeController extends Controller
 
         return back()->with('error', "SMS yuborishda xatolik yuz berdi. Iltimos Eskiz tizimi yoki raqamni tekshiring.");
     }
+
+    /**
+     * 9. Xodimning katta monitorda (/brith) qanday ko'rinishini oldindan ko'rish (Preview)
+     */
+    public function preview($id)
+    {
+        $employee = Employee::findOrFail($id);
+        $menThemes = ['men_classic', 'men_diplomat', 'men_zafar'];
+        $womenThemes = ['women_rose', 'women_emerald', 'women_pearl'];
+        $isFemale = ($employee->gender === 'female');
+        $defaultList = $isFemale ? $womenThemes : $menThemes;
+
+        if (empty($employee->theme) || $employee->theme === 'random' || in_array($employee->theme, ['gold', 'sapphire', 'emerald', 'ruby'])) {
+            $employee->resolved_theme = $defaultList[0];
+        } else {
+            $employee->resolved_theme = $employee->theme;
+        }
+
+        $birthdayEmployees = collect([$employee]);
+
+        return view('pages.birthday', compact('birthdayEmployees'));
+    }
 }

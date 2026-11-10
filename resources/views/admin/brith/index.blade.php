@@ -189,6 +189,14 @@
                                                             </button>
                                                         </form>
                                                     @endif
+                                                    <button type="button" 
+                                                            class="avatar-text avatar-md text-info border-0 bg-transparent p-0 btn-monitor-preview"
+                                                            data-id="{{ $employee->id }}"
+                                                            data-name="{{ $employee->full_name }}"
+                                                            data-url="{{ route('employees.preview', $employee->id) }}"
+                                                            title="Katta monitorda (/brith) qanday ko'rinishini tekshirish">
+                                                        <i class="feather-tv"></i>
+                                                    </button>
                                                     <a href="javascript:void(0)" 
                                                        class="avatar-text avatar-md text-primary btn-edit-employee"
                                                        data-id="{{ $employee->id }}"
@@ -238,8 +246,98 @@
     @include('components.admin.brith.brith-modal-create')
     @include('components.admin.brith.brith-modal-edit')
 
+    <!-- [ Monitor Preview Modal ] start -->
+    <div class="modal fade" id="monitorPreviewModal" tabindex="-1" aria-labelledby="monitorPreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 95vw; width: 1280px;">
+            <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 18px; background: #0c101c;">
+                <div class="modal-header py-3 px-4 border-0 d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-warning text-dark px-2.5 py-1 fw-bold fs-12">
+                            <i class="feather-tv me-1"></i> MONITOR PREVIEW
+                        </span>
+                        <h5 class="modal-title text-white fw-bold fs-16 mb-0" id="monitorPreviewTitle">
+                            Xodim monitorida ko'rinishi
+                        </h5>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="#" id="btnOpenNewTabPreview" target="_blank" class="btn btn-sm btn-outline-warning">
+                            <i class="feather-maximize me-1"></i> To'liq ekranda ochish
+                        </a>
+                        <button type="button" class="btn btn-sm btn-light rounded-circle p-2" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="feather-x"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body p-0 position-relative" style="background: #000000; height: 75vh; min-height: 520px;">
+                    <div id="previewLoader" class="position-absolute top-50 start-50 translate-middle text-center text-white">
+                        <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;"></div>
+                        <p class="mt-2 text-warning fs-13">Monitor ko'rinishi yuklanmoqda...</p>
+                    </div>
+                    <iframe id="monitorPreviewFrame" src="" class="w-100 h-100 border-0 position-relative" style="z-index: 2; opacity: 0; transition: opacity 0.3s ease;"></iframe>
+                </div>
+                <div class="modal-footer py-2 px-4 border-0 d-flex justify-content-between align-items-center" style="background: #0f172a;">
+                    <small class="text-white-50 fs-12">
+                        <i class="feather-info me-1 text-warning"></i> Ushbu oyna katta monitorda (/brith) xodimning ramkasi, portreti va tabriknomasi qanday ko'rinishini aniq aks ettiradi.
+                    </small>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Monitor Preview Modal ] end -->
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Monitor Preview Modal Handler
+            const previewModalEl = document.getElementById('monitorPreviewModal');
+            const previewFrame = document.getElementById('monitorPreviewFrame');
+            const previewTitle = document.getElementById('monitorPreviewTitle');
+            const btnOpenNewTab = document.getElementById('btnOpenNewTabPreview');
+            const previewLoader = document.getElementById('previewLoader');
+            let previewModal = null;
+
+            if (previewModalEl && typeof bootstrap !== 'undefined') {
+                previewModal = new bootstrap.Modal(previewModalEl);
+            }
+
+            document.querySelectorAll('.btn-monitor-preview').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const empName = this.getAttribute('data-name');
+                    const previewUrl = this.getAttribute('data-url');
+
+                    if (previewTitle) {
+                        previewTitle.textContent = empName + ' — Monitorda ko\'rinishi (/brith)';
+                    }
+                    if (btnOpenNewTab) {
+                        btnOpenNewTab.href = previewUrl;
+                    }
+                    if (previewLoader) {
+                        previewLoader.style.display = 'block';
+                    }
+                    if (previewFrame) {
+                        previewFrame.style.opacity = '0';
+                        previewFrame.src = previewUrl;
+                        previewFrame.onload = function() {
+                            if (previewLoader) previewLoader.style.display = 'none';
+                            previewFrame.style.opacity = '1';
+                        };
+                    }
+
+                    if (previewModal) {
+                        previewModal.show();
+                    }
+                });
+            });
+
+            if (previewModalEl) {
+                previewModalEl.addEventListener('hidden.bs.modal', function() {
+                    if (previewFrame) {
+                        previewFrame.src = '';
+                        previewFrame.style.opacity = '0';
+                    }
+                });
+            }
+
             const searchInput = document.getElementById('employeeSearchInput');
             const clearBtn = document.getElementById('btnClearSearch');
             const countEl = document.getElementById('visibleEmployeeCount');
