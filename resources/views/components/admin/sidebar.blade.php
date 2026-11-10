@@ -211,6 +211,32 @@
                 </li>
 
                 {{-- ======================================================== --}}
+                {{-- МУСТАҚИЛ ИЗЛАНУВЧИЛАР (АДМИН ВА КОТИБ УЧУН)              --}}
+                {{-- ======================================================== --}}
+                @if (in_array(auth()->user()->role, ['admin', 'kotib']))
+                    <li class="nxl-item nxl-caption">
+                        <label>Илмий изланувчилар</label>
+                    </li>
+                    <li class="nxl-item nxl-hasmenu {{ request()->routeIs('admin.izlanuvchilar.*') ? 'active nxl-trigger' : '' }}">
+                        <a href="javascript:void(0);" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-award"></i></span>
+                            <span class="nxl-mtext">Мустақил изланувчилар</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                        </a>
+                        <ul class="nxl-submenu">
+                            <li class="nxl-item {{ request()->routeIs('admin.izlanuvchilar.dashboard') ? 'active' : '' }}">
+                                <a class="nxl-link" href="{{ route('admin.izlanuvchilar.dashboard') }}">📊 Кўрсаткичлар (Панел)</a>
+                            </li>
+                            <li class="nxl-item {{ request()->routeIs('admin.izlanuvchilar.researchers') ? 'active' : '' }}">
+                                <a class="nxl-link" href="{{ route('admin.izlanuvchilar.researchers') }}">👨‍🎓 Изланувчилар рўйхати</a>
+                            </li>
+                            <li class="nxl-item {{ request()->routeIs('admin.izlanuvchilar.tasks') || request()->routeIs('admin.izlanuvchilar.tasks.detail') ? 'active' : '' }}">
+                                <a class="nxl-link" href="{{ route('admin.izlanuvchilar.tasks') }}">📑 Кўриб чиқиш (Вазифалар)</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
+                {{-- ======================================================== --}}
                 {{-- 3. ХАВФСИЗЛИК ВА МОНИТОРИНГ (АДМИН ВА КАДР УЧУН)         --}}
                 {{-- ======================================================== --}}
                 @auth

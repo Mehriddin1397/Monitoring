@@ -142,6 +142,17 @@ Route::middleware(['auth', 'last.activity', 'ip.restrict'])->prefix('admin')->gr
         Route::get('/live-stats', [\App\Http\Controllers\TurniketController::class, 'liveStats'])->name('live_stats');
     });
 
+    // Mustaqil izlanuvchilar monitoringi va hujjatlarni ko'rib chiqish (Administrator va Kotib uchun)
+    Route::middleware('izlanuvchi.access')->prefix('izlanuvchilar')->name('admin.izlanuvchilar.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\IzlanuvchiController::class, 'dashboard'])->name('dashboard');
+        Route::get('/researchers', [\App\Http\Controllers\IzlanuvchiController::class, 'researchers'])->name('researchers');
+        Route::get('/tasks', [\App\Http\Controllers\IzlanuvchiController::class, 'tasks'])->name('tasks');
+        Route::get('/tasks/{id}', [\App\Http\Controllers\IzlanuvchiController::class, 'taskDetail'])->name('tasks.detail');
+        Route::get('/documents/{id}/download', [\App\Http\Controllers\IzlanuvchiController::class, 'download'])->name('documents.download');
+        Route::post('/tasks/{id}/approve', [\App\Http\Controllers\IzlanuvchiController::class, 'approve'])->name('tasks.approve');
+        Route::post('/tasks/{id}/reject', [\App\Http\Controllers\IzlanuvchiController::class, 'reject'])->name('tasks.reject');
+    });
+
     // Ichki muloqot va hujjat almashish (Chat)
     Route::prefix('chat')->name('chat.')->group(function () {
         Route::get('/', [\App\Http\Controllers\ChatController::class, 'index'])->name('index');

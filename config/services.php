@@ -55,6 +55,11 @@ return [
         'timeout'  => (int) env('TURNIKET_TIMEOUT', 6),
     ],
 
-
+    'izlanuvchi' => [
+        'base_url'    => env('IZLANUVCHI_API_URL', 'http://192.168.40.104/api/v1'),
+        'api_token'   => env('IZLANUVCHI_API_TOKEN', 'kti_mi_secret_token_2026_xodimlar_kotib_key'),
+        'staff_phone' => env('IZLANUVCHI_STAFF_PHONE', '+998937983107'),
+        'timeout'     => (int) env('IZLANUVCHI_TIMEOUT', 10),
+    ],
 
 ];

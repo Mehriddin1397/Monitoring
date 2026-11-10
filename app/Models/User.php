@@ -82,6 +82,11 @@ class User extends Authenticatable
         return in_array($this->role, ['admin', 'kadr']);
     }
 
+    public function canViewIzlanuvchi(): bool
+    {
+        return in_array($this->role, ['admin', 'kotib']);
+    }
+
     public function canScoreArticles(): bool
     {
         return in_array($this->role, ['admin', 'kotib', 'boshliq']) || in_array($this->id, [59, 2]);
