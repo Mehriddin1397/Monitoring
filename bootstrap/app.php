@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'cctv.access' => \App\Http\Middleware\CctvAccessMiddleware::class,
@@ -25,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->web(append: [
             \App\Http\Middleware\CheckTaskStatus::class,
+            \App\Http\Middleware\SecurityHeadersMiddleware::class,
         ]);
 
 
